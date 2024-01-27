@@ -1,4 +1,5 @@
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 export default function Home() {
@@ -8,12 +9,13 @@ export default function Home() {
         Welcome to <span className='text-blue-500'>Psicoreinventar</span>
       </h1>
       <div className='buttons-wrapper space-x-4'>
-        <Button>
-          <Link href='/register'>Sign up</Link>
-        </Button>
-        <Button>
-          <Link href='/login'>Login</Link>
-        </Button>
+        <Link href='/register' className={cn(buttonVariants({ size: 'sm' }))}>
+          Sign up
+        </Link>
+
+        <Link href='/login' className={cn(buttonVariants({ size: 'sm' }))}>
+          Login
+        </Link>
       </div>
     </main>
   );

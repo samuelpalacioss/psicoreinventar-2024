@@ -27,14 +27,6 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 enum Role {
   patient
   doctor
@@ -59,7 +51,6 @@ model User {
   doctorEducation      String?
   // Relationships
   accounts             Account[]
-  sessions             Session[]
   doctorAppointments   Appointment[] @relation("doctorAppointments")
   patientAppointments  Appointment[] @relation("patientAppointments")
 }
