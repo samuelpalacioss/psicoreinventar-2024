@@ -69,7 +69,6 @@ export default function SignupForm() {
 
     if (!res.ok) {
       console.error('Registration failed');
-      // return;
     } else {
       console.log('Successfully registered');
       router.push('/login');
@@ -165,7 +164,7 @@ export default function SignupForm() {
                 className='gap-2'
                 onClick={() => {
                   setIsGoogleLoading(true);
-                  signIn('google', { callbackUrl: '/admin' });
+                  signIn('google', { callbackUrl: '/dashboard' });
                 }}
               >
                 {isGoogleLoading ? (
@@ -201,7 +200,7 @@ export default function SignupForm() {
                       <FormControl>
                         <Input placeholder='John Doe' {...field} />
                       </FormControl>
-                      <FormMessage className='text-[0.8rem]' />
+                      <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                     </FormItem>
                   )}
                 />
@@ -214,7 +213,7 @@ export default function SignupForm() {
                       <FormControl>
                         <Input type='email' placeholder='jdoe@gmail.com' {...field} />
                       </FormControl>
-                      <FormMessage className='text-[0.8rem]' />
+                      <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                     </FormItem>
                   )}
                 />
@@ -227,7 +226,7 @@ export default function SignupForm() {
                       <FormControl>
                         <Input type='password' placeholder='********' {...field} />
                       </FormControl>
-                      <FormMessage className='text-[0.8rem]' />
+                      <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                     </FormItem>
                   )}
                 />
@@ -240,7 +239,7 @@ export default function SignupForm() {
                       <FormControl>
                         <Input type='password' placeholder='********' {...field} />
                       </FormControl>
-                      <FormMessage className='text-[0.8rem]' />
+                      <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                     </FormItem>
                   )}
                 />
