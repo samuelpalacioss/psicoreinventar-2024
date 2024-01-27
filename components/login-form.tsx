@@ -60,12 +60,12 @@ export default function LoginForm() {
 
     console.log(res);
 
-    // if (res?.error) {
-    //   setCredentialsError('Invalid credentials');
-    //   console.log(res.error);
-    // } else {
-    //   router.push('/dashboard');
-    // }
+    if (res?.error) {
+      setCredentialsError('Invalid credentials');
+      console.log(res.error);
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   return (

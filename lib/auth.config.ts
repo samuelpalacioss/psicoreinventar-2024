@@ -1,10 +1,15 @@
+import { type Session, type User } from 'next-auth';
 import type { NextAuthConfig } from 'next-auth';
 import bcrypt from 'bcrypt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/lib/db';
+import type { JWT } from 'next-auth/jwt';
 
 export default {
+  pages: {
+    signIn: '/login',
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -78,18 +83,20 @@ export default {
   //   },
   // },
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; user?: User; token?: JWT }) {
       if (token) {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture;
         session.user.role = token.role;
         session.user.id = token.id;
-        // session.user.stripeCustomerId = token.stripeCustomerId;
+        session.user.stripeCustomerId = token.stripeCustomerId;
       }
-      return session;
+      return session as Session;
     },
     async jwt({ token, user, account }) {
+      // if (account?.provider === 'google' && user)
+
       const dbUser = await prisma.user.findFirst({
         where: {
           email: token.email,
@@ -98,7 +105,7 @@ export default {
 
       if (!dbUser) {
         if (user) {
-          token.id = user?.id;
+          token.id = user?.id as string;
         }
         return token;
       }
@@ -109,8 +116,8 @@ export default {
         email: dbUser.email,
         picture: dbUser.image,
         role: dbUser.role,
-        // stripeCustomerId: dbUser.stripeCustomerId,
-      };
+        stripeCustomerId: dbUser.stripeCustomerId,
+      } as JWT;
     },
   },
 } satisfies NextAuthConfig;

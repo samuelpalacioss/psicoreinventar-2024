@@ -1,8 +1,11 @@
 import NextAuth, { DefaultSession } from 'next-auth';
 import { DefaultJWT } from '@auth/core/jwt';
+import { Role } from '@prisma/client';
+
+type UserId = string;
 
 declare module 'next-auth' {
-  // Extend session to hold the access_token
+  // Extend session to hold role
   interface Session {
     user: User & {
       id: UserId;
@@ -10,8 +13,10 @@ declare module 'next-auth' {
       stripeCustomerId: string;
     };
   }
+}
 
-  // Extend token to hold the access_token before it gets put into session
+declare module 'next-auth/jwt' {
+  /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     id: UserId;
     role: Role;
