@@ -5,8 +5,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/lib/db';
 import type { JWT } from 'next-auth/jwt';
-import { Role } from '@prisma/client';
 import { getUserByEmail } from './hooks/user';
+import { stripe } from './lib/stripe';
 
 export default {
   pages: {
@@ -59,32 +59,35 @@ export default {
           email: user.email,
           image: user.image,
           role: user.role,
-          stripeCustomerId: user.stripeCustomerId,
+          stripeCustomerId: user.stripeCustomerId || 'lol',
         };
       },
     }),
   ],
-  // events: {
-  //   createUser: async ({ user }) => {
-  //     // Create a customer for the user in Stripe
-  //     if (user.name && user.email) {
-  //       const customer = await stripe.customers.create({
-  //         email: user.email,
-  //         name: user.name,
-  //       });
+  //! STRIPE CUSTOMER ID ONLY BEING ADDED TO ACCOUNTS CREATED WITH GOOGLE PROVIDER
+  events: {
+    createUser: async ({ user }) => {
+      // 1. Create a customer in Stripe
+      if (user.name && user.email) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: user.name,
+        });
 
-  //       // Update prisma user with the stripe customer id
-  //       await prisma.user.update({
-  //         where: {
-  //           id: user.id,
-  //         },
-  //         data: {
-  //           stripeCustomerId: customer.id,
-  //         },
-  //       });
-  //     }
-  //   },
-  // },
+        console.log('User created in stripe');
+
+        // 2. Update the user in Prisma with the Stripe customer id
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            stripeCustomerId: customer.id,
+          },
+        });
+      }
+    },
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const { pathname, search } = nextUrl;
@@ -122,15 +125,9 @@ export default {
           ...token,
           role: user.role,
           // If it's null, set it to an empty string
-          stripeCustomerId: user.stripeCustomerId || '',
+          stripeCustomerId: user.stripeCustomerId!,
         };
       }
-
-      console.log('jwt callback', {
-        token,
-        user,
-        session,
-      });
       return token;
     },
     async session({ session, token, user }: { session: Session; token?: JWT; user?: User }) {

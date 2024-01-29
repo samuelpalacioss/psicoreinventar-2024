@@ -5,20 +5,21 @@ import authConfig from '@/auth.config';
 import { Role } from '@prisma/client';
 import type { Adapter } from '@auth/core/adapters';
 
+//* Augment the default session, user & JWT Token to include role and stripeCustomerId
 declare module 'next-auth' {
   interface Session {
     user: User & {
       role: Role;
-      stripeCustomerId: string | null;
+      stripeCustomerId: string;
     };
     token: {
       role: Role;
-      stripeCustomerId: string | null;
+      stripeCustomerId: string;
     };
   }
   interface User {
     role: Role;
-    stripeCustomerId: string | null;
+    stripeCustomerId: string;
   }
 }
 
