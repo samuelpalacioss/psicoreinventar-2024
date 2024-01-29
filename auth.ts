@@ -1,27 +1,29 @@
 import NextAuth, { User } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/db';
-import authConfig from '@/lib/auth.config';
-
+import authConfig from '@/auth.config';
 import { Role } from '@prisma/client';
-
-type UserId = string;
+import type { Adapter } from '@auth/core/adapters';
 
 declare module 'next-auth' {
-  // Extend session to hold role
   interface Session {
     user: User & {
-      id: UserId;
       role: Role;
-      stripeCustomerId: string;
+      stripeCustomerId: string | null;
     };
+    token: {
+      role: Role;
+      stripeCustomerId: string | null;
+    };
+  }
+  interface User {
+    role: Role;
+    stripeCustomerId: string | null;
   }
 }
 
 declare module 'next-auth/jwt' {
-  /* Returned by the `jwt` callback and `auth` */
   interface JWT {
-    id: UserId;
     role: Role;
     stripeCustomerId: string;
   }
@@ -32,8 +34,8 @@ export const {
   auth,
   signIn,
 } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   session: { strategy: 'jwt' },
-  secret: process.env.AUTH_SECRET,
+  // secret: process.env.AUTH_SECRET,
   ...authConfig,
 });

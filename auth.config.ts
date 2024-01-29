@@ -5,6 +5,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import prisma from '@/lib/db';
 import type { JWT } from 'next-auth/jwt';
+import { Role } from '@prisma/client';
+import { getUserByEmail } from './hooks/user';
 
 export default {
   pages: {
@@ -26,6 +28,7 @@ export default {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        // If not credentials are provided, return null to indicate no user logged in
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -56,7 +59,7 @@ export default {
           email: user.email,
           image: user.image,
           role: user.role,
-          // stripeCustomerId: user.stripeCustomerId,
+          stripeCustomerId: user.stripeCustomerId,
         };
       },
     }),
@@ -108,62 +111,40 @@ export default {
       // Don't redirect if on an unprotected page, or if logged in and is on a protected page
       return true;
     },
-    async session({ session, token }: { session: Session; user?: User; token?: JWT }) {
-      if (token) {
-        if (token.sub && session.user) {
-          session.user.id = token.sub;
-        }
+    async jwt({ token, user, session }) {
+      const existingUser = await getUserByEmail(token?.email as string);
 
-        if (token.role && session.user) {
-          session.user.role = token.role as UserRole;
-        }
+      // If no user exists
+      if (!existingUser) return token;
 
-        if (session.user) {
-          session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
-        }
-
-        if (session.user) {
-          session.user.name = token.name;
-          session.user.email = token.email;
-          session.user.isOAuth = token.isOAuth as boolean;
-        }
-
-        return session;
+      if (user) {
+        return {
+          ...token,
+          role: user.role,
+          // If it's null, set it to an empty string
+          stripeCustomerId: user.stripeCustomerId || '',
+        };
       }
+
+      console.log('jwt callback', {
+        token,
+        user,
+        session,
+      });
+      return token;
     },
-    // async session({ session, token }: { session: Session; user?: User; token?: JWT }) {
-    //   if (token) {
-    //     session.user.name = token.name;
-    //     session.user.email = token.email;
-    //     session.user.image = token.picture;
-    //     session.user.role = token.role;
-    //     session.user.id = token.id;
-    //     session.user.stripeCustomerId = token.stripeCustomerId;
-    //   }
-    //   return session as Session;
-    // },
-    // async jwt({ token, user }) {
-    //   const dbUser = await prisma.user.findFirst({
-    //     where: {
-    //       email: token.email,
-    //     },
-    //   });
-
-    //   if (!dbUser) {
-    //     if (user) {
-    //       token.id = user?.id as string;
-    //     }
-    //     return token;
-    //   }
-
-    //   return {
-    //     id: dbUser.id,
-    //     name: dbUser.name,
-    //     email: dbUser.email,
-    //     picture: dbUser.image,
-    //     role: dbUser.role,
-    //     stripeCustomerId: dbUser.stripeCustomerId,
-    //   } as JWT;
-    // },
+    async session({ session, token, user }: { session: Session; token?: JWT; user?: User }) {
+      if (token) {
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            role: token.role,
+            stripeCustomerId: token.stripeCustomerId,
+          },
+        };
+      }
+      return session;
+    },
   },
 } satisfies NextAuthConfig;
