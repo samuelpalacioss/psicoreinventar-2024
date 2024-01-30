@@ -53,6 +53,28 @@ export default {
           return null;
         }
 
+        //* Create a customer in stripe for the user (if not already created). This works only for the (credentialsProvider)
+        //* This is created before the user is logged in for the first time
+        // Create a customer in Stripe
+        if (user.name && user.email && !user.stripeCustomerId) {
+          const customer = await stripe.customers.create({
+            email: user.email,
+            name: user.name,
+          });
+
+          console.log('User created in stripe');
+
+          // 2. Update the user in Prisma with the Stripe customer id
+          await prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              stripeCustomerId: customer.id,
+            },
+          });
+        }
+
         return {
           id: user.id,
           name: user.name,
@@ -64,8 +86,8 @@ export default {
       },
     }),
   ],
-  //! STRIPE CUSTOMER ID ONLY BEING ADDED TO ACCOUNTS CREATED WITH GOOGLE PROVIDER
   events: {
+    //* Create a customer in stripe for the user. This works only for the google provider
     createUser: async ({ user }) => {
       // 1. Create a customer in Stripe
       if (user.name && user.email) {
@@ -128,6 +150,7 @@ export default {
           stripeCustomerId: user.stripeCustomerId!,
         };
       }
+
       return token;
     },
     async session({ session, token, user }: { session: Session; token?: JWT; user?: User }) {
