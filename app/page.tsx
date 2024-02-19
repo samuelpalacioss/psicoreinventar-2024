@@ -15,9 +15,10 @@ export default function Home() {
                   Wellness Starts With Your Mental Health
                 </h1>
                 <div className='mt-6 max-w-xl'>
-                  <p className='text-md leading-8 text-gray-600 max-w-md lg:max-w-full'>
-                    We seek to improve people's quality of life through the delivery of
-                    comprehensive, personalized mental, emotional and behavioral health services.
+                  <p className='text-md leading-7 text-gray-600 max-w-md lg:max-w-full'>
+                    Discover the gateway to a fulfilling life with our focused approach to mental
+                    well-being. From personalized support to comprehensive strategies, we empower
+                    you to prioritize your mental health for a brighter future.
                   </p>
                   <div className='mt-10 flex items-center gap-x-6'>
                     <a
