@@ -105,7 +105,7 @@ export default function Home() {
                       Get started
                     </Link>
                     <Link
-                      href='/'
+                      href='/login'
                       className={cn(buttonVariants({ variant: 'outline' }), 'gap-x-1')}
                     >
                       Learn more{' '}
