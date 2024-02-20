@@ -8,18 +8,18 @@ import { CircleBackground } from '@/components/circle-background';
 
 const features = [
   {
-    name: '1. Register and Login',
+    name: 'Register and Login',
     description: 'Sign up with your details and log in to access our services.',
     icon: InboxIcon,
   },
   {
-    name: '2. Book Your Session',
+    name: 'Book Your Session',
     description:
       'Choose the type of session you need, pick your preferred psychologist, and pick a suitable session time.',
     icon: UsersIcon,
   },
   {
-    name: '3. Start Your Therapy Journey',
+    name: 'Start Your Therapy Journey',
     description:
       'Complete your payment and your appointment will be confirmed. Begin your journey towards mental well-being',
     icon: TrashIcon,
@@ -81,7 +81,7 @@ export default function Home() {
   return (
     <>
       <main>
-        <div className='bg-gradient-to-b from-indigo-100/20 pt-14'>
+        <div className='pt-14'>
           <div className='mx-auto max-w-7xl px-6 py-16 sm:py-28 lg:px-8'>
             <div className=' gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center'>
               <div className='w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl'>
@@ -131,14 +131,14 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <div className='wrapper bg-gradient-to-b from-indigo-100/20 '>
+      <div className='wrapper'>
         <section id='features' className='py-24 sm:py-32'>
           <div className='mx-auto max-w-7xl px-6 lg:px-8'>
             <div className='max-w-2xl lg:mx-0'>
-              <h2 className='text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl'>
+              <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                 Easy Booking Process
               </h2>
-              <p className='mt-6 text-md leading-7 text-gray-600'>
+              <p className='mt-6 text-lg leading-7 text-gray-600'>
                 Quickly book your therapy session online. Choose your psychologist, session type,
                 and time, then pay securely. Prioritize your mental health effortlessly.
               </p>
@@ -164,15 +164,22 @@ export default function Home() {
         </section>
         <section id='testimonials' className='mt-32 sm:mt-40'>
           <div className='mx-auto max-w-7xl px-6 lg:px-8'>
-            <h3 className='text-2xl font-semibold leading-8 tracking-tight text-indigo-600'>
-              Testimonials
-            </h3>
-            <p className='mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6'>
-              We have worked with thousands of amazing people
-            </p>
+            <div className='testimonials-header max-w-xl mb-6'>
+              <h3 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
+                Testimonials
+              </h3>
+              <p className='mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-'>
+                Insights into Their Journey
+              </p>
+            </div>
             <div className='md:grid grid-cols-3 max-w-5xl gap-y-8 gap-x-14'>
               {testimonials.map((testimonial, i) => (
-                <div className='flex flex-col rounded-2xl text-sm leading-6' key={i}>
+                <div
+                  className={`flex flex-col rounded-2xl text-sm leading-7 ${
+                    i < 3 ? '' : 'hidden md:flex'
+                  }`}
+                  key={i}
+                >
                   <Image
                     alt='Avatar of the testimonial author'
                     src={testimonial.author.imageUrl}
