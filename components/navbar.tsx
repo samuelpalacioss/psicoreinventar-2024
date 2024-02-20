@@ -1,6 +1,7 @@
 'use client';
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -71,26 +72,38 @@ export default function Navbar() {
               </div>
             </div>
 
-            <Disclosure.Panel className='sm:hidden'>
-              <div className='space-y-1 pb-3 pt-2'>
-                <ul>
-                  {navLinks.map((link) => (
-                    <Disclosure.Button
-                      as={Link}
-                      key={link.id}
-                      href={link.path}
-                      className={`block border-l-4 ${
-                        isActive(link.path)
-                          ? 'border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-sm font-medium text-indigo-700'
-                          : 'border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700'
-                      }`}
-                    >
-                      {link.name}
-                    </Disclosure.Button>
-                  ))}
-                </ul>
-              </div>
-            </Disclosure.Panel>
+            <AnimatePresence>
+              {open && (
+                <Disclosure.Panel
+                  as={motion.div}
+                  className='sm:hidden overflow-hidden'
+                  static
+                  initial={{ height: 0 }}
+                  animate={{ height: 'auto' }}
+                  exit={{ height: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className='space-y-1 pb-3 pt-2'>
+                    <ul>
+                      {navLinks.map((link) => (
+                        <Disclosure.Button
+                          as={Link}
+                          key={link.id}
+                          href={link.path}
+                          className={`block border-l-4 ${
+                            isActive(link.path)
+                              ? 'border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-sm font-medium text-indigo-700'
+                              : 'border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                          }`}
+                        >
+                          {link.name}
+                        </Disclosure.Button>
+                      ))}
+                    </ul>
+                  </div>
+                </Disclosure.Panel>
+              )}
+            </AnimatePresence>
           </>
         )}
       </Disclosure>
