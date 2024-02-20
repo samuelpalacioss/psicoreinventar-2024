@@ -25,9 +25,20 @@ export default function Navbar() {
               <div className='flex h-16 justify-between'>
                 <div className='flex'>
                   <div className='flex flex-shrink-0 items-center'>
-                    <Link href={'/'} className='text-lg font-semibold text-indigo-600 pt-1 '>
-                      psicoreinventar
-                    </Link>
+                    {/* If mobile nav open, close it, otherwise simple link */}
+                    {open ? (
+                      <Disclosure.Button
+                        as={Link}
+                        href={'/'}
+                        className='text-lg font-semibold text-indigo-600 pt-1 '
+                      >
+                        psicoreinventar
+                      </Disclosure.Button>
+                    ) : (
+                      <Link href={'/'} className='text-lg font-semibold text-indigo-600 pt-1 '>
+                        psicoreinventar
+                      </Link>
+                    )}
                   </div>
                   <div className='hidden sm:ml-6 sm:flex sm:space-x-8'>
                     {navLinks.map((link) => (
@@ -62,23 +73,10 @@ export default function Navbar() {
 
             <Disclosure.Panel className='sm:hidden'>
               <div className='space-y-1 pb-3 pt-2'>
-                {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700" */}
                 <ul>
-                  {/* <Link
-                  href='/'
-                  className='block border-l-4 border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-sm font-medium text-indigo-700'
-                >
-                  About us
-                </Link>
-                <Link
-                  href='/'
-                  className='block border-l-4 border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700'
-                >
-                  Dashboard
-                </Link> */}
-
                   {navLinks.map((link) => (
-                    <Link
+                    <Disclosure.Button
+                      as={Link}
                       key={link.id}
                       href={link.path}
                       className={`block border-l-4 ${
@@ -88,7 +86,7 @@ export default function Navbar() {
                       }`}
                     >
                       {link.name}
-                    </Link>
+                    </Disclosure.Button>
                   ))}
                 </ul>
               </div>
