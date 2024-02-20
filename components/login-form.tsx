@@ -73,7 +73,7 @@ export default function LoginForm() {
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
         <CardDescription>
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href={'/register'} className='text-blue-500 font-medium'>
             Sign up
           </Link>

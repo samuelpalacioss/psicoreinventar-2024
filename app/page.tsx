@@ -204,8 +204,8 @@ export default function Home() {
                   Start Your Journey to Emotional Well-Being Today
                 </h2>
                 <p className='mt-4 text-md text-slate-200'>
-                  Ready to take a step towards a brighter tomorrow? Let's embark on this journey
-                  together! Click below to start your path towards healing and happiness.
+                  Ready to take a step towards a brighter tomorrow? Let&apos;s embark on this
+                  journey together! Click below to start your path towards healing and happiness.
                 </p>
                 <Link
                   href='/'
