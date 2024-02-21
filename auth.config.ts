@@ -7,6 +7,7 @@ import prisma from '@/lib/db';
 import type { JWT } from 'next-auth/jwt';
 import { getUserByEmail } from './hooks/user';
 import { stripe } from './lib/stripe';
+import { authRoutes, publicRoutes } from './config/routes';
 
 export default {
   pages: {
@@ -114,12 +115,13 @@ export default {
     authorized({ auth, request: { nextUrl } }) {
       const { pathname, search } = nextUrl;
       const isLoggedIn = !!auth?.user;
-      const isOnAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+      // Check if the user is on an auth page
+      const isOnAuthPage = authRoutes.some((page) => pathname.startsWith(page));
 
-      const unProtectedPages = ['/terms', '/privacy-policy']; // Add more here if needed
+      // Check if the user is on an public page
       const isOnUnprotectedPage =
-        pathname === '/' || // The root page '/' is also an unprotected page
-        unProtectedPages.some((page) => pathname.startsWith(page));
+        pathname === '/' || // The root page '/'
+        publicRoutes.some((page) => pathname.startsWith(page));
       const isProtectedPage = !isOnUnprotectedPage;
 
       if (isOnAuthPage) {
