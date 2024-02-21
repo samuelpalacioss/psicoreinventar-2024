@@ -81,15 +81,15 @@ export default function Home() {
   return (
     <>
       <main>
-        <div className='pt-14'>
-          <div className='mx-auto max-w-7xl px-6 py-16 sm:py-28 lg:px-8'>
+        <section id='hero' className='py-20 sm:py-36'>
+          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
             <div className=' gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center'>
               <div className='w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl'>
                 <h1 className='text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl'>
                   Wellness Starts With Your <span className='text-indigo-600'>Mental Health</span>
                 </h1>
                 <div className='mt-6 max-w-xl'>
-                  <p className='text-md leading-7 text-gray-600 max-w-md lg:max-w-full'>
+                  <p className='text-base leading-7 text-gray-600 max-w-md lg:max-w-full'>
                     Discover the gateway to a fulfilling life with our focused approach to mental
                     well-being. From personalized support to comprehensive strategies, we empower
                     you to prioritize your mental health for a brighter future.
@@ -129,41 +129,45 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </main>
       <div className='wrapper'>
-        <section id='features' className='py-24 sm:py-32'>
-          <div className='mx-auto max-w-7xl px-6 lg:px-8'>
+        <section id='features' className='mt-3 py-20 sm:py-24'>
+          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
             <div className='max-w-2xl lg:mx-0'>
               <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                 Easy Booking Process
               </h2>
-              <p className='mt-6 text-lg leading-7 text-gray-600'>
+              <p className='mt-6 text-base leading-7 text-gray-600'>
                 Quickly book your therapy session online. Choose your psychologist, session type,
                 and time, then pay securely. Prioritize your mental health effortlessly.
               </p>
             </div>
-            <div className='mt-16 max-w-2xl sm:mt-20 lg:mt-24 md:max-w-none'>
-              <dl className='grid grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none md:grid-cols-3'>
+            <div className='mt-16 sm:mt-20 lg:mt-24'>
+              {/* md:max-w-2xl  */}
+              <div className='grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3'>
                 {features.map((feature) => (
-                  <div key={feature.name} className='flex flex-col'>
-                    <dt className='text-base font-semibold leading-7 text-gray-900'>
-                      <div className='mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600'>
-                        <feature.icon className='h-6 w-6 text-white' aria-hidden='true' />
-                      </div>
+                  <div
+                    key={feature.name}
+                    className='flex flex-col rounded-2xl border border-gray-200 p-8'
+                  >
+                    <div className='mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600'>
+                      <feature.icon className='h-6 w-6 text-white' aria-hidden='true' />
+                    </div>
+                    <h4 className='text-base font-semibold leading-7 text-gray-900'>
                       {feature.name}
-                    </dt>
-                    <dd className='mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600'>
-                      <p className='flex-auto'>{feature.description}</p>
-                    </dd>
+                    </h4>
+                    <p className='mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600'>
+                      {feature.description}
+                    </p>
                   </div>
                 ))}
-              </dl>
+              </div>
             </div>
           </div>
         </section>
-        <section id='testimonials' className='mt-32 sm:mt-40'>
-          <div className='mx-auto max-w-7xl px-6 lg:px-8'>
+        <section id='testimonials' className='py-20 sm:py-24'>
+          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
             <div className='testimonials-header max-w-xl mb-6'>
               <h3 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
                 Testimonials
@@ -172,10 +176,11 @@ export default function Home() {
                 Insights into Their Journey
               </p>
             </div>
-            <div className='md:grid grid-cols-3 max-w-5xl gap-y-8 gap-x-14'>
+            {/* md:max-w-2xl  */}
+            <div className='grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3'>
               {testimonials.map((testimonial, i) => (
                 <div
-                  className={`flex flex-col rounded-2xl text-sm leading-7 ${
+                  className={`flex flex-col rounded-2xl border border-gray-200 p-8 text-sm leading-7 shadow-md shadow-gray-900/5 ${
                     i < 3 ? '' : 'hidden md:flex'
                   }`}
                   key={i}
@@ -187,9 +192,11 @@ export default function Home() {
                     height={48}
                     width={48}
                   />
-                  <h4 className='font-semibold text-gray-900 mt-1'>{testimonial.author.name}</h4>
+                  <h4 className='font-semibold text-base text-gray-900 mt-1'>
+                    {testimonial.author.name}
+                  </h4>
                   <div className='flex items-center gap-x-1 mt-1'>
-                    {/* Stars rating display */}
+                    {/* Star rating display */}
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <VscStarFull key={i} className='h-4 w-4 text-indigo-600' />
                     ))}
@@ -200,7 +207,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section id='cta' className='mt-32 sm:mt-40'>
+        <section id='cta'>
           <div className='relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl px-4 sm:px-6 lg:px-8'>
             <div className='absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2'>
               <CircleBackground color='#fff' className='animate-spin-slower' />
@@ -210,7 +217,7 @@ export default function Home() {
                 <h2 className='text-3xl font-medium tracking-tight text-white sm:text-4xl'>
                   Start Your Journey to Emotional Well-Being Today
                 </h2>
-                <p className='mt-4 text-md text-slate-200'>
+                <p className='mt-4 text-base text-slate-200'>
                   Ready to take a step towards a brighter tomorrow? Let&apos;s embark on this
                   journey together! Click below to start your path towards healing and happiness.
                 </p>
@@ -240,29 +247,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* <section id='cta' className='relative overflow-hidden bg-indigo-900 py-20 sm:py-28'>
-          <div className='absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2'>
-            <CircleBackground color='#fff' className='animate-spin-slower' />
-          </div>
-          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative'>
-            <div className='mx-auto max-w-md sm:text-center'>
-              <h2 className='text-3xl font-medium tracking-tight text-white sm:text-4xl'>
-                Start Your Journey to Emotional Well-Being Today
-              </h2>
-              <p className='mt-4 text-md text-slate-200'>
-                Ready to take a step towards a brighter tomorrow? Let's embark on this journey
-                together! Click below to start your path towards healing and happiness.
-              </p>
-              <Link href='/' className={cn(buttonVariants({ variant: 'outline' }), 'mt-4 gap-x-1')}>
-                Get started{' '}
-                <span className='font-semibold' aria-hidden='true'>
-                  &rarr;
-                </span>
-              </Link>
-            </div>
-          </div>
-        </section> */}
       </div>
     </>
   );
