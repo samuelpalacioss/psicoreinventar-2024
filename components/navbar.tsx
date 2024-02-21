@@ -1,4 +1,5 @@
 'use client';
+import { cn } from '@/lib/utils';
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,7 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navLinks = [
-  { id: 1, name: 'How it works', path: '/about' },
+  { id: 1, name: 'How it works', path: '#about' },
   { id: 2, name: 'Services', path: '/services' },
   { id: 3, name: 'Specialists', path: '/specialists' },
   { id: 4, name: 'Login', path: '/login' },
@@ -46,11 +47,12 @@ export default function Navbar() {
                       <Link
                         key={link.id}
                         href={link.path}
-                        className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
+                        className={cn(
+                          'inline-flex items-center px-1 pt-1 text-sm font-medium ',
                           isActive(link.path)
                             ? 'text-indigo-500'
                             : 'text-gray-500 hover:text-gray-700'
-                        }`}
+                        )}
                       >
                         {link.name}
                       </Link>
