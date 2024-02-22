@@ -5,12 +5,12 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { buttonVariants } from './ui/button';
 
 const navLinks = [
   { id: 1, name: 'How it works', path: '#about' },
   { id: 2, name: 'Services', path: '/services' },
   { id: 3, name: 'Specialists', path: '/specialists' },
-  { id: 4, name: 'Login', path: '/login' },
 ];
 
 export default function Navbar() {
@@ -23,10 +23,10 @@ export default function Navbar() {
       <Disclosure as='nav' className='bg-white shadow'>
         {({ open }) => (
           <>
-            <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-              <div className='flex h-16 justify-between'>
+            <div className='mx-auto max-w-7xl px-4 md:px-6 lg:px-8'>
+              <div className='flex h-16 items-center justify-between'>
                 <div className='flex'>
-                  <div className='flex flex-shrink-0 items-center'>
+                  <div className='flex flex-shrink-0'>
                     {/* If mobile nav open, close it, otherwise simple link */}
                     {open ? (
                       <Disclosure.Button
@@ -42,7 +42,7 @@ export default function Navbar() {
                       </Link>
                     )}
                   </div>
-                  <div className='hidden sm:ml-6 sm:flex sm:space-x-8'>
+                  <div className='hidden md:ml-6 md:flex md:gap-6'>
                     {navLinks.map((link) => (
                       <Link
                         key={link.id}
@@ -50,8 +50,8 @@ export default function Navbar() {
                         className={cn(
                           'inline-flex items-center px-1 pt-1 text-sm font-medium ',
                           isActive(link.path)
-                            ? 'text-indigo-500'
-                            : 'text-gray-500 hover:text-gray-700'
+                            ? 'text-gray-800'
+                            : 'text-gray-500 transition-colors hover:text-gray-700'
                         )}
                       >
                         {link.name}
@@ -59,9 +59,18 @@ export default function Navbar() {
                     ))}
                   </div>
                 </div>
+                <Link
+                  href='/login'
+                  className={cn(
+                    buttonVariants({ variant: 'default' }),
+                    'hidden md:inline-flex bg-indigo-600'
+                  )}
+                >
+                  Login
+                </Link>
 
-                <div className='-mr-2 flex items-center sm:hidden'>
-                  {/* Mobile menu button */}
+                {/* Mobile menu button*/}
+                <div className='-mr-2 flex items-center md:hidden'>
                   <Disclosure.Button className='inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500'>
                     <span className='sr-only'>Open main menu</span>
                     {open ? (
@@ -73,12 +82,12 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-
+            {/* Mobile menu */}
             <AnimatePresence>
               {open && (
                 <Disclosure.Panel
                   as={motion.div}
-                  className='sm:hidden overflow-hidden'
+                  className='md:hidden overflow-hidden'
                   static
                   initial={{ height: 0 }}
                   animate={{ height: 'auto' }}
@@ -101,6 +110,16 @@ export default function Navbar() {
                           {link.name}
                         </Disclosure.Button>
                       ))}
+                      <Disclosure.Button
+                        as={Link}
+                        href='/login'
+                        className={cn(
+                          buttonVariants({ variant: 'default' }),
+                          'md:inline-flex ml-3 mr-4 my-2 bg-indigo-600'
+                        )}
+                      >
+                        Login
+                      </Disclosure.Button>
                     </ul>
                   </div>
                 </Disclosure.Panel>
