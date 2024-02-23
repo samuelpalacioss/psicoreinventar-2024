@@ -62,7 +62,6 @@ model Product {
   price        Int
   isArchived   Boolean       @default(false)
   time         String
-  active       Boolean       @default(true)
   appointments Appointment[] // Relation to Appointment model
   image        Image[] // Relation to Image model
 }
