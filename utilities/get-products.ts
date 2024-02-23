@@ -1,6 +1,6 @@
 export default async function getProducts() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
     if (!response.ok) {
       throw new Error('Something went wrong');
     }
