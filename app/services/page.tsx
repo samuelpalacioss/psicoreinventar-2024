@@ -20,7 +20,7 @@ const services = [
 ];
 
 export default async function ServicesPage() {
-  // const products = await getProducts();
+  const products = await getProducts();
   return (
     <section className='py-16 sm:py-32'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -31,7 +31,7 @@ export default async function ServicesPage() {
           Book now your therapy session
         </h1>
         <div className='grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
-          {/* {products.length > 0 &&
+          {products.length > 0 &&
             products.map((product: Product) => (
               <div
                 key={product.productId}
@@ -59,7 +59,7 @@ export default async function ServicesPage() {
                   Get started
                 </Link>
               </div>
-            ))} */}
+            ))}
         </div>
       </div>
     </section>
