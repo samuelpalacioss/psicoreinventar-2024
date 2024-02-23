@@ -11,7 +11,7 @@ export async function POST(req: Request, res: Response) {
     const { name, description, isArchived, price, image, time } = body;
 
     //! Check if all fields are filled
-    if (!name || !description || !isArchived || !price || !image || !time) {
+    if (!name || !description || isArchived === null || !price || !image || !time) {
       return NextResponse.json(
         {
           message: 'Please provide all fields',
