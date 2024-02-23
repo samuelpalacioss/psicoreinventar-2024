@@ -60,10 +60,11 @@ model Product {
   name            String        @unique
   description     String
   price           Int
-  image           String
+  isArchived      Boolean       @default(false)
   time            String
   active          Boolean       @default(true)
-  appointments    Appointment[]
+  appointments    Appointment[] // Relation to Appointment model
+  Image           Image[] // Relation to Image model
 }
 
 enum AppointmentStatus {
@@ -80,9 +81,21 @@ model Appointment {
   patientId     String
   stripePriceId String
   productId     String // Stripe product id
+  isPaid        Boolean           @default(false)
   product       Product           @relation(fields: [productId], references: [stripeProductId])
   doctor        User              @relation("doctorAppointments", fields: [doctorId], references: [id])
   patient       User              @relation("patientAppointments", fields: [patientId], references: [stripeCustomerId])
+}
+
+model Image {
+  id        String   @id @default(uuid())
+  productId String // Foreign Key to Product
+  product   Product  @relation(fields: [productId], references: [stripeProductId], onDelete: Cascade)
+  url       String // URL of the image
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
 }
 
 model VerificationToken {
