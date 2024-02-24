@@ -18,7 +18,7 @@ export const patchProductSchema = z.object({
   description: z.string().min(3).max(128).optional(),
   price: z.number().min(1).optional(),
   isArchived: z.boolean().optional(),
-  images: z.string().url().array().optional(),
+  image: z.string().url().optional(),
   time: z.string().min(2).max(12).optional(),
   active: z.boolean().optional(),
 });

@@ -54,13 +54,7 @@ export async function POST(req: Request, res: Response) {
           price: validatedData.data.price,
           priceId: product.default_price as string,
           isArchived: validatedData.data.isArchived,
-          image: {
-            create: [
-              {
-                url: validatedData.data.image,
-              },
-            ],
-          },
+          image: validatedData.data.image,
           time: validatedData.data.time,
         },
       });
@@ -112,9 +106,6 @@ export async function GET(req: Request, res: Response) {
     const products = await prisma.product.findMany({
       where: {
         isArchived: false,
-      },
-      include: {
-        image: true,
       },
     });
     return NextResponse.json(
