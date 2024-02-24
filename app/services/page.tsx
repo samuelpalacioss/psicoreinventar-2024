@@ -2,23 +2,6 @@ import getProducts from '@/utilities/get-products';
 import Link from 'next/link';
 import { Product } from '@/lib/validations/product';
 
-const services = [
-  {
-    id: '1',
-    name: 'Individual therapy',
-    price: 49.99,
-    time: '1h',
-    description: 'Online therapy for one person',
-  },
-  {
-    id: '2',
-    name: 'Couples therapy',
-    price: 79.99,
-    time: '1h',
-    description: 'Online therapy for couples',
-  },
-];
-
 export default async function ServicesPage() {
   const products = await getProducts();
   return (
