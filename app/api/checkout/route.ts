@@ -20,10 +20,11 @@ export async function POST(req: Request, res: Response) {
 
     const body = await req.json();
 
-    const { productId } = body;
+    //* Stripe product id
+    const { stripeId, priceId } = body;
 
     //! Check if all fields are filled
-    if (!productId) {
+    if (!stripeId || !priceId) {
       return NextResponse.json(
         {
           message: 'Please provide all fields',
@@ -36,7 +37,7 @@ export async function POST(req: Request, res: Response) {
 
     const product = await prisma.product.findUnique({
       where: {
-        productId: productId,
+        stripeId: stripeId,
       },
     });
 
@@ -53,7 +54,21 @@ export async function POST(req: Request, res: Response) {
 
     //* Create a Stripe checkout Session.
 
-    const stripeSession = await stripe.checkout.sessions.create({});
+    const stripeSession = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      customer_email: session.user.email as string,
+      metadata: {
+        // dateTime: dateTime,
+        // doctorId: doctorId,
+        patientId: session.user.stripeCustomerId, // Stripe customer id
+        stripePriceId: priceId,
+        productId: stripeId, // Stripe product id
+      },
+      success_url: `http://localhost:3000/success`,
+      cancel_url: `http://localhost:3000`,
+    });
   } catch (error) {
     return NextResponse.json(
       {
