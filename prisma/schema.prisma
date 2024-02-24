@@ -56,10 +56,11 @@ model User {
 }
 
 model Product {
-  productId    String        @id @default(cuid())
+  stripeId     String        @id
   name         String        @unique
   description  String
   price        Int
+  priceId      String        @unique
   isArchived   Boolean       @default(false)
   time         String
   appointments Appointment[] // Relation to Appointment model
@@ -81,7 +82,7 @@ model Appointment {
   stripePriceId String
   productId     String // Stripe product id
   isPaid        Boolean           @default(false)
-  product       Product           @relation(fields: [productId], references: [productId])
+  product       Product           @relation(fields: [productId], references: [stripeId])
   doctor        User              @relation("doctorAppointments", fields: [doctorId], references: [id])
   patient       User              @relation("patientAppointments", fields: [patientId], references: [stripeCustomerId])
 }
@@ -89,7 +90,7 @@ model Appointment {
 model Image {
   id        String   @id @default(uuid())
   productId String // Foreign Key to Product
-  product   Product  @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [stripeId], onDelete: Cascade)
   url       String // URL of the image
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

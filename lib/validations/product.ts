@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
 export const productSchema = z.object({
-  productId: z.string().uuid().optional(),
+  stripeId: z.string().min(10).optional(),
   name: z.string().min(3).max(128),
   description: z.string().min(3).max(128),
   price: z.number().min(1),
+  priceId: z.string().min(10).optional(),
   isArchived: z.boolean().default(false),
   image: z.string().url({ message: 'Invalid url' }),
   time: z.string().min(2).max(12),

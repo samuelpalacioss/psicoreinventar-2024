@@ -28,12 +28,31 @@ export async function POST(req: Request, res: Response) {
     //* If data is valid, create stripe product
 
     if (validatedData.success) {
+      //* Create product on stripe
+      const priceInCents = validatedData.data.price * 100; //* Convert price to cents
+      const productPrice = Math.round(Number(priceInCents.toFixed(2))); //* Round to 2 decimals
+
+      const product = await stripe.products.create({
+        name: validatedData.data.name,
+        description: validatedData.data.description,
+        images: [validatedData.data.image],
+        default_price_data: {
+          currency: 'usd',
+          unit_amount: productPrice, // In cents
+        },
+        metadata: {
+          time: validatedData.data.time, //* Adding time of the session
+        },
+      });
+
       //* Create product on db
-      const product = await prisma.product.create({
+      const newProduct = await prisma.product.create({
         data: {
+          stripeId: product.id,
           name: validatedData.data.name,
           description: validatedData.data.description,
           price: validatedData.data.price,
+          priceId: product.default_price as string,
           isArchived: validatedData.data.isArchived,
           image: {
             create: [
@@ -48,7 +67,7 @@ export async function POST(req: Request, res: Response) {
       return NextResponse.json(
         {
           message: 'Product created successfully',
-          product: product,
+          product: newProduct,
         },
         {
           status: 201,
