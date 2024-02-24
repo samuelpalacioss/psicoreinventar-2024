@@ -55,6 +55,17 @@ export async function POST(req: Request, res: Response) {
         }
       );
     } else {
+      // if (validatedData.error instanceof ZodError) {
+      //   return NextResponse.json(
+      //     {
+      //       message: 'Please provide valid data',
+      //       error: validatedData.error.errors,
+      //     },
+      //     {
+      //       status: 400,
+      //     }
+      //   );
+      // }
       return NextResponse.json(
         {
           message: 'Please provide valid data',

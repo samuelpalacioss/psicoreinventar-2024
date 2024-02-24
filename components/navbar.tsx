@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { buttonVariants } from './ui/button';
 
 const navLinks = [
-  { id: 1, name: 'How it works', path: '#about' },
+  { id: 1, name: 'How it works', path: '/#about' },
   { id: 2, name: 'Services', path: '/services' },
   { id: 3, name: 'Specialists', path: '/specialists' },
 ];
