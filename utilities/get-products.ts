@@ -11,7 +11,7 @@ export default async function getProducts() {
       // console.log(response.status, response.statusText);
       throw new Error(`${response.statusText} - ${response.status}`);
     }
-    const data: Product[] = await response.json();
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error:', error);
