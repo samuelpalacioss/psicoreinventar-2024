@@ -9,7 +9,7 @@ export default async function getProducts() {
     });
     if (!response.ok) {
       // console.log(response.status, response.statusText);
-      throw new Error(response.statusText || 'An error occurred while fetching the products');
+      throw new Error(`${response.statusText} - ${response.status}`);
     }
     const data: Product[] = await response.json();
     return data;
