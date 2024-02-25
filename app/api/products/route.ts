@@ -91,7 +91,7 @@ export async function POST(req: Request, res: Response) {
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong EN PRODUCTOS PAPA',
+        message: 'Something went wrong',
         error: error,
       },
       {
