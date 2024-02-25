@@ -1,5 +1,3 @@
-import { Product } from '@/lib/validations/product';
-
 export default async function getProducts() {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
@@ -8,11 +6,10 @@ export default async function getProducts() {
       },
     });
     if (!response.ok) {
-      // console.log(response.status, response.statusText);
       throw new Error(`${response.statusText} - ${response.status}`);
     }
     const data = await response.json();
-    return data;
+    return data.products;
   } catch (error) {
     console.error('Error:', error);
     throw error;

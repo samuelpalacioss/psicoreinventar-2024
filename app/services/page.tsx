@@ -15,7 +15,7 @@ export default async function ServicesPage() {
           Book now your therapy session
         </h1>
         <div className='grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
-          {products &&
+          {products.length > 0 &&
             products.map((product: Product) => (
               <div
                 key={product.stripeId}
