@@ -8,8 +8,8 @@ export default async function getProducts() {
       },
     });
     if (!response.ok) {
-      console.log(response.status, response.statusText);
-      throw new Error('Something went wrong EN EL FETCH DE PRODUCTOS');
+      // console.log(response.status, response.statusText);
+      throw new Error(response.statusText || 'An error occurred while fetching the products');
     }
     const data: Product[] = await response.json();
     return data;
