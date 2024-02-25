@@ -7,7 +7,7 @@ import SignOutButton from '@/components/sign-out-button';
 
 export default async function DashboardPage() {
   const session = await auth();
-  const products = await getProducts();
+  // const products = await getProducts();
   return (
     <section className='py-16 sm:py-32'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
         <SignOutButton />
 
         <div className='grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
-          {products.map((product: Product) => (
+          {/* {products.map((product: Product) => (
             <div
               key={product.stripeId}
               className='flex flex-col justify-between rounded-3xl bg-white p-8 shadow-xl ring-1 ring-gray-900/10 sm:p-10'
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
                 priceId={product.priceId!}
               />
             </div>
-          ))}
+          ))} */}
         </div>
       </div>
     </section>
