@@ -59,10 +59,10 @@ export async function POST(req: Request, res: Response) {
         data: {
           status: 'pending',
           dateTime: checkoutSession.metadata?.dateTime || '',
-          doctorId: checkoutSession.metadata?.doctorId || '',
+          // doctorId: checkoutSession.metadata?.doctorId || '',
           patientId: checkoutSession.metadata?.patientId!,
-          stripePriceId: checkoutSession.metadata?.stripePriceId!,
           productId: checkoutSession.metadata?.productId!, // Stripe product id
+          stripeSessionId: checkoutSession.id,
         },
       });
 
@@ -89,39 +89,40 @@ export async function POST(req: Request, res: Response) {
         },
       });
 
-      // Send an email to the patient
-      try {
-        const email = await resend.emails.send({
-          from: 'Psicoreinventar <samuelpalaciosdev@gmail.com>',
-          to: patient.email!,
-          subject: 'Thanks for booking a session! This is your receipt',
-          html: ReceiptEmailHtml({
-            date: new Date(),
-            email: patient.email!,
-            appointmentId: appointment.id,
-            product: therapy!,
-          }),
-        });
-        return NextResponse.json(
-          {
-            email,
-          },
-          {
-            status: 200,
-          }
-        );
-      } catch (error) {
-        return NextResponse.json(
-          {
-            error,
-          },
-          {
-            status: 400,
-          }
-        );
-      }
+      // // Send an email to the patient
+      // try {
+      //   const email = await resend.emails.send({
+      //     from: 'Psicoreinventar <samuelpalaciosdev@gmail.com>',
+      //     to: patient.email!,
+      //     subject: 'Thanks for booking a session! This is your receipt',
+      //     html: ReceiptEmailHtml({
+      //       date: new Date(),
+      //       email: patient.email!,
+      //       appointmentId: appointment.id,
+      //       product: therapy!,
+      //     }),
+      //   });
+      //   return NextResponse.json(
+      //     {
+      //       email,
+      //     },
+      //     {
+      //       status: 200,
+      //     }
+      //   );
+      // } catch (error) {
+      //   return NextResponse.json(
+      //     {
+      //       error,
+      //     },
+      //     {
+      //       status: 400,
+      //     }
+      //   );
+      // }
 
       console.log('Checkout session was completed');
+      return new Response(null, { status: 200 });
       break;
     default:
       console.log('Unhandled event type: ' + event.type);

@@ -51,7 +51,7 @@ model User {
   doctorEducation      String?
   // Relationships
   accounts             Account[]
-  doctorAppointments   Appointment[] @relation("doctorAppointments")
+  // doctorAppointments   Appointment[] @relation("doctorAppointments")
   patientAppointments  Appointment[] @relation("patientAppointments")
 }
 
@@ -74,17 +74,17 @@ enum AppointmentStatus {
 }
 
 model Appointment {
-  id            String            @id @default(cuid())
-  status        AppointmentStatus
-  dateTime      String
-  doctorId      String
-  patientId     String
-  stripePriceId String
-  productId     String // Stripe product id
-  isPaid        Boolean           @default(false)
-  product       Product           @relation(fields: [productId], references: [stripeId])
-  doctor        User              @relation("doctorAppointments", fields: [doctorId], references: [id])
-  patient       User              @relation("patientAppointments", fields: [patientId], references: [stripeCustomerId])
+  id              String            @id @default(cuid())
+  status          AppointmentStatus
+  dateTime        String
+  // doctorId      String
+  patientId       String
+  stripeSessionId String            @unique //From which stripe session this appointment was created
+  productId       String // Stripe product id
+  isPaid          Boolean           @default(false)
+  product         Product           @relation(fields: [productId], references: [stripeId])
+  // doctor        User              @relation("doctorAppointments", fields: [doctorId], references: [id])
+  patient         User              @relation("patientAppointments", fields: [patientId], references: [stripeCustomerId])
 }
 
 model VerificationToken {
