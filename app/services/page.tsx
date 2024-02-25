@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { Product } from '@/lib/validations/product';
 
 export default async function ServicesPage() {
-  // const products = await getProducts();
+  const products = await getProducts();
+  console.log(products);
   return (
     <section className='py-16 sm:py-32'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>

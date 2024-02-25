@@ -7,8 +7,8 @@ export const productSchema = z.object({
   price: z.number().min(1),
   priceId: z.string().min(10).optional(),
   isArchived: z.boolean().default(false),
+  time: z.string().min(2).max(8),
   image: z.string().url({ message: 'Invalid url' }),
-  time: z.string().min(2).max(12),
 });
 
 export type Product = z.infer<typeof productSchema>;
