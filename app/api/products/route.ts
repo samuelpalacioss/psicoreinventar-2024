@@ -91,7 +91,7 @@ export async function POST(req: Request, res: Response) {
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong',
+        message: 'Something went wrong EN PRODUCTOS PAPA',
         error: error,
       },
       {
@@ -110,7 +110,6 @@ export async function GET(req: Request, res: Response) {
     });
     return NextResponse.json(
       {
-        message: 'Products fetched successfully',
         products: products,
       },
       {
@@ -120,7 +119,7 @@ export async function GET(req: Request, res: Response) {
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong',
+        message: 'Something went wrong EN PRODUCTOS PAPA',
         error: error,
       },
       {

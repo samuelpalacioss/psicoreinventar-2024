@@ -1,3 +1,5 @@
+import { Product } from '@/lib/validations/product';
+
 export default async function getProducts() {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
@@ -6,10 +8,10 @@ export default async function getProducts() {
       },
     });
     if (!response.ok) {
-      throw new Error('Something went wrong');
+      throw new Error('Something went wrong EN EL FETCH DE PRODUCTOS');
     }
-    const data = await response.json();
-    return data.products;
+    const data: Product[] = await response.json();
+    return data;
   } catch (error) {
     console.error('Error:', error);
     throw error;
