@@ -81,7 +81,7 @@ export async function POST(req: Request, res: Response) {
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong EN CHECKOUT',
+        message: 'Something went wrong',
         error,
       },
       {
