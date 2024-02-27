@@ -25,7 +25,6 @@ interface ReceiptEmailProps {
   date: Date;
   appointmentId: string;
   patient: string;
-  lastFourDigits: string;
   product: Product;
 }
 
@@ -34,7 +33,6 @@ export const ReceiptEmail = ({
   date,
   appointmentId,
   patient,
-  lastFourDigits,
   product,
 }: ReceiptEmailProps) => {
   return (
@@ -105,7 +103,7 @@ export const ReceiptEmail = ({
               </Column>
               <Column style={informationTableColumn} colSpan={2}>
                 <Text style={informationTableLabel}>BILLED TO</Text>
-                <Text style={informationTableValue}>Card ending with {lastFourDigits}</Text>
+                {/* <Text style={informationTableValue}>Card ending with {lastFourDigits}</Text> */}
                 <Text style={informationTableValue}>{patient}</Text>
               </Column>
             </Row>

@@ -51,9 +51,6 @@ export async function POST(req: Request, res: Response) {
       }
     );
   }
-  //@ts-ignore
-  // For some reason it says that the property does not exist but it's not true.
-  const lastFourDigits = stripeSession.payment_intent.payment_method.card.last4 as string;
 
   switch (event.type) {
     case 'checkout.session.completed':
@@ -103,7 +100,6 @@ export async function POST(req: Request, res: Response) {
             email: patient.email!,
             appointmentId: appointment.id,
             patient: patient.name!,
-            lastFourDigits: lastFourDigits,
             product: therapy!,
           }),
         });
