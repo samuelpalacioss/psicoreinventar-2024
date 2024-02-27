@@ -24,10 +24,19 @@ interface ReceiptEmailProps {
   email: string;
   date: Date;
   appointmentId: string;
+  patient: string;
+  lastFourDigits: string;
   product: Product;
 }
 
-export const ReceiptEmail = ({ email, date, appointmentId, product }: ReceiptEmailProps) => {
+export const ReceiptEmail = ({
+  email,
+  date,
+  appointmentId,
+  patient,
+  lastFourDigits,
+  product,
+}: ReceiptEmailProps) => {
   return (
     <Html>
       <Head />
@@ -80,7 +89,7 @@ export const ReceiptEmail = ({ email, date, appointmentId, product }: ReceiptEma
 
                   <Row>
                     <Column style={informationTableColumn}>
-                      <Text style={informationTableLabel}>ORDER ID</Text>
+                      <Text style={informationTableLabel}>APPOINTMENT ID</Text>
                       <Link
                         style={{
                           ...informationTableValue,
@@ -88,15 +97,16 @@ export const ReceiptEmail = ({ email, date, appointmentId, product }: ReceiptEma
                           textDecoration: 'underline',
                         }}
                       >
-                        ML4F5L8522
+                        {appointmentId}
                       </Link>
-                    </Column>
-                    <Column style={informationTableColumn}>
-                      <Text style={informationTableLabel}>APPOINTMENT ID</Text>
-                      <Text style={informationTableValue}>{appointmentId}</Text>
                     </Column>
                   </Row>
                 </Section>
+              </Column>
+              <Column style={informationTableColumn} colSpan={2}>
+                <Text style={informationTableLabel}>BILLED TO</Text>
+                <Text style={informationTableValue}>Card ending with {lastFourDigits}</Text>
+                <Text style={informationTableValue}>{patient}</Text>
               </Column>
             </Row>
           </Section>
@@ -106,7 +116,13 @@ export const ReceiptEmail = ({ email, date, appointmentId, product }: ReceiptEma
           <Section>
             <Row>
               <Column style={{ width: '64px' }}>
-                <Img src={product.image} width='64' height='64' alt='HBO Max' style={productIcon} />
+                <Img
+                  src={product.image}
+                  width='64'
+                  height='64'
+                  alt={product.name}
+                  style={productIcon}
+                />
               </Column>
               <Column style={{ paddingLeft: '22px' }}>
                 <Text style={productTitle}>{product.name}</Text>
@@ -116,13 +132,6 @@ export const ReceiptEmail = ({ email, date, appointmentId, product }: ReceiptEma
                     ? product.description?.slice(0, 50) + '...'
                     : product.description}
                 </Text>
-
-                <Link
-                  href={`${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${appointmentId}`}
-                  style={productLink}
-                >
-                  Download Asset
-                </Link>
               </Column>
 
               <Column style={productPriceWrapper} align='right'>

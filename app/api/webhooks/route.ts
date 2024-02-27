@@ -51,6 +51,9 @@ export async function POST(req: Request, res: Response) {
       }
     );
   }
+  //@ts-ignore
+  // For some reason it says that the property does not exist but it's not true.
+  const lastFourDigits = stripeSession.payment_intent.payment_method.card.last4 as string;
 
   switch (event.type) {
     case 'checkout.session.completed':
@@ -89,37 +92,39 @@ export async function POST(req: Request, res: Response) {
         },
       });
 
-      // // Send an email to the patient
-      // try {
-      //   const email = await resend.emails.send({
-      //     from: 'Psicoreinventar <samuelpalaciosdev@gmail.com>',
-      //     to: patient.email!,
-      //     subject: 'Thanks for booking a session! This is your receipt',
-      //     html: ReceiptEmailHtml({
-      //       date: new Date(),
-      //       email: patient.email!,
-      //       appointmentId: appointment.id,
-      //       product: therapy!,
-      //     }),
-      //   });
-      //   return NextResponse.json(
-      //     {
-      //       email,
-      //     },
-      //     {
-      //       status: 200,
-      //     }
-      //   );
-      // } catch (error) {
-      //   return NextResponse.json(
-      //     {
-      //       error,
-      //     },
-      //     {
-      //       status: 400,
-      //     }
-      //   );
-      // }
+      // Send an email to the patient
+      try {
+        const email = await resend.emails.send({
+          from: 'Psicoreinventar <samuelpalaciosdev@gmail.com>',
+          to: patient.email!,
+          subject: 'Thanks for booking a session! This is your receipt',
+          html: ReceiptEmailHtml({
+            date: new Date(),
+            email: patient.email!,
+            appointmentId: appointment.id,
+            patient: patient.name!,
+            lastFourDigits: lastFourDigits,
+            product: therapy!,
+          }),
+        });
+        return NextResponse.json(
+          {
+            email,
+          },
+          {
+            status: 200,
+          }
+        );
+      } catch (error) {
+        return NextResponse.json(
+          {
+            error,
+          },
+          {
+            status: 400,
+          }
+        );
+      }
 
       console.log('Checkout session was completed');
       return new Response(null, { status: 200 });
