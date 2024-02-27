@@ -113,7 +113,7 @@ export const ReceiptEmail = ({
           </Section>
           <Section>
             <Row>
-              <Column style={{ width: '64px' }}>
+              {/* <Column style={{ width: '64px' }}>
                 <Img
                   src={product.image}
                   width='64'
@@ -121,7 +121,7 @@ export const ReceiptEmail = ({
                   alt={product.name}
                   style={productIcon}
                 />
-              </Column>
+              </Column> */}
               <Column style={{ paddingLeft: '22px' }}>
                 <Text style={productTitle}>{product.name}</Text>
                 <Text style={productDescription}>
@@ -133,7 +133,7 @@ export const ReceiptEmail = ({
               </Column>
 
               <Column style={productPriceWrapper} align='right'>
-                <Text style={productPrice}>{product.price}</Text>
+                <Text style={productPrice}>${product.price}</Text>
               </Column>
             </Row>
           </Section>
@@ -145,7 +145,7 @@ export const ReceiptEmail = ({
               </Column>
               <Column style={productPriceVerticalLine}></Column>
               <Column style={productPriceLargeWrapper}>
-                <Text style={productPriceLarge}>PRECIO {formatPrice(product.price)}</Text>
+                <Text style={productPriceLarge}>${product.price}</Text>
               </Column>
             </Row>
           </Section>
