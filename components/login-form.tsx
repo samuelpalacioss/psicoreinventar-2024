@@ -71,7 +71,7 @@ export default function LoginForm() {
   return (
     <Card className='w-[24rem]'>
       <CardHeader>
-        <CardTitle>Sign in</CardTitle>
+        <CardTitle>Welcome back</CardTitle>
         <CardDescription>
           Don&apos;t have an account?{' '}
           <Link href={'/register'} className='text-blue-500 font-medium'>
