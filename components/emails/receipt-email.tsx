@@ -45,7 +45,12 @@ export const ReceiptEmail = ({
           <Section>
             <Row>
               <Column>
-                <Img src={`/email-sent.png`} width='42' height='42' alt='Psicoreinventar Logo' />
+                <Img
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/email-sent.png`}
+                  width='42'
+                  height='42'
+                  alt='Psicoreinventar Logo'
+                />
               </Column>
 
               <Column align='right' style={tableCell}>
@@ -128,7 +133,7 @@ export const ReceiptEmail = ({
               </Column>
 
               <Column style={productPriceWrapper} align='right'>
-                <Text style={productPrice}> {formatPrice(product.price)}</Text>
+                <Text style={productPrice}>{product.price}</Text>
               </Column>
             </Row>
           </Section>
