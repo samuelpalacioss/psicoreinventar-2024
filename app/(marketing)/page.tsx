@@ -96,7 +96,7 @@ export default function Home() {
                   </p>
                   <div className='mt-10 flex items-center gap-x-6'>
                     <Link
-                      href='/'
+                      href='/login'
                       className={cn(
                         buttonVariants({ variant: 'default' }),
                         'bg-indigo-600 text-white '
@@ -105,7 +105,7 @@ export default function Home() {
                       Get started
                     </Link>
                     <Link
-                      href='/login'
+                      href='/#about'
                       className={cn(buttonVariants({ variant: 'outline' }), 'gap-x-1')}
                     >
                       Learn more{' '}
