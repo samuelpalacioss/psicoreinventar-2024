@@ -46,7 +46,7 @@ export const ReceiptEmail = ({
             <Row>
               <Column>
                 <Img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/email-sent.png`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/static/email-sent.png`}
                   width='42'
                   height='42'
                   alt='Psicoreinventar Logo'
