@@ -43,7 +43,7 @@ export const ReceiptEmail = ({
             <Row>
               <Column>
                 <Img
-                  src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1709082008/psicoreinventar/pig86edg7s66mzilezlu.png`}
+                  src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1709082039/psicoreinventar/jdksucxrqefoxvm7mrki.png`}
                   width='42'
                   height='42'
                   alt='Psicoreinventar Logo'
