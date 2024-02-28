@@ -44,8 +44,8 @@ export const ReceiptEmail = ({
               <Column>
                 <Img
                   src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1709082039/psicoreinventar/jdksucxrqefoxvm7mrki.png`}
-                  width='42'
-                  height='42'
+                  width='86'
+                  height='86'
                   alt='Psicoreinventar Logo'
                 />
               </Column>
@@ -189,7 +189,7 @@ const container = {
 const tableCell = { display: 'table-cell' };
 
 const heading = {
-  fontSize: '28px',
+  fontSize: '18px',
   fontWeight: '300',
   color: '#888888',
 };
