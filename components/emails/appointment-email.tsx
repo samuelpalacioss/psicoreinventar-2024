@@ -1,7 +1,4 @@
-// import { formatPrice } from '../../lib/utils'
-
 import { Product } from '@/lib/validations/product';
-import formatPrice from '@/utilities/format-price';
 import {
   Body,
   Container,
@@ -163,6 +160,8 @@ export const ReceiptEmail = ({
     </Html>
   );
 };
+
+export default ReceiptEmail;
 
 export const ReceiptEmailHtml = (props: ReceiptEmailProps) =>
   render(<ReceiptEmail {...props} />, {

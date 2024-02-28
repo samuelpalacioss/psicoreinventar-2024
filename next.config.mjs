@@ -20,6 +20,14 @@ const nextConfig = {
         port: '',
         pathname: '**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'psicoreinventar.com',
+      },
     ],
   },
 };

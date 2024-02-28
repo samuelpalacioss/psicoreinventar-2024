@@ -4,7 +4,7 @@ import prisma from '@/lib/db';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
-import { ReceiptEmailHtml } from '@/components/emails/receipt-email';
+import { ReceiptEmailHtml } from '@/components/emails/appointment-email';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
