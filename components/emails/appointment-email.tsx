@@ -130,7 +130,7 @@ export const ReceiptEmail = ({
               </Column>
 
               <Column style={productPriceWrapper} align='right'>
-                <Text style={productPrice}>${product.price}</Text>
+                <Text style={productPrice}>${product.price}.99</Text>
               </Column>
             </Row>
           </Section>
@@ -142,7 +142,7 @@ export const ReceiptEmail = ({
               </Column>
               <Column style={productPriceVerticalLine}></Column>
               <Column style={productPriceLargeWrapper}>
-                <Text style={productPriceLarge}>${product.price}</Text>
+                <Text style={productPriceLarge}>${product.price}.99</Text>
               </Column>
             </Row>
           </Section>
