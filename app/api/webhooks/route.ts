@@ -92,7 +92,7 @@ export async function POST(req: Request, res: Response) {
       // Send an email to the patient
       try {
         const email = await resend.emails.send({
-          from: 'Psicoreinventar <no-reply@psicoreinventar.com>',
+          from: 'Psicoreinventar <noreply@psicoreinventar.com>',
           to: patient.email!,
           subject: 'Thanks for booking a session! This is your receipt',
           html: ReceiptEmailHtml({

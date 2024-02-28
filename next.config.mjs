@@ -28,6 +28,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'psicoreinventar.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
     ],
   },
 };
