@@ -3,9 +3,33 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { productSchema } from '@/lib/validations/product';
 import { stripe } from '@/lib/stripe';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, '90 s'),
+});
 
 export async function POST(req: Request, res: Response) {
   try {
+    //* Rate limiter
+    const ip = req.headers.get('x-forwarded-for') ?? '';
+    const { success, pending, reset } = await ratelimit.limit(ip);
+
+    if (!success) {
+      const now = Date.now();
+      const retryAfter = Math.floor((reset - now) / 1000);
+      return NextResponse.json(
+        {
+          message: `Too many requests, please wait ${retryAfter}s`,
+        },
+        {
+          status: 429,
+        }
+      );
+    }
+
     const body = await req.json();
 
     const { name, description, isArchived, price, image, time } = body;
@@ -103,6 +127,24 @@ export async function POST(req: Request, res: Response) {
 
 export async function GET(req: Request, res: Response) {
   try {
+    //* Rate limiter
+
+    const ip = req.headers.get('x-forwarded-for') ?? '';
+    const { success, pending, reset } = await ratelimit.limit(ip);
+
+    if (!success) {
+      const now = Date.now();
+      const retryAfter = Math.floor((reset - now) / 1000);
+      return NextResponse.json(
+        {
+          message: `Too many requests, please wait ${retryAfter}s`,
+        },
+        {
+          status: 429,
+        }
+      );
+    }
+
     const products = await prisma.product.findMany({
       where: {
         isArchived: false,

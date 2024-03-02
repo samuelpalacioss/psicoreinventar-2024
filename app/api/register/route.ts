@@ -2,9 +2,34 @@ import prisma from '@/lib/db';
 import { signUpSchema, signUpType } from '@/lib/validations/auth';
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, '3600 s'),
+});
 
 export async function POST(req: Request, res: Response) {
   try {
+    //* Rate limiter
+    const ip = req.headers.get('x-forwarded-for') ?? '';
+    const { success, pending, reset } = await ratelimit.limit(ip);
+
+    if (!success) {
+      const now = Date.now();
+      const retryAfter = Math.floor((reset - now) / 1000 / 60);
+      // const retryAfterInMinutes = Math.floor((reset - now) / 60000);
+      return NextResponse.json(
+        {
+          message: `Too many requests, please wait ${retryAfter}m`,
+        },
+        {
+          status: 429,
+        }
+      );
+    }
+
     const body = await req.json();
 
     const { name, email, password } = body;
