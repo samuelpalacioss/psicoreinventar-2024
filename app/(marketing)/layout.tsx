@@ -1,4 +1,5 @@
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/main-nav';
+import { marketingConfig } from '@/config/marketing';
 
 export default function MarketingLayout({
   children,
@@ -7,7 +8,7 @@ export default function MarketingLayout({
 }>) {
   return (
     <div className={``}>
-      <Navbar />
+      <Navbar items={marketingConfig.mainNav} shadow={true} />
       {children}
     </div>
   );
