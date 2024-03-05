@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   const session = await auth();
   const products = await getProducts();
   return (
-    <section className='py-16 sm:py-32'>
+    <section className='py-16 sm:py-32 col-span-3 lg:col-span-4 lg:border-l'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <h3 className='text-md font-semibold leading-8 tracking-tight text-indigo-600'>
           Welcome to the secret Dashboard {session?.user?.name} {'  '} {session?.user?.role}
