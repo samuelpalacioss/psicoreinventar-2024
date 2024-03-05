@@ -5,9 +5,7 @@ import { buttonVariants } from './ui/button';
 import { SidebarNavItem } from '@/types';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { CommandIcon } from 'lucide-react';
-
-
+import { Icons } from './icons';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   items: SidebarNavItem[];
@@ -24,19 +22,20 @@ export default function Sidebar({ className, items }: SidebarProps) {
     <nav className={cn('pb-12 hidden lg:block', className)}>
       <div className='space-y-4 py-4'>
         <div className='px-3 py-2 space-y-1'>
-          <h2 className='mb-2 px-4 text-lg font-semibold tracking-tight'>Discover</h2>
-          {items.map(
-            (item, i) =>
+          <h2 className='mb-2 px-4 text-lg font-semibold tracking-tight'>Welcome back</h2>
+          {items.map((item, index) => {
+            const Icon = Icons[item.icon || 'aperture'];
+            return (
               item.title && (
                 <Link
-                  key={i}
+                  key={index}
                   className={cn(
                     path === item.href
                       ? buttonVariants({ variant: 'secondary' })
                       : buttonVariants({ variant: 'ghost' }),
                     'w-full justify-start'
                   )}
-                  href={item.href}
+                  href={item.disabled ? '/' : item.href}
                 >
                   <span
                     className={cn(
@@ -45,13 +44,14 @@ export default function Sidebar({ className, items }: SidebarProps) {
                       item.disabled && 'cursor-not-allowed opacity-80'
                     )}
                   >
-                    <CommandIcon className='mr-2 h-4 w-4' />
+                    <Icon className='mr-2 h-4 w-4' />
 
                     <span>{item.title}</span>
                   </span>
                 </Link>
               )
-          )}
+            );
+          })}
         </div>
       </div>
     </nav>

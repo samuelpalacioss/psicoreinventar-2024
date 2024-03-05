@@ -1,7 +1,7 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { Loader2 } from 'lucide-react';
+import { Icons } from '@/components/icons';
 import { useState } from 'react';
 
 interface ButtonCheckoutProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -44,7 +44,7 @@ export default function ButtonCheckout({
       {...props}
     >
       {text}
-      {isLoading && <Loader2 className='ml-2 h-5 w-5 animate-spin' />}
+      {isLoading && <Icons.spinner className='ml-2 h-5 w-5 animate-spin' />}
     </Button>
   );
 }

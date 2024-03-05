@@ -2,7 +2,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-import { VscStarFull } from 'react-icons/vsc';
+import { Icons } from '@/components/icons';
 import { InboxIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { CircleBackground } from '@/components/circle-background';
 
@@ -198,7 +198,7 @@ export default function Home() {
                   <div className='flex items-center gap-x-1 mt-1'>
                     {/* Star rating display */}
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <VscStarFull key={i} className='h-4 w-4 text-indigo-600' />
+                      <Icons.star key={i} className='h-4 w-4 text-indigo-600' />
                     ))}
                   </div>
                   <p className='text-gray-600 max-w-md'>{testimonial.body}</p>
