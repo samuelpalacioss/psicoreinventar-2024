@@ -23,8 +23,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { loginSchema, loginType } from '@/lib/validations/auth';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc';
+import { Icons } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
@@ -135,9 +134,9 @@ export default function LoginForm() {
                 }}
               >
                 {isGoogleLoading ? (
-                  <Loader2 className='animate-spin h-5 w-5' />
+                  <Icons.spinner className='animate-spin h-5 w-5' />
                 ) : (
-                  <FcGoogle className='h-5 w-5' />
+                  <Icons.google className='h-5 w-5' />
                 )}
                 {''}
                 Google

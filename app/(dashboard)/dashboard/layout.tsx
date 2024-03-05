@@ -16,12 +16,12 @@ export default function AuthLayout({
     //   {children}
     // </div>
     <div className='flex flex-col'>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className='container grid gap-12 md:grid-cols-[200px_1fr]'>
         <aside className='hidden w-[200px] flex-col md:flex'>
           <Sidebar items={dashboardConfig.sidebarNav} />
         </aside>
-        <main className='flex w-full flex-col overflow-hidden'>{children}</main>N
+        <main className='flex w-full flex-col overflow-hidden'>{children}</main>
       </div>
     </div>
   );

@@ -1,19 +1,26 @@
-export const dashboardConfig = {
+import { DashboardConfig } from '@/types';
+
+export const dashboardConfig: DashboardConfig = {
   sidebarNav: [
     {
       title: 'Overview',
       href: '/dashboard',
-      //   icon: 'post',
+      icon: 'command',
     },
     {
-      title: 'Billing',
-      href: '/dashboard/billing',
-      //   icon: 'billing',
+      title: 'Appointments',
+      href: '/dashboard/appointments',
+      icon: 'calendar',
+    },
+    {
+      title: 'Payments',
+      href: '/dashboard/payments',
+      icon: 'creditCard',
     },
     {
       title: 'Settings',
       href: '/dashboard/settings',
-      //   icon: 'settings',
+      icon: 'settings',
     },
   ],
 };
