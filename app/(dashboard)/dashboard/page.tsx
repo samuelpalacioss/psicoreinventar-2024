@@ -7,7 +7,7 @@ import DashboardContainer from '@/components/dashboard-container';
 export default async function DashboardPage() {
   const products = await getProducts();
   return (
-    <DashboardContainer>
+    <DashboardContainer className='mx-0'>
       <SignOutButton />
       <div className='grid grid-cols-1 gap-6 mt-6 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
         {products.length > 0 &&
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
                 </h3>
                 <div className='mt-4 flex items-baseline gap-x-2'>
                   <span className='text-5xl font-bold tracking-tight text-gray-900'>
-                    ${product.price}
+                    ${product.price}.99
                   </span>
                   <span className='text-base font-semibold leading-7 text-gray-600'>
                     / {product.time}

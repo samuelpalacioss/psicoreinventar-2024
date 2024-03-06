@@ -6,8 +6,25 @@ export type MainNavItem = {
   href: string;
 };
 
+export type FeatureItem = {
+  name: string;
+  description: string;
+  icon: keyof typeof Icons;
+};
+
+export type TestimonialItem = {
+  author: {
+    name: string;
+    imageUrl: string;
+  };
+  rating: number;
+  body: string;
+};
+
 export type MarketingConfig = {
   mainNav: mainNavItem[];
+  features: FeatureItem[];
+  testimonials: TestimonialItem[];
 };
 
 export type SidebarNavItem = {

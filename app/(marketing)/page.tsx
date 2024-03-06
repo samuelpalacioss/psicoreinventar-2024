@@ -3,82 +3,16 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Icons } from '@/components/icons';
-import { InboxIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { CircleBackground } from '@/components/circle-background';
 import Container from '@/components/container';
+import { FeatureItem, TestimonialItem } from '@/types';
+import { dashboardConfig } from '@/config/dashboard';
+import { marketingConfig } from '@/config/marketing';
 
-const features = [
-  {
-    name: 'Register and Login',
-    description: 'Sign up with your details and log in to access our services.',
-    icon: InboxIcon,
-  },
-  {
-    name: 'Book Your Session',
-    description:
-      'Choose the type of session you need, pick your preferred psychologist, and pick a suitable session time.',
-    icon: UsersIcon,
-  },
-  {
-    name: 'Start Your Therapy Journey',
-    description:
-      'Complete your payment and your appointment will be confirmed. Begin your journey towards mental well-being',
-    icon: TrashIcon,
-  },
-];
+export default function MarketingPage() {
+  const features = marketingConfig.features;
+  const testimonials = marketingConfig.testimonials;
 
-const testimonials = [
-  {
-    author: {
-      name: 'John Doe',
-      imageUrl: `https://ui-avatars.com/api/?name=John+Doe&background=4f46e5&color=fff`,
-    },
-    rating: 4,
-    body: 'I felt heard and understood. The psychologist was very professional and the session was very helpful.',
-  },
-  {
-    author: {
-      name: 'Jane Smith',
-      imageUrl: `https://ui-avatars.com/api/?name=Jane+Smith&background=4f46e5&color=fff`,
-    },
-    rating: 5,
-    body: 'I was skeptical about online therapy at first, but this service has changed my mind. Highly recommended!',
-  },
-  {
-    author: {
-      name: 'Robert Johnson',
-      imageUrl: `https://ui-avatars.com/api/?name=Robert+Johnson&background=4f46e5&color=fff`,
-    },
-    rating: 5,
-    body: 'The psychologist was very understanding and helpful. The online platform was easy to use.',
-  },
-  {
-    author: {
-      name: 'Emily Davis',
-      imageUrl: `https://ui-avatars.com/api/?name=Emily+Davis&background=4f46e5&color=fff`,
-    },
-    rating: 4,
-    body: 'The service was great, and the psychologist was very professional. I felt comfortable discussing my issues.',
-  },
-  {
-    author: {
-      name: 'Michael Miller',
-      imageUrl: `https://ui-avatars.com/api/?name=Michael+Miller&background=4f46e5&color=fff`,
-    },
-    rating: 5,
-    body: 'The online psychology appointment service was very efficient. I was able to schedule an appointment easily and the session was very helpful.',
-  },
-  {
-    author: {
-      name: 'Sarah Brown',
-      imageUrl: `https://ui-avatars.com/api/?name=Sarah+Brown&background=4f46e5&color=fff`,
-    },
-    rating: 4,
-    body: 'I found the service to be very beneficial. The psychologist was knowledgeable and empathetic.',
-  },
-];
-
-export default function Home() {
   return (
     <>
       <main>
@@ -147,22 +81,26 @@ export default function Home() {
             <div className='mt-16 sm:mt-20 lg:mt-24'>
               {/* md:max-w-2xl  */}
               <div className='grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3'>
-                {features.map((feature) => (
-                  <div
-                    key={feature.name}
-                    className='flex flex-col rounded-2xl border border-gray-200 p-8'
-                  >
-                    <div className='mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600'>
-                      <feature.icon className='h-6 w-6 text-white' aria-hidden='true' />
+                {features.map((feature, index) => {
+                  const Icon = Icons[feature.icon];
+                  return (
+                    <div
+                      key={index}
+                      className='flex flex-col rounded-2xl border border-gray-200 p-8'
+                    >
+                      <div className='mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600'>
+                        <Icon className='h-6 w-6 text-white' aria-hidden='true' />
+                      </div>
+                      <h4 className='text-base font-semibold leading-7 text-gray-900'>
+                        {index + 1}. {'  '}
+                        {feature.name}
+                      </h4>
+                      <p className='mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600'>
+                        {feature.description}
+                      </p>
                     </div>
-                    <h4 className='text-base font-semibold leading-7 text-gray-900'>
-                      {feature.name}
-                    </h4>
-                    <p className='mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600'>
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </Container>
@@ -179,12 +117,12 @@ export default function Home() {
             </div>
             {/* md:max-w-2xl  */}
             <div className='grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3'>
-              {testimonials.map((testimonial, i) => (
+              {testimonials.map((testimonial, index) => (
                 <div
                   className={`flex flex-col rounded-2xl border border-gray-200 p-8 text-sm leading-7 shadow-md shadow-gray-900/5 ${
-                    i < 3 ? '' : 'hidden md:flex'
+                    index < 3 ? '' : 'hidden md:flex'
                   }`}
-                  key={i}
+                  key={index}
                 >
                   <Image
                     alt='Avatar of the testimonial author'
@@ -198,8 +136,8 @@ export default function Home() {
                   </h4>
                   <div className='flex items-center gap-x-1 mt-1'>
                     {/* Star rating display */}
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Icons.star key={i} className='h-4 w-4 text-indigo-600' />
+                    {[...Array(testimonial.rating)].map((_, index) => (
+                      <Icons.star key={index} className='h-4 w-4 text-indigo-600' />
                     ))}
                   </div>
                   <p className='text-gray-600 max-w-md'>{testimonial.body}</p>

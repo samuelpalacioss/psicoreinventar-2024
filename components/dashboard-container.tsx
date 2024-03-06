@@ -9,8 +9,8 @@ export default function DashboardContainer({
   ...props
 }: DashboardContainerProps) {
   return (
-    <div className={cn('grid items-start gap-8', className)} {...props}>
-      <Container>{children}</Container>
+    <div className={cn('grid items-start gap-8')} {...props}>
+      <Container className={cn(className)}>{children}</Container>
     </div>
   );
 }

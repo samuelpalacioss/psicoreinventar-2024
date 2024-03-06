@@ -1,28 +1,33 @@
+import { FcGoogle } from 'react-icons/fc';
+import { VscStarFull } from 'react-icons/vsc';
 import {
   Aperture,
+  Brain,
   CalendarDays,
   ChevronLeft,
+  ClipboardPenLine,
   CommandIcon,
   CreditCard,
   Loader2,
   Settings,
+  User,
   type LucideIcon,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
 
-import { FcGoogle } from 'react-icons/fc';
-import { VscStarFull } from 'react-icons/vsc';
-
 export const Icons = {
   aperture: Aperture,
+  booking: ClipboardPenLine,
   calendar: CalendarDays,
   chevronLeft: ChevronLeft,
   command: CommandIcon,
   creditCard: CreditCard,
   google: FcGoogle,
+  mind: Brain,
   payments: CreditCard,
   settings: Settings,
   spinner: Loader2,
   star: VscStarFull,
+  user: User,
 };
