@@ -9,11 +9,11 @@ export default async function DashboardPage() {
   const session = await auth();
   const products = await getProducts();
   return (
-    <section className='col-span-3 lg:col-span-4'>
-      <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+    <div className='grid items-start gap-8'>
+      <div className='max-w-7xl px-4 sm:px-6 lg:px-8'>
         <SignOutButton />
 
-        <div className='grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
+        <div className='grid grid-cols-1 gap-6 mt-6 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
           {products.length > 0 &&
             products.map((product: Product) => (
               <div
@@ -44,6 +44,6 @@ export default async function DashboardPage() {
             ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
