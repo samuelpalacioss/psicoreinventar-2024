@@ -1,14 +1,12 @@
 import getProducts from '@/utilities/get-products';
 import { Product } from '@/lib/validations/product';
 import ButtonCheckout from '@/components/checkout-button';
-import SignOutButton from '@/components/sign-out-button';
 import DashboardContainer from '@/components/dashboard-container';
 
 export default async function DashboardPage() {
   const products = await getProducts();
   return (
     <DashboardContainer className='mx-0'>
-      <SignOutButton />
       <div className='grid grid-cols-1 gap-6 mt-6 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
         {products.length > 0 &&
           products.map((product: Product) => (
