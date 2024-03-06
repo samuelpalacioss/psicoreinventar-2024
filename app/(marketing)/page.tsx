@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Icons } from '@/components/icons';
 import { InboxIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { CircleBackground } from '@/components/circle-background';
+import Container from '@/components/container';
 
 const features = [
   {
@@ -82,7 +83,7 @@ export default function Home() {
     <>
       <main>
         <section id='hero' className='py-20 sm:py-36'>
-          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <Container>
             <div className=' gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center'>
               <div className='w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl'>
                 <h1 className='text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl'>
@@ -128,12 +129,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          </Container>
         </section>
       </main>
       <div className='wrapper'>
         <section id='about' className='mt-3 py-20 sm:py-24'>
-          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <Container>
             <div className='max-w-2xl lg:mx-0'>
               <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                 Easy Booking Process
@@ -164,10 +165,10 @@ export default function Home() {
                 ))}
               </div>
             </div>
-          </div>
+          </Container>
         </section>
         <section id='testimonials' className='py-20 sm:py-24'>
-          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <Container>
             <div className='testimonials-header max-w-xl mb-6'>
               <h3 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
                 Testimonials
@@ -205,14 +206,14 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
+          </Container>
         </section>
         <section id='cta'>
           <div className='relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl px-4 sm:px-6 lg:px-8'>
             <div className='absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2'>
               <CircleBackground color='#fff' className='animate-spin-slower' />
             </div>
-            <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative'>
+            <Container className='relative'>
               <div className='mx-auto max-w-md sm:text-center'>
                 <h2 className='text-3xl font-medium tracking-tight text-white sm:text-4xl'>
                   Start Your Journey to Emotional Well-Being Today
@@ -231,7 +232,7 @@ export default function Home() {
                   </span>
                 </Link>
               </div>
-            </div>
+            </Container>
 
             <div
               className='absolute -top-24 right-0 -z-10 transform-gpu blur-3xl'

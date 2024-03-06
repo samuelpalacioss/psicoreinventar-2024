@@ -1,13 +1,14 @@
 import getProducts from '@/utilities/get-products';
 import Link from 'next/link';
 import { Product } from '@/lib/validations/product';
+import Container from '@/components/container';
 
 export default async function ServicesPage() {
   const products = await getProducts();
   // console.log(products);
   return (
     <section className='py-16 sm:py-32'>
-      <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+      <Container>
         <h3 className='text-md font-semibold leading-8 tracking-tight text-indigo-600'>
           This is the best time to start taking care of yourself
         </h3>
@@ -45,7 +46,7 @@ export default async function ServicesPage() {
               </div>
             ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
