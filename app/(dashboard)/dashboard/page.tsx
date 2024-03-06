@@ -9,11 +9,8 @@ export default async function DashboardPage() {
   const session = await auth();
   const products = await getProducts();
   return (
-    <section className='py-16 sm:py-32 col-span-3 lg:col-span-4 lg:border-l'>
+    <section className='col-span-3 lg:col-span-4'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-        <h3 className='text-md font-semibold leading-8 tracking-tight text-indigo-600'>
-          Welcome to the secret Dashboard {session?.user?.name} {'  '} {session?.user?.role}
-        </h3>
         <SignOutButton />
 
         <div className='grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>

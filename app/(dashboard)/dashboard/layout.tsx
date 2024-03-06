@@ -1,31 +1,32 @@
+import { auth } from '@/auth';
 import Navbar from '@/components/main-nav';
 import Sidebar from '@/components/sidebar';
 import { buttonVariants } from '@/components/ui/button';
 import { dashboardConfig } from '@/config/dashboard';
 import { cn } from '@/lib/utils';
-import { Circle } from 'lucide-react';
 
-export default function AuthLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+  const user = session?.user;
+  console.log(user);
+
   return (
-    //grid lg:grid-cols-5 max-w-7xl px-4`
-    // <div className={`grid lg:grid-cols-5 max-w-7xl px-4`}>
-    //   <Sidebar links={['hola']} />
-    //   {children}
-    // </div>
-    <div className='flex flex-col'>
-      <div className='container flex h-16 items-center justify-between py-4'>
-        <Navbar />
-        <Circle className='h-6 w-6' />
-      </div>
+    <div className='flex flex-col min-h-screen space-y-6'>
+      <header className='sticky top-0 bg-gray-50 shadow inset-x-0 z-[10] '>
+        <div className='container '>
+          <Navbar className='max-w-none' />
+        </div>
+      </header>
+
       <div className='container grid gap-4 md:grid-cols-[200px_1fr]'>
         <aside className='hidden w-[200px] flex-col md:flex'>
           <Sidebar items={dashboardConfig.sidebarNav} />
         </aside>
-        <main className='flex w-full flex-col overflow-hidden'>{children}</main>
+        <main className='flex w-full flex-col'>{children}</main>
       </div>
     </div>
   );

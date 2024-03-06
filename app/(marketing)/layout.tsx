@@ -8,7 +8,10 @@ export default function MarketingLayout({
 }>) {
   return (
     <div className={``}>
-      <Navbar items={marketingConfig.mainNav} shadow={true} />
+      <header className='sticky top-0 bg-gray-50 shadow inset-x-0 z-[10] '>
+        <Navbar items={marketingConfig.mainNav} />
+      </header>
+
       {children}
     </div>
   );
