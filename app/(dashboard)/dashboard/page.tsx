@@ -20,7 +20,7 @@ export default async function DashboardPage() {
                 </h3>
                 <div className='mt-4 flex items-baseline gap-x-2'>
                   <span className='text-5xl font-bold tracking-tight text-gray-900'>
-                    ${product.price}.99
+                    {/*@currently zod doesnt support decimals validation */}${product.price}.99
                   </span>
                   <span className='text-base font-semibold leading-7 text-gray-600'>
                     / {product.time}

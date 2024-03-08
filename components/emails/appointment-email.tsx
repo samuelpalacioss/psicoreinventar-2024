@@ -130,6 +130,7 @@ export const ReceiptEmail = ({
               </Column>
 
               <Column style={productPriceWrapper} align='right'>
+                {/*@currently zod doesnt support decimals validation */}
                 <Text style={productPrice}>${product.price}.99</Text>
               </Column>
             </Row>
@@ -142,6 +143,7 @@ export const ReceiptEmail = ({
               </Column>
               <Column style={productPriceVerticalLine}></Column>
               <Column style={productPriceLargeWrapper}>
+                {/*@currently zod doesnt support decimals validation */}
                 <Text style={productPriceLarge}>${product.price}.99</Text>
               </Column>
             </Row>
