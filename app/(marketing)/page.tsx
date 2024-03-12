@@ -53,14 +53,17 @@ export default function MarketingPage() {
                 </div>
               </div>
               <div className='flex basis-2/6'>
-                <div className='max-w-xs sm:max-w-lg pt-16 sm:ml-0 lg:pt-0 xl:order-none'>
+                <div className='max-w-xs sm:max-w-lg pt-16 lg:pt-0 xl:order-none'>
                   <Image
                     // src='https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80'
-                    src='https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710273440/psicoreinventar/nbzytir20m3r3aiejdpo.jpg'
+                    // src='https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710280837/psicoreinventar/vecunnnu1lczy0hwrprn.jpg'
+                    src='https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710282946/psicoreinventar/fkjc2wovfzuizmb6waag.jpg'
                     alt='Therapist hugging patient in therapy session'
-                    width={528}
-                    height={528}
+                    width={996}
+                    height={859}
                     className='w-full rounded-xl bg-gray-900/5 object-cover shadow-lg'
+                    sizes='(min-width: 1340px) 405px, (min-width: 640px) calc(31.76vw - 14px), (min-width: 400px) 280px, calc(65vw + 73px)'
+                    priority={true}
                   />
                 </div>
               </div>
@@ -110,6 +113,14 @@ export default function MarketingPage() {
 
         <section id='testimonials' className='py-20 sm:py-24'>
           <Container>
+            <div className='testimonials-header max-w-xl mb-6'>
+              <h3 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
+                Testimonials
+              </h3>
+              <p className='mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-'>
+                Insights into Their Journey
+              </p>
+            </div>
             <ReviewsCarousel items={marketingConfig.testimonials} />
           </Container>
         </section>

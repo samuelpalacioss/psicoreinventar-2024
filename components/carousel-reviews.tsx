@@ -58,6 +58,7 @@ export default function ReviewsCarousel({ items, className }: ReviewsCarouselPro
                   src={item.author.imageUrl}
                   className='object-cover items-center rounded-md'
                   fill
+                  sizes='(min-width: 1320px) 240px, (min-width: 1080px) calc(14.55vw + 51px), calc(3.93vw + 161px)'
                 ></Image>
               </div>
             </Card>
