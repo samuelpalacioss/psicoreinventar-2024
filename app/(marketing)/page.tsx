@@ -8,6 +8,7 @@ import Container from '@/components/container';
 import { FeatureItem, TestimonialItem } from '@/types';
 import { dashboardConfig } from '@/config/dashboard';
 import { marketingConfig } from '@/config/marketing';
+import ReviewsCarousel from '@/components/carousel-reviews';
 
 export default function MarketingPage() {
   const features = marketingConfig.features;
@@ -54,8 +55,9 @@ export default function MarketingPage() {
               <div className='flex basis-2/6'>
                 <div className='max-w-xs sm:max-w-lg pt-16 sm:ml-0 lg:pt-0 xl:order-none'>
                   <Image
-                    src='https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80'
-                    alt='Illustration of psychologist working with a patient in a therapy session.'
+                    // src='https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80'
+                    src='https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710273440/psicoreinventar/nbzytir20m3r3aiejdpo.jpg'
+                    alt='Therapist hugging patient in therapy session'
                     width={528}
                     height={528}
                     className='w-full rounded-xl bg-gray-900/5 object-cover shadow-lg'
@@ -105,45 +107,10 @@ export default function MarketingPage() {
             </div>
           </Container>
         </section>
+
         <section id='testimonials' className='py-20 sm:py-24'>
           <Container>
-            <div className='testimonials-header max-w-xl mb-6'>
-              <h3 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
-                Testimonials
-              </h3>
-              <p className='mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-'>
-                Insights into Their Journey
-              </p>
-            </div>
-            {/* md:max-w-2xl  */}
-            <div className='grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3'>
-              {testimonials.map((testimonial, index) => (
-                <div
-                  className={`flex flex-col rounded-2xl border border-gray-200 p-8 text-sm leading-7 shadow-md shadow-gray-900/5 ${
-                    index < 3 ? '' : 'hidden md:flex'
-                  }`}
-                  key={index}
-                >
-                  <Image
-                    alt='Avatar of the testimonial author'
-                    src={testimonial.author.imageUrl}
-                    className='inline-flex items-center justify-center rounded-full bg-gray-500'
-                    height={48}
-                    width={48}
-                  />
-                  <h4 className='font-semibold text-base text-gray-900 mt-1'>
-                    {testimonial.author.name}
-                  </h4>
-                  <div className='flex items-center gap-x-1 mt-1'>
-                    {/* Star rating display */}
-                    {[...Array(testimonial.rating)].map((_, index) => (
-                      <Icons.star key={index} className='h-4 w-4 text-indigo-600' />
-                    ))}
-                  </div>
-                  <p className='text-gray-600 max-w-md'>{testimonial.body}</p>
-                </div>
-              ))}
-            </div>
+            <ReviewsCarousel items={marketingConfig.testimonials} />
           </Container>
         </section>
         <section id='cta'>

@@ -28,16 +28,16 @@ export const marketingConfig: MarketingConfig = {
   testimonials: [
     {
       author: {
-        name: 'John Doe',
-        imageUrl: `https://ui-avatars.com/api/?name=John+Doe&background=4f46e5&color=fff`,
+        name: 'Wes Jackson',
+        imageUrl: `https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710270926/psicoreinventar/eujppqpx1ryd2uaafgcr.jpg`,
       },
       rating: 4,
       body: 'I felt heard and understood. The psychologist was very professional and the session was very helpful.',
     },
     {
       author: {
-        name: 'Jane Smith',
-        imageUrl: `https://ui-avatars.com/api/?name=Jane+Smith&background=4f46e5&color=fff`,
+        name: 'Sophia Davis',
+        imageUrl: `https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710270926/psicoreinventar/wv6j2vy7yanpqqqo6tpc.jpg`,
       },
       rating: 5,
       body: 'I was skeptical about online therapy at first, but this service has changed my mind. Highly recommended!',
@@ -45,15 +45,15 @@ export const marketingConfig: MarketingConfig = {
     {
       author: {
         name: 'Robert Johnson',
-        imageUrl: `https://ui-avatars.com/api/?name=Robert+Johnson&background=4f46e5&color=fff`,
+        imageUrl: `https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710270926/psicoreinventar/qi8iyeuwj1vmkjhwkwtm.jpg`,
       },
       rating: 5,
-      body: 'The psychologist was very understanding and helpful. The online platform was easy to use.',
+      body: 'The psychologist was very understanding and helpful. The platform was easy to use and smooth.',
     },
     {
       author: {
-        name: 'Emily Davis',
-        imageUrl: `https://ui-avatars.com/api/?name=Emily+Davis&background=4f46e5&color=fff`,
+        name: 'Malissa Liu',
+        imageUrl: `https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710270926/psicoreinventar/cpv7shqgamdctwkzcczd.jpg`,
       },
       rating: 4,
       body: 'The service was great, and the psychologist was very professional. I felt comfortable discussing my issues.',
@@ -61,18 +61,10 @@ export const marketingConfig: MarketingConfig = {
     {
       author: {
         name: 'Michael Miller',
-        imageUrl: `https://ui-avatars.com/api/?name=Michael+Miller&background=4f46e5&color=fff`,
+        imageUrl: `https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710270926/psicoreinventar/qi1cjaxdedmjogyxx2jn.jpg`,
       },
       rating: 5,
-      body: 'The online psychology appointment service was very efficient. I was able to schedule an appointment easily and the session was very helpful.',
-    },
-    {
-      author: {
-        name: 'Sarah Brown',
-        imageUrl: `https://ui-avatars.com/api/?name=Sarah+Brown&background=4f46e5&color=fff`,
-      },
-      rating: 4,
-      body: 'I found the service to be very beneficial. The psychologist was knowledgeable and empathetic.',
+      body: 'The service was very efficient. I schedule an appointment easily and the session was very helpful.',
     },
   ],
 };

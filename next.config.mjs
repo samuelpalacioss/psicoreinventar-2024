@@ -16,17 +16,9 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'ui-avatars.com',
+        hostname: 'source.boringavatars.com',
         port: '',
         pathname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-      },
-      {
-        protocol: 'https',
-        hostname: 'psicoreinventar.com',
       },
       {
         protocol: 'https',

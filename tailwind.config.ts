@@ -73,6 +73,9 @@ const config = {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'spin-slower': 'spin 6s linear infinite',
       },
+      screens: {
+        '2md': '850px',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],
