@@ -34,7 +34,7 @@ export default function ReviewsCarousel({ items, className }: ReviewsCarouselPro
               <div className='flex items-center'>
                 <div className='flex-1 md:max-w-md 2md:max-w-lg lg:max-w-3xl'>
                   <blockquote className='text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900'>
-                    "{item.body}"
+                    &quot;{item.body}&quot;
                   </blockquote>
                   <div className='flex items-center gap-4 mt-6'>
                     <Image
