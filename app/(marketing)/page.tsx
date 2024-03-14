@@ -55,9 +55,7 @@ export default function MarketingPage() {
               <div className='flex basis-2/6'>
                 <div className='max-w-xs sm:max-w-lg pt-16 lg:pt-0 xl:order-none'>
                   <Image
-                    // src='https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80'
-                    // src='https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710280837/psicoreinventar/vecunnnu1lczy0hwrprn.jpg'
-                    src='https://res.cloudinary.com/dzgjxwvnw/image/upload/v1710282946/psicoreinventar/fkjc2wovfzuizmb6waag.jpg'
+                    src='https://pub-a73a0280999e4a0cbf0918b31f9f798b.r2.dev/couple-hugging717622425.jpg'
                     alt='Therapist hugging patient in therapy session'
                     width={996}
                     height={859}
