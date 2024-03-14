@@ -22,15 +22,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-<<<<<<< HEAD
-=======
         hostname: 'psicoreinventar.com',
-        port: '',
-        pathname: '**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'zksjstmpprqqnhiviwwa.supabase.co',
         port: '',
         pathname: '**',
       },
@@ -42,7 +34,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
->>>>>>> a5a37de (update: image on cloudflare r2)
         hostname: 'res.cloudinary.com',
       },
     ],
