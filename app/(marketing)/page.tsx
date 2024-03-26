@@ -89,15 +89,15 @@ export default function MarketingPage() {
                   return (
                     <div
                       key={index}
-                      className='flex flex-col rounded-2xl border border-gray-200 p-8'
+                      className='flex flex-col rounded-2xl border border-gray-200 shadow-sm p-8'
                     >
                       <div className='mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600'>
                         <Icon className='h-6 w-6 text-white' aria-hidden='true' />
                       </div>
-                      <h4 className='text-base font-semibold leading-7 text-gray-900'>
+                      <h3 className='text-base font-semibold leading-7 text-gray-900'>
                         {index + 1}. {'  '}
                         {feature.name}
-                      </h4>
+                      </h3>
                       <p className='mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600'>
                         {feature.description}
                       </p>
@@ -112,9 +112,9 @@ export default function MarketingPage() {
         <section id='testimonials' className='py-20 sm:py-24'>
           <Container>
             <div className='testimonials-header max-w-xl mb-6'>
-              <h3 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
+              <h4 className='text-lg font-bold leading-8 tracking-tight text-indigo-600'>
                 Testimonials
-              </h3>
+              </h4>
               <p className='mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-'>
                 Insights into Their Journey
               </p>
@@ -122,6 +122,46 @@ export default function MarketingPage() {
             <ReviewsCarousel items={marketingConfig.testimonials} />
           </Container>
         </section>
+
+        <section>
+          <Container>
+            <div className=' gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center '>
+              <div className='w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl'>
+                <h5 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
+                  Our psychologists, what makes us different
+                </h5>
+
+                <div className='mt-6 max-w-xl'>
+                  <p className='text-base leading-7 text-gray-600 max-w-md lg:max-w-full mb-4'>
+                    We are a multidisciplinary team, with an integrative approach, highly qualified
+                    and with a long professional trajectory.
+                  </p>
+                  <ul className='list-disc list-inside text-gray-600 space-y-4'>
+                    <li>Highly qualified professionals</li>
+                    <li>
+                      Therapy in several languages: Spanish, English, German, Portuguese, Italian...
+                    </li>
+                    <li>Online or face-to-face in Montreal, Canada, whichever suits you best.</li>
+                  </ul>
+                </div>
+              </div>
+              <div className='flex basis-2/6'>
+                <div className='max-w-xs sm:max-w-lg pt-16 lg:pt-0 xl:order-none'>
+                  <Image
+                    src='https://pub-a73a0280999e4a0cbf0918b31f9f798b.r2.dev/couple-hugging717622425.jpg'
+                    alt='Therapist hugging patient in therapy session'
+                    width={996}
+                    height={859}
+                    className='w-full rounded-xl bg-gray-900/5 object-cover shadow-lg'
+                    sizes='(min-width: 1340px) 405px, (min-width: 640px) calc(31.76vw - 14px), (min-width: 400px) 280px, calc(65vw + 73px)'
+                    priority={true}
+                  />
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
         <section id='cta'>
           <div className='relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl px-4 sm:px-6 lg:px-8'>
             <div className='absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2'>
@@ -129,9 +169,9 @@ export default function MarketingPage() {
             </div>
             <Container className='relative'>
               <div className='mx-auto max-w-md sm:text-center'>
-                <h2 className='text-3xl font-medium tracking-tight text-white sm:text-4xl'>
+                <h6 className='text-3xl font-medium tracking-tight text-white sm:text-4xl'>
                   Start Your Journey to Emotional Well-Being Today
-                </h2>
+                </h6>
                 <p className='mt-4 text-base text-slate-200'>
                   Ready to take a step towards a brighter tomorrow? Let&apos;s embark on this
                   journey together! Click below to start your path towards healing and happiness.

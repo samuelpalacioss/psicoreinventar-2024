@@ -23,14 +23,14 @@ export default function ReviewsCarousel({ items, className }: ReviewsCarouselPro
   return (
     <Carousel
       plugins={[plugin.current]}
-      className='w-full p-8 md:pb-16 lg:p-16 lg:pb-24 bg-indigo-200 shadow-lg rounded-lg'
+      className='w-full p-8 md:pb-16 lg:p-16 lg:pb-24 bg-indigo-100 shadow-lg rounded-lg'
       onMouseEnter={plugin.current.stop}
       onMouseLeave={plugin.current.reset}
     >
       <CarouselContent>
         {items.map((item, index) => (
           <CarouselItem key={index}>
-            <Card className='flex justify-between gap-4 bg-indigo-200 border-0 shadow-none'>
+            <Card className='flex justify-between gap-4 bg-indigo-100 border-0 shadow-none'>
               <div className='flex items-center'>
                 <div className='flex-1 md:max-w-md 2md:max-w-lg lg:max-w-3xl'>
                   <blockquote className='text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900'>
