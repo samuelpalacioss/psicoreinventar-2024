@@ -25,6 +25,24 @@ export const marketingConfig: MarketingConfig = {
       icon: 'mind',
     },
   ],
+  stats: [
+    {
+      description: 'Clients have started their therapy journey with us',
+      value: '3,000+',
+    },
+    {
+      description: 'Clients have found their therapist on the first try',
+      value: '95%',
+    },
+    {
+      description: 'The average time to schedule an appointment',
+      value: '5 min',
+    },
+    {
+      description: 'Confidentiality and respect for our clients',
+      value: '100%',
+    },
+  ],
   testimonials: [
     {
       author: {

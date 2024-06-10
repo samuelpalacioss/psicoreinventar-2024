@@ -12,6 +12,11 @@ export type FeatureItem = {
   icon: keyof typeof Icons;
 };
 
+export type StatItem = {
+  description: string;
+  value: string;
+};
+
 export type TestimonialItem = {
   author: {
     name: string;
@@ -24,6 +29,7 @@ export type TestimonialItem = {
 export type MarketingConfig = {
   mainNav: mainNavItem[];
   features: FeatureItem[];
+  stats: StatItem[];
   testimonials: TestimonialItem[];
 };
 
