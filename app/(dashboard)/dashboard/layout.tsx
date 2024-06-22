@@ -4,6 +4,7 @@ import Sidebar from '@/components/sidebar';
 import { buttonVariants } from '@/components/ui/button';
 import { dashboardConfig } from '@/config/dashboard';
 import { cn } from '@/lib/utils';
+import Container from '@/components/container';
 
 export default async function DashboardLayout({
   children,
@@ -17,17 +18,21 @@ export default async function DashboardLayout({
   return (
     <div className='flex flex-col min-h-screen space-y-6'>
       <header className='sticky top-0 bg-gray-50 shadow inset-x-0 z-[10] '>
-        <div className='container '>
+        <div className='mx-4'>
           <Navbar className='max-w-none' user={user} />
         </div>
       </header>
 
-      <div className='container grid gap-4 md:grid-cols-[200px_1fr]'>
-        <aside className='hidden w-[200px] flex-col md:flex'>
+      {/* This creates overflow (!!without grid no), changed it to flex*/}
+      <div className='mx-8 flex gap-4'>
+        <aside className='hidden w-[150px] flex-col md:flex'>
           <Sidebar items={dashboardConfig.sidebarNav} />
         </aside>
         <main className='flex w-full flex-col'>{children}</main>
       </div>
+      {/* <main>
+        <Container>{children}</Container>
+      </main> */}
     </div>
   );
 }
