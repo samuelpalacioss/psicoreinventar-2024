@@ -24,8 +24,8 @@ export default async function DashboardLayout({
       </header>
 
       {/* This creates overflow (!!without grid no), changed it to flex*/}
-      <div className='mx-8 flex gap-4'>
-        <aside className='hidden w-[150px] flex-col md:flex'>
+      <div className='mx-8 flex gap-2 lg:gap-4'>
+        <aside className='hidden w-[160px] lg:w-[200px] flex-col md:flex'>
           <Sidebar items={dashboardConfig.sidebarNav} />
         </aside>
         <main className='flex w-full flex-col'>{children}</main>

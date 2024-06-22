@@ -20,7 +20,7 @@ export default function Sidebar({ className, items }: SidebarProps) {
 
   return (
     <nav className={cn('pb-12 hidden md:block', className)}>
-      <div className='px-4 space-y-1'>
+      <div className='px-2 space-y-1'>
         {items.map((item, index) => {
           const Icon = Icons[item.icon || 'aperture'];
           return (
