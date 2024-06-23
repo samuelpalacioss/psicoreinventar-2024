@@ -5,6 +5,7 @@ import DashboardContainer from '@/components/dashboard-container';
 import { DataTable } from '@/components/dashboard/data-table';
 import { columns } from '@/components/dashboard/columns';
 import prisma from '@/lib/db';
+import Container from '@/components/container';
 
 async function getPatients() {
   const patients = await prisma.user.findMany({
@@ -34,7 +35,11 @@ export default async function DashboardPage() {
   const products = await getProducts();
   return (
     // If i remove dashboard container the layout of the datatable is responsive
-    <DataTable columns={columns} data={clients} />
+
+    <div className='lg:px-8 space-y-4'>
+      <h1 className='text-3xl font-bold tracking-tight text-gray-900 md:text-4xl'>Overview</h1>
+      <DataTable columns={columns} data={clients} />
+    </div>
 
     // <DashboardContainer>
     //   <div className='grid grid-cols-1 gap-6 mt-6 md:gap-y-10 md:max-w-5xl lg:grid-cols-2'>
