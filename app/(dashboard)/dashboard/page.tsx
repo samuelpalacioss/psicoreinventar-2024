@@ -17,6 +17,7 @@ async function getPatients() {
       name: true,
       email: true,
       phone: true,
+      isActive: true,
     },
   });
 

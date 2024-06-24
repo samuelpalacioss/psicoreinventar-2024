@@ -15,7 +15,7 @@ import {
 // Missing: Appointment in prisma schema and so appointment history of user missing
 // From user only Pick id, name, email, phone
 
-type UserInfo = Pick<User, 'id' | 'name' | 'email' | 'phone'>;
+type UserInfo = Pick<User, 'id' | 'name' | 'email' | 'isActive'>;
 
 export const columns: ColumnDef<UserInfo>[] = [
   {
@@ -41,9 +41,15 @@ export const columns: ColumnDef<UserInfo>[] = [
     },
   },
   {
-    accessorKey: 'phone',
-    header: 'Phone',
+    accessorKey: 'isActive',
+    header: 'Status',
+    cell: ({ row }) => {
+      const user = row.original;
+
+      return user.isActive ? 'Active' : 'Inactive';
+    },
   },
+
   {
     id: 'actions',
     cell: ({ row }) => {
