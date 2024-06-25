@@ -41,9 +41,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
       sorting,
     },
     initialState: {
-      // Set row limit per page to 8
+      // Set row limit per page to 10
       pagination: {
-        pageSize: 8,
+        pageSize: 10,
       },
     },
   });

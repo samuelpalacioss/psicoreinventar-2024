@@ -26,7 +26,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
       {({ open }) => (
         <>
           <div className={cn('mx-auto max-w-7xl px-4 md:px-6 lg:px-8', className)}>
-            <div className='flex h-16 items-center justify-between'>
+            <div className='flex h-14 items-center justify-between'>
               <div className='flex'>
                 <div className='flex flex-shrink-0'>
                   {/* If mobile nav open, close it, otherwise simple link */}

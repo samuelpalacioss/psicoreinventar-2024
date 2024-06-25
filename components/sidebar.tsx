@@ -27,18 +27,15 @@ export default function Sidebar({ className, items }: SidebarProps) {
             item.title && (
               <Link
                 key={index}
-                className={cn(
-                  path === item.href
-                    ? buttonVariants({ variant: 'secondary' })
-                    : buttonVariants({ variant: 'ghost' }),
-                  'w-full justify-start'
-                )}
+                className={cn(buttonVariants({ variant: 'ghost' }), 'w-full justify-start')}
                 href={item.disabled ? '/' : item.href}
               >
                 <span
                   className={cn(
-                    'group flex items-center rounded-md py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
-                    path === item.href ? 'bg-accent' : 'transparent',
+                    'group flex items-center rounded-md py-2 text-sm hover:text-accent-foreground',
+                    path === item.href
+                      ? 'text-foreground font-medium'
+                      : 'text-muted-foreground font-normal',
                     item.disabled && 'cursor-not-allowed opacity-80'
                   )}
                 >
