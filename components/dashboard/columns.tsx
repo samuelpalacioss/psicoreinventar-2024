@@ -21,6 +21,7 @@ export const columns: ColumnDef<UserInfo>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
+    cell: ({ row }) => <div className='w-20'>{row.getValue('id')}</div>,
   },
   {
     accessorKey: 'name',
