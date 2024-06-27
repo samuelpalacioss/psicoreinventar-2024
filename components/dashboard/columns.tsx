@@ -25,7 +25,18 @@ export const columns: ColumnDef<UserInfo>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant='ghost'
+          className='px-0'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Name
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'email',
@@ -33,6 +44,7 @@ export const columns: ColumnDef<UserInfo>[] = [
       return (
         <Button
           variant='ghost'
+          className='px-0'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Email
