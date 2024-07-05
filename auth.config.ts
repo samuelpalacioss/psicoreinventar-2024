@@ -63,7 +63,7 @@ export default {
             name: user.name,
           });
 
-          console.log('User created in stripe');
+          // console.log('User created in stripe');
 
           // 2. Update the user in Prisma with the Stripe customer id
           await prisma.user.update({
@@ -97,7 +97,7 @@ export default {
           name: user.name,
         });
 
-        console.log('User created in stripe');
+        // console.log('User created in stripe');
 
         // 2. Update the user in Prisma with the Stripe customer id
         await prisma.user.update({

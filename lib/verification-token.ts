@@ -1,13 +1,15 @@
-import { generateVerificationTokenByEmail } from '@/hooks/token-email';
+import { getVerificationTokenByEmail } from '@/hooks/token-email';
 import prisma from '@/lib/db';
-import { v4 as uuidv4 } from 'uuid';
 
 export const generateVerificationToken = async (email: string) => {
-  const token = uuidv4();
+  // generate 6 digit token (not starting with 0)
+  const token = (Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000).toString();
+
   // expires 30min
   const expires = new Date().getTime() + 30 * 60 * 1000;
-  // check for existing token
-  const existingToken = await generateVerificationTokenByEmail(email);
+
+  // Check if user has existing token
+  const existingToken = await getVerificationTokenByEmail(email);
 
   if (existingToken) {
     await prisma.verificationToken.delete({
