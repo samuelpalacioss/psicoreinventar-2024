@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -20,6 +20,7 @@ import { signIn } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 import { login } from '@/actions/login';
 import FormsuccessMsg from './form-success-msg';
+import { cn } from '@/lib/utils';
 
 export default function LoginForm() {
   const [isPending, startTransition] = useTransition();
@@ -47,8 +48,8 @@ export default function LoginForm() {
 
     startTransition(() => {
       login(data).then((data) => {
-        setErrorMsg(data.error ?? '');
-        setSuccessMsg(data.success ?? '');
+        setErrorMsg(data?.error);
+        setSuccessMsg(data?.success);
       });
     });
   };
@@ -95,6 +96,12 @@ export default function LoginForm() {
                     <Input type='password' placeholder='********' disabled={isPending} {...field} />
                   </FormControl>
                   <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                  <Link
+                    className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'px-0 font-sm')}
+                    href='/reset-password'
+                  >
+                    Forgot password?
+                  </Link>
                 </FormItem>
               )}
             />
