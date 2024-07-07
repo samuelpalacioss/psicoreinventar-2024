@@ -54,7 +54,7 @@ export default function EmailVerificationForm() {
         <p className='text-muted-foreground'>
           {errorMsg && 'Please try again later or contact support if the issue persists.'}
         </p>
-        <Link href='/' className={cn(buttonVariants({ variant: 'default' }))}>
+        <Link href='/login' className={cn(buttonVariants({ variant: 'default' }))}>
           <Icons.chevronLeft className='mr-2 h-4 w-4' />
           Back to login
         </Link>
