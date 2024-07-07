@@ -1,4 +1,4 @@
-import { getVerificationTokenByEmail } from '@/hooks/token-email';
+import { getVerificationTokenByEmail } from '@/hooks/verification-token';
 import prisma from '@/lib/db';
 
 export const generateVerificationToken = async (email: string) => {

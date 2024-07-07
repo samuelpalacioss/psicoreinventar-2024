@@ -3,18 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,15 +16,12 @@ import { useForm } from 'react-hook-form';
 import { loginSchema, loginType } from '@/lib/validations/auth';
 import Link from 'next/link';
 import { Icons } from '@/components/icons';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 import { login } from '@/actions/login';
 import FormsuccessMsg from './form-success-msg';
 
 export default function LoginForm() {
-  const router = useRouter();
-
   const [isPending, startTransition] = useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
 
@@ -58,8 +47,8 @@ export default function LoginForm() {
 
     startTransition(() => {
       login(data).then((data) => {
-        setErrorMsg(data.error);
-        setSuccessMsg(data.success);
+        setErrorMsg(data.error ?? '');
+        setSuccessMsg(data.success ?? '');
       });
     });
   };
