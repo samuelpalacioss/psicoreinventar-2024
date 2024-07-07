@@ -28,11 +28,15 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import FormErrorMessage from './form-error-msg';
+import FormSuccessMessage from './form-success-msg';
 
 export default function SignupForm() {
   const router = useRouter();
 
   const [showForm, setShowForm] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [successMsg, setSuccessMsg] = useState<string>('');
 
   const form = useForm<signUpType>({
     resolver: zodResolver(signUpSchema),
@@ -67,10 +71,12 @@ export default function SignupForm() {
     const resData = await res.json();
 
     if (!res.ok) {
-      console.error('Registration failed');
+      setErrorMsg('Something went wrong');
     } else {
-      console.log('Successfully registered');
-      router.push('/login');
+      setSuccessMsg(resData.success); // Mensaje con success en su respuesta de api/register
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
     }
 
     if (resData.errors) {
@@ -91,6 +97,8 @@ export default function SignupForm() {
           type: 'server',
           message: errors.confirmPassword,
         });
+      } else if (errors.limit) {
+        setErrorMsg(errors.limit);
       } else {
         console.error('Registration failed');
       }
@@ -183,7 +191,7 @@ export default function SignupForm() {
             <Form {...form}>
               <motion.form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className='space-y-6'
+                className='space-y-4'
                 key='form'
                 initial='hidden'
                 animate='visible'
@@ -242,6 +250,8 @@ export default function SignupForm() {
                     </FormItem>
                   )}
                 />
+                <FormErrorMessage message={errorMsg} />
+                <FormSuccessMessage message={successMsg} />
                 <Button disabled={isSubmitting} type='submit'>
                   Submit
                 </Button>

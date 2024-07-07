@@ -7,7 +7,7 @@ import prisma from '@/lib/db';
 import type { JWT } from 'next-auth/jwt';
 import { getUserByEmail } from './hooks/user';
 import { stripe } from './lib/stripe';
-import { authRoutes, publicRoutes } from './config/routes';
+import { authRoutes, defaultLoginRedirect, publicRoutes } from './config/routes';
 
 export default {
   pages: {
@@ -110,8 +110,26 @@ export default {
         });
       }
     },
+    //* Set true emailVerified if the user is created using the google provider
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+      });
+    },
   },
   callbacks: {
+    async signIn({ user, account }) {
+      // Allow oauth users to sign in without verifying their email
+      if (account?.provider !== 'credentials') return true;
+
+      const existingUser = await getUserByEmail(user.email!);
+
+      // Prevent sign in if the email is not verified
+      if (!existingUser?.emailVerified) return false;
+
+      return true;
+    },
     authorized({ auth, request: { nextUrl } }) {
       const { pathname, search } = nextUrl;
       const isLoggedIn = !!auth?.user;
@@ -126,7 +144,7 @@ export default {
 
       if (isOnAuthPage) {
         // Redirect to /dashboard, if logged in and is on an auth page
-        if (isLoggedIn) return Response.redirect(new URL('/dashboard', nextUrl));
+        if (isLoggedIn) return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
       } else if (isProtectedPage) {
         // Redirect to /login, if not logged in but is on a protected page
         if (!isLoggedIn) {

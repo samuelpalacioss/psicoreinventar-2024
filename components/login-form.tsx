@@ -26,11 +26,14 @@ import Link from 'next/link';
 import { Icons } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { login } from '@/actions/login';
+import FormsuccessMsg from './form-success-msg';
 
 export default function LoginForm() {
   const router = useRouter();
 
+  const [isPending, startTransition] = useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
 
   const form = useForm<loginType>({
@@ -42,29 +45,23 @@ export default function LoginForm() {
   });
 
   const {
-    formState: { errors, isSubmitting },
+    formState: { errors },
     setError,
   } = form;
 
-  const [credentialsError, setCredentialsError] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | undefined>('');
+  const [successMsg, setSuccessMsg] = useState<string | undefined>('');
 
   const onSubmit = async (data: loginType) => {
-    const res = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false,
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    startTransition(() => {
+      login(data).then((data) => {
+        setErrorMsg(data.error);
+        setSuccessMsg(data.success);
+      });
     });
-
-    setCredentialsError('');
-
-    console.log(res);
-
-    if (res?.error) {
-      setCredentialsError('Invalid credentials');
-      console.log(res.error);
-    } else {
-      router.push('/dashboard');
-    }
   };
 
   return (
@@ -80,7 +77,7 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
             <FormField
               control={form.control}
               name='email'
@@ -88,7 +85,12 @@ export default function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type='email' placeholder='jdoe@gmail.com' {...field} />
+                    <Input
+                      type='email'
+                      placeholder='jdoe@gmail.com'
+                      disabled={isPending}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                 </FormItem>
@@ -101,18 +103,17 @@ export default function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type='password' placeholder='********' {...field} />
+                    <Input type='password' placeholder='********' disabled={isPending} {...field} />
                   </FormControl>
                   <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                 </FormItem>
               )}
             />
-            {credentialsError && (
-              <p className='text-destructive text-xs mt-0'>{credentialsError}</p>
-            )}
 
+            {errorMsg && <p className='text-destructive text-xs mt-0'>{errorMsg}</p>}
+            <FormsuccessMsg message={successMsg} />
             <div className='flex flex-col gap-6'>
-              <Button disabled={isSubmitting} type='submit' className='w-full'>
+              <Button disabled={isPending} type='submit' className='w-full'>
                 Sign in with email
               </Button>
               <div className='relative'>

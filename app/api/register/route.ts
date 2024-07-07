@@ -9,28 +9,28 @@ import { generateVerificationToken } from '@/lib/verification-token';
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(5, '1 h'),
+  limiter: Ratelimit.slidingWindow(5, '1 h'), // max requests per hour
 });
 
 export async function POST(req: Request, res: Response) {
   try {
     //* Rate limiter
-    // const ip = req.headers.get('x-forwarded-for') ?? '';
-    // const { success, pending, reset } = await ratelimit.limit(ip);
+    const ip = req.headers.get('x-forwarded-for') ?? '';
+    const { success, pending, reset } = await ratelimit.limit(ip);
 
-    // if (!success) {
-    //   const now = Date.now();
-    //   const retryAfter = Math.floor((reset - now) / 1000 / 60);
-    //   // const retryAfterInMinutes = Math.floor((reset - now) / 60000);
-    //   return NextResponse.json(
-    //     {
-    //       message: `Too many requests, please wait ${retryAfter}m`,
-    //     },
-    //     {
-    //       status: 429,
-    //     }
-    //   );
-    // }
+    if (!success) {
+      const now = Date.now();
+      const retryAfter = Math.floor((reset - now) / 1000 / 60);
+
+      return NextResponse.json(
+        {
+          errors: { limit: `Too many requests, please wait ${retryAfter}m` },
+        },
+        {
+          status: 429,
+        }
+      );
+    }
 
     const body = await req.json();
 
@@ -99,7 +99,7 @@ export async function POST(req: Request, res: Response) {
       await sendVerificationEmail(validatedData.data.email, verificationToken.token);
 
       return NextResponse.json(
-        { user: rest, message: 'User created successfully' },
+        { user: rest, message: 'User created successfully', success: 'Confirmation email sent!' },
         {
           status: 201,
         }
