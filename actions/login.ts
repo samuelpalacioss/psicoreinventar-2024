@@ -28,7 +28,13 @@ export const login = async (data: loginType) => {
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
 
-    await sendVerificationEmail(existingUser.email, verificationToken.token);
+    const verificationEmail = await sendVerificationEmail(
+      existingUser.email,
+      verificationToken.token
+    );
+    if (verificationEmail?.error) {
+      return { error: verificationEmail.error };
+    }
     return { error: 'Please confirm your email address' };
   }
 
