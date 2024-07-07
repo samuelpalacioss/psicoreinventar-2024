@@ -7,6 +7,13 @@ import { AuthError } from 'next-auth';
 import { getUserByEmail } from '@/hooks/user';
 import { generateVerificationToken } from '@/lib/verification-token';
 import { sendVerificationEmail } from '@/lib/email';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(4, '1 h'), // max requests per hour
+});
 
 export const login = async (data: loginType) => {
   const validatedData = loginSchema.safeParse(data);
@@ -26,15 +33,25 @@ export const login = async (data: loginType) => {
 
   // Check for verified email
   if (!existingUser.emailVerified) {
+    //* Rate limiter
+    const { success, reset } = await ratelimit.limit(email);
+
+    if (!success) {
+      const now = Date.now();
+      const retryAfter = Math.floor((reset - now) / 1000 / 60);
+
+      return {
+        error: `Try the last code sent to your email or wait ${retryAfter}m`,
+      };
+    }
+
     const verificationToken = await generateVerificationToken(existingUser.email);
 
     const verificationEmail = await sendVerificationEmail(
       existingUser.email,
       verificationToken.token
     );
-    if (verificationEmail?.error) {
-      return { error: verificationEmail.error };
-    }
+
     return { error: 'Please confirm your email address' };
   }
 
