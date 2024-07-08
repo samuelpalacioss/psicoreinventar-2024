@@ -84,7 +84,7 @@ export default function NewPasswordForm() {
                 <FormItem>
                   <FormLabel>Confirm password</FormLabel>
                   <FormControl>
-                    <Input type='password' placeholder='********' {...field} />
+                    <Input type='password' placeholder='********' disabled={isPending} {...field} />
                   </FormControl>
                   <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                 </FormItem>
