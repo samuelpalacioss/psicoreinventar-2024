@@ -5,7 +5,7 @@ import { signIn } from '@/auth';
 import { defaultLoginRedirect } from '@/config/routes';
 import { AuthError } from 'next-auth';
 import { getUserByEmail } from '@/hooks/user';
-import { generateVerificationToken } from '@/lib/verification-token';
+import { generateVerificationToken } from '@/lib/tokens';
 import { sendVerificationEmail } from '@/lib/email';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';

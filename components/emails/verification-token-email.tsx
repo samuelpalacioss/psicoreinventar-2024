@@ -71,7 +71,7 @@ export default function PsicoreinventarVerifyEmail({
   );
 }
 
-export const ReceiptEmailHtml = (props: PsicoreinventarVerifyEmailProps) =>
+export const VerificationEmailHtml = (props: PsicoreinventarVerifyEmailProps) =>
   render(<PsicoreinventarVerifyEmail {...props} />, {
     pretty: true,
   });

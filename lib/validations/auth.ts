@@ -35,3 +35,20 @@ export const resetPasswordSchema = z.object({
 });
 
 export type resetPasswordType = z.infer<typeof resetPasswordSchema>;
+
+export const newPasswordSchema = z
+  .object({
+    password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
+    confirmPassword: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
+  })
+  .refine(
+    (form) => {
+      return form.confirmPassword === form.password;
+    },
+    {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    }
+  );
+
+export type newPasswordType = z.infer<typeof newPasswordSchema>;
