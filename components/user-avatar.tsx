@@ -1,19 +1,22 @@
 import { User } from 'next-auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { cn } from '@/lib/utils';
 
 type UserAvatarProps = {
   user: Pick<User, 'name' | 'image'>;
 };
 
 export default function UserAvatar({ user }: UserAvatarProps) {
-  console.log(user.image);
-
+  const userInitials = user?.name
+    ?.split(' ')
+    .map((n) => n.charAt(0))
+    .join('');
   return (
     <Avatar>
       {user.image ? (
         <AvatarImage src={user.image}></AvatarImage>
       ) : (
-        <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+        <AvatarFallback className={cn('text-white bg-indigo-600')}>{userInitials}</AvatarFallback>
       )}
     </Avatar>
   );

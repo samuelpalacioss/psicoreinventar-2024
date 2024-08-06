@@ -58,14 +58,14 @@ export async function POST(req: Request, res: Response) {
       // const userImg = `https://source.boringavatars.com/marble/80/${validatedData.data.name}?colors=fdf4b0,a4dcb9,5bcebf,32b9be,2e97b7`;
       const firstName = validatedData.data.name.split(' ')[0];
       const lastName = validatedData.data.name.split(' ')[1];
-      const userImg = `https://api.dicebear.com/7.x/lorelei/png?seed=${firstName}${lastName}`;
+      // const userImg = `https://api.dicebear.com/7.x/lorelei/png?seed=${firstName}${lastName}`;
 
       const user = await prisma.user.create({
         data: {
           name: validatedData.data.name,
           email: validatedData.data.email,
           phone: validatedData.data.phone,
-          image: userImg,
+          // image: userImg,
           password: hashedPassword,
           role,
           doctorExperience: validatedData.data.doctorExperience,
