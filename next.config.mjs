@@ -16,10 +16,16 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'source.boringavatars.com',
+        hostname: 'api.dicebear.com',
         port: '',
         pathname: '**',
       },
+      // {
+      //   protocol: 'https',
+      //   hostname: 'source.boringavatars.com',
+      //   port: '',
+      //   pathname: '**',
+      // },
       {
         protocol: 'https',
         hostname: 'psicoreinventar.com',

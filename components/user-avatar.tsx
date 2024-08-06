@@ -6,6 +6,8 @@ type UserAvatarProps = {
 };
 
 export default function UserAvatar({ user }: UserAvatarProps) {
+  console.log(user.image);
+
   return (
     <Avatar>
       {user.image ? (

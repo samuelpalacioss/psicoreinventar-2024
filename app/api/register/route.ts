@@ -78,7 +78,8 @@ export async function POST(req: Request, res: Response) {
 
     if (validatedData.success) {
       //* Generate user image
-      const userImg = `https://source.boringavatars.com/marble/80/${validatedData.data.name}?colors=fdf4b0,a4dcb9,5bcebf,32b9be,2e97b7`;
+      // const userImg = `https://source.boringavatars.com/marble/80/${validatedData.data.name}?colors=fdf4b0,a4dcb9,5bcebf,32b9be,2e97b7`;
+      const userImg = `https://api.dicebear.com/9.x/thumbs/svg?seed=${validatedData.data.name}&backgroundColor=fdf4b0,a4dcb9,5bcebf,32b9be,2e97b7&backgroundType=gradientLinear&eyes=variant2W10,variant2W12,variant2W14,variant2W16,variant3W10,variant3W12,variant3W14,variant3W16,variant4W10,variant4W12,variant4W14,variant4W16,variant5W10,variant5W12,variant5W14,variant5W16,variant6W10,variant6W12,variant6W14,variant6W16,variant7W10,variant7W12,variant7W14,variant7W16,variant8W10,variant8W12,variant8W14,variant8W16,variant9W10,variant9W12,variant9W14,variant9W16&eyesColor=000000&mouth=variant1,variant2,variant3,variant4&mouthColor=000000&shapeColor=transparent`;
 
       const user = await prisma.user.create({
         data: {
