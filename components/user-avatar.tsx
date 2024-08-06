@@ -16,7 +16,9 @@ export default function UserAvatar({ user }: UserAvatarProps) {
       {user.image ? (
         <AvatarImage src={user.image}></AvatarImage>
       ) : (
-        <AvatarFallback className={cn('text-white bg-indigo-600')}>{userInitials}</AvatarFallback>
+        <AvatarFallback className={cn('font-medium text-white bg-indigo-600')}>
+          {userInitials}
+        </AvatarFallback>
       )}
     </Avatar>
   );
