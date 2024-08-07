@@ -7,7 +7,7 @@ export async function POST(req: Request, res: Response) {
   try {
     const body = await req.json();
 
-    const { name, email, password, phone, doctorExperience, doctorSpecialty, doctorEducation } =
+    const { name, email, password, phone, doctorExperience, doctorSpecialties, doctorEducation } =
       body;
 
     //! Check if all fields are filled
@@ -17,7 +17,7 @@ export async function POST(req: Request, res: Response) {
       !password ||
       !phone ||
       !doctorExperience ||
-      !doctorSpecialty ||
+      !doctorSpecialties ||
       !doctorEducation
     ) {
       return NextResponse.json(
@@ -54,22 +54,20 @@ export async function POST(req: Request, res: Response) {
     const validatedData = doctorSignUpSchema.safeParse(body);
 
     if (validatedData.success) {
-      //* Generate user image
-      // const userImg = `https://source.boringavatars.com/marble/80/${validatedData.data.name}?colors=fdf4b0,a4dcb9,5bcebf,32b9be,2e97b7`;
-      const firstName = validatedData.data.name.split(' ')[0];
-      const lastName = validatedData.data.name.split(' ')[1];
-      // const userImg = `https://api.dicebear.com/7.x/lorelei/png?seed=${firstName}${lastName}`;
-
       const user = await prisma.user.create({
         data: {
           name: validatedData.data.name,
           email: validatedData.data.email,
           phone: validatedData.data.phone,
-          // image: userImg,
+
           password: hashedPassword,
           role,
           doctorExperience: validatedData.data.doctorExperience,
-          doctorSpecialty: validatedData.data.doctorSpecialty,
+          doctorSpecialties: {
+            connect: validatedData.data.doctorSpecialties.map((specialty) => ({
+              id: specialty,
+            })),
+          },
           doctorEducation: validatedData.data.doctorEducation,
         },
       });

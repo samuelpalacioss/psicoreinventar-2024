@@ -47,12 +47,18 @@ model User {
   stripeSubscriptionId String?
   // doctor role
   doctorExperience     String?
-  doctorSpecialty      String?
   doctorEducation      String?
+  doctorSpecialties    Specialty[]
   // Relationships
   accounts             Account[]
   // doctorAppointments   Appointment[] @relation("doctorAppointments")
   patientAppointments  Appointment[] @relation("patientAppointments")
+}
+
+model Specialty {
+  id      String @id @default(cuid())
+  name    String @unique
+  doctors User[]
 }
 
 model Product {
