@@ -130,30 +130,67 @@ export default {
 
       return true;
     },
+    // authorized({ auth, request: { nextUrl } }) {
+    //   const { pathname, search } = nextUrl;
+    //   const isLoggedIn = !!auth?.user;
+
+    //   // Check if the user is on an auth page
+    //   const isOnAuthPage = authRoutes.some((page) => pathname.startsWith(page));
+
+    //   // Check if the user is on a public page
+    //   const isOnUnprotectedPage =
+    //     pathname === '/' || // The root page '/'
+    //     publicRoutes.some((page) => pathname.startsWith(page));
+    //   const isProtectedPage = !isOnUnprotectedPage;
+
+    //   if (isOnAuthPage) {
+    //     // Redirect to /dashboard, if logged in and is on an auth page
+    //     if (isLoggedIn) return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
+    //   } else if (isProtectedPage) {
+    //     // Redirect to /login, if not logged in but is on a protected page
+    //     if (!isLoggedIn) {
+    //       const from = encodeURIComponent(pathname + search); // The /login page shall then use this `from` param as a `callbackUrl` upon successful sign in
+    //       return Response.redirect(new URL(`/login?from=${from}`, nextUrl));
+    //     }
+    //   }
+
+    //   // Don't redirect if on an unprotected page, or if logged in and is on a protected page
+    //   return true;
+    // },
     authorized({ auth, request: { nextUrl } }) {
       const { pathname, search } = nextUrl;
       const isLoggedIn = !!auth?.user;
-      // Check if the user is on an auth page
-      const isOnAuthPage = authRoutes.some((page) => pathname.startsWith(page));
 
-      // Check if the user is on an public page
+      // console.log('Current pathname:', pathname);
+      // console.log('Is logged in:', isLoggedIn);
+
+      //* Check if the user is on an auth page
+      const isOnAuthPage = authRoutes.some((page) => pathname.startsWith(page));
+      // console.log('Is on auth page:', isOnAuthPage);
+
+      //* Check if the user is on a public page
       const isOnUnprotectedPage =
-        pathname === '/' || // The root page '/'
-        publicRoutes.some((page) => pathname.startsWith(page));
+        pathname === '/' || publicRoutes.some((page) => pathname.startsWith(page));
+      // console.log('Is on unprotected page:', isOnUnprotectedPage);
       const isProtectedPage = !isOnUnprotectedPage;
+      // console.log('Is protected page:', isProtectedPage);
 
       if (isOnAuthPage) {
-        // Redirect to /dashboard, if logged in and is on an auth page
-        if (isLoggedIn) return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
+        //* Redirect to /dashboard if logged in and is on an auth page
+        if (isLoggedIn) {
+          // console.log('Redirecting to dashboard from auth page');
+          return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
+        }
       } else if (isProtectedPage) {
-        // Redirect to /login, if not logged in but is on a protected page
+        //* Redirect to /login if not logged in but is on a protected page
         if (!isLoggedIn) {
-          const from = encodeURIComponent(pathname + search); // The /login page shall then use this `from` param as a `callbackUrl` upon successful sign in
+          const from = encodeURIComponent(pathname + search); //* The /login page shall then use this `from` param as a `callbackUrl` upon successful sign-in
+          // console.log('Redirecting to login from protected page');
           return Response.redirect(new URL(`/login?from=${from}`, nextUrl));
         }
       }
 
-      // Don't redirect if on an unprotected page, or if logged in and is on a protected page
+      //* Don't redirect if on an unprotected page or if logged in and is on a protected page
       return true;
     },
     async jwt({ token, user, session }) {
