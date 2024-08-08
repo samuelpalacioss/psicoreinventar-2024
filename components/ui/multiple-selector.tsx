@@ -8,7 +8,6 @@ import { forwardRef, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { Checkbox } from '@/components/ui/checkbox';
 
 export interface Option {
   value: string;
@@ -195,8 +194,8 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
     const [inputValue, setInputValue] = React.useState('');
     const debouncedSearchTerm = useDebounce(inputValue, delay || 500);
 
-    // console.log('selected', selected.length);
-    // console.log('maxSelected', maxSelected);
+    console.log('selected', selected.length);
+    console.log('maxSelected', maxSelected);
 
     React.useImperativeHandle(
       ref,
@@ -218,33 +217,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
         setOpen(false);
       }
     };
-
-    const handleSelect = React.useCallback(
-      (option: Option) => {
-        const isAlreadySelected = selected.some((s) => s.value === option.value);
-        const newOptions = isAlreadySelected
-          ? selected.filter((s) => s.value !== option.value)
-          : [...selected, option];
-
-        // // If the new option count exceeds the maximum allowed selection, return early.
-        // if (newOptions.length > maxSelected) {
-        //   onMaxSelected?.(maxSelected);
-        //   return;
-        // }
-
-        // Update the state with a debounce to prevent conflicts
-        setSelected(newOptions);
-        onChange?.(newOptions);
-
-        // Ensure the dropdown remains open on mobile devices
-        if ('ontouchstart' in window) {
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 100); // Adding a short delay before refocusing the input
-        }
-      },
-      [onChange, selected, maxSelected, onMaxSelected]
-    );
 
     const handleUnselect = React.useCallback(
       (option: Option) => {
@@ -356,10 +328,10 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
             e.stopPropagation();
           }}
           onSelect={(value: string) => {
-            // if (selected.length >= maxSelected) {
-            //   onMaxSelected?.(selected.length);
-            //   return;
-            // }
+            if (selected.length >= maxSelected) {
+              onMaxSelected?.(selected.length);
+              return;
+            }
             setInputValue('');
             const newOptions = [...selected, { value, label: value }];
             setSelected(newOptions);
@@ -414,7 +386,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
           return value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
         };
       }
-      // Using default filter in `cmdk`. We don't have to provide it.
       return undefined;
     }, [creatable, commandProps?.filter]);
 
@@ -443,45 +414,44 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
           )}
           onClick={() => {
             if (disabled) return;
-            inputRef.current?.focus();
+            setOpen(true); // Ensure dropdown opens on first click
           }}
         >
           <div className='relative flex flex-wrap gap-1'>
+            {/* Render selected options and input */}
             {selected.length > 0 &&
-              selected.slice(0, maxSelected).map((option) => {
-                return (
-                  <Badge
-                    key={option.value}
+              selected.slice(0, maxSelected).map((option) => (
+                <Badge
+                  key={option.value}
+                  className={cn(
+                    'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
+                    'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
+                    badgeClassName
+                  )}
+                  data-fixed={option.fixed}
+                  data-disabled={disabled || undefined}
+                >
+                  {option.label}
+                  <button
                     className={cn(
-                      'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-green',
-                      'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-green',
-                      badgeClassName
+                      'ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                      (disabled || option.fixed) && 'hidden'
                     )}
-                    data-fixed={option.fixed}
-                    data-disabled={disabled || undefined}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleUnselect(option);
+                      }
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={() => handleUnselect(option)}
                   >
-                    {option.label}
-                    <button
-                      className={cn(
-                        'ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                        (disabled || option.fixed) && 'hidden'
-                      )}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleUnselect(option);
-                        }
-                      }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      onClick={() => handleUnselect(option)}
-                    >
-                      <XCircle className='h-4 w-4 text-white hover:text-muted-foreground' />
-                    </button>
-                  </Badge>
-                );
-              })}
+                    <X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+                  </button>
+                </Badge>
+              ))}
             {selected.length > maxSelected && (
               <Badge
                 className={cn(
@@ -500,7 +470,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 />
               </Badge>
             )}
-            {/* Avoid having the "Search" Icon */}
+
             <CommandPrimitive.Input
               {...inputProps}
               ref={inputRef}
@@ -547,7 +517,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                   'hidden'
               )}
             >
-              <X className='h-4 w-4' />
+              <X />
             </button>
           </div>
         </div>
@@ -574,34 +544,80 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                   {!selectFirstItem && <CommandItem value='-' className='hidden' />}
                   {Object.entries(selectables).map(([key, dropdowns]) => (
                     <CommandGroup key={key} heading={key} className='h-full overflow-auto'>
-                      <>
-                        {dropdowns.map((option) => {
-                          const isSelected = selected.some((s) => s.value === option.value);
-                          return (
-                            <CommandItem
-                              key={option.value}
-                              onSelect={() => handleSelect(option)}
-                              onTouchStart={(e) => {
-                                e.preventDefault();
-                                handleSelect(option);
-                              }}
-                              className='cursor-pointer'
+                      {/* {dropdowns.map((option) => (
+                        <CommandItem
+                          key={option.value}
+                          value={option.value}
+                          disabled={option.disable}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          onSelect={() => {
+                            // if (selected.length >= maxSelected) {
+                            //   onMaxSelected?.(selected.length);
+                            //   return;
+                            // }
+                            setInputValue('');
+                            const newOptions = [...selected, option];
+                            setSelected(newOptions);
+                            onChange?.(newOptions);
+                          }}
+                          className={cn(
+                            'cursor-pointer',
+                            option.disable && 'cursor-default text-muted-foreground'
+                          )}
+                        >
+                          {option.label}
+                        </CommandItem>
+                      ))} */}
+                      {dropdowns.map((option) => {
+                        const isSelected = selected.some((s) => s.value === option.value);
+                        return (
+                          <CommandItem
+                            key={option.value}
+                            value={option.value}
+                            disabled={option.disable}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onSelect={() => {
+                              setInputValue('');
+                              let newOptions;
+
+                              if (isSelected) {
+                                // Remove the option if it's already selected
+                                newOptions = selected.filter((s) => s.value !== option.value);
+                              } else {
+                                // Add the option if it's not selected
+                                newOptions = [...selected, option];
+                              }
+
+                              setSelected(newOptions);
+                              onChange?.(newOptions);
+                            }}
+                            className='cursor-pointer'
+                          >
+                            <div
+                              className={cn(
+                                'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                                isSelected
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'opacity-50 [&_svg]:invisible'
+                              )}
                             >
-                              <div
-                                className={cn(
-                                  'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                                  selected.some((s) => s.value === option.value)
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'opacity-50 [&_svg]:invisible'
-                                )}
-                              >
-                                <CheckIcon className='h-4 w-4' />
-                              </div>
-                              <span>{option.label}</span>
-                            </CommandItem>
-                          );
-                        })}
-                      </>
+                              <CheckIcon
+                                className={cn('h-4 w-4', {
+                                  visible: isSelected,
+                                  invisible: !isSelected,
+                                })}
+                              />
+                            </div>
+                            <span>{option.label}</span>
+                          </CommandItem>
+                        );
+                      })}
                     </CommandGroup>
                   ))}
                 </>

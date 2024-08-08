@@ -12,7 +12,7 @@ export default async function RegisterDoctorPage() {
 
   const options: Option[] = specialties.map((specialty) => ({
     label: specialty.name,
-    value: specialty.id,
+    value: specialty.name,
   }));
   return (
     // <h1 className='text-3xl font-bold tracking-tight text-gray-900 md:text-4xl'>
