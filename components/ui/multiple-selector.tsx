@@ -225,6 +225,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
           ? selected.filter((s) => s.value !== option.value)
           : [...selected, option];
 
+        // // If the new option count exceeds the maximum allowed selection, return early.
         // if (newOptions.length > maxSelected) {
         //   onMaxSelected?.(maxSelected);
         //   return;
@@ -232,6 +233,13 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
 
         setSelected(newOptions);
         onChange?.(newOptions);
+
+        // Keep the dropdown open after selection on mobile devices.
+        if ('ontouchstart' in window) {
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 100); // Adding a short delay before focusing back on input
+        }
       },
       [onChange, selected, maxSelected, onMaxSelected]
     );
@@ -588,6 +596,10 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                             <CommandItem
                               key={option.value}
                               onSelect={() => handleSelect(option)}
+                              onTouchStart={(e) => {
+                                e.preventDefault();
+                                handleSelect(option);
+                              }}
                               className='cursor-pointer'
                             >
                               <div
@@ -600,7 +612,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                               >
                                 <CheckIcon className='h-4 w-4' />
                               </div>
-
                               <span>{option.label}</span>
                             </CommandItem>
                           );

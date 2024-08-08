@@ -66,6 +66,7 @@ export async function POST(req: Request, res: Response) {
           doctorSpecialties: {
             connect: validatedData.data.doctorSpecialties.map((specialty) => ({
               id: specialty.value,
+              name: specialty.label,
             })),
           },
           doctorEducation: validatedData.data.doctorEducation,
