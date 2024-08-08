@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+const optionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
 export const doctorSignUpSchema = z
   .object({
     name: z
@@ -13,7 +18,7 @@ export const doctorSignUpSchema = z
     phone: z.string().min(10, { message: 'Please provide phone number' }),
     doctorExperience: z.string().min(1, { message: 'Please provide experience' }),
     doctorSpecialties: z
-      .array(z.string().min(1, { message: 'Please provide specialty' }))
+      .array(optionSchema)
       .nonempty({ message: 'Please provide at least one specialty' }),
     doctorEducation: z.string().min(5, { message: 'Please provide education' }),
   })
