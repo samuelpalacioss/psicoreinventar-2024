@@ -221,7 +221,8 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
 
     const handleSelect = React.useCallback(
       (option: Option) => {
-        const newOptions = selected.some((s) => s.value === option.value)
+        const isAlreadySelected = selected.some((s) => s.value === option.value);
+        const newOptions = isAlreadySelected
           ? selected.filter((s) => s.value !== option.value)
           : [...selected, option];
 
@@ -231,14 +232,15 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
         //   return;
         // }
 
+        // Update the state with a debounce to prevent conflicts
         setSelected(newOptions);
         onChange?.(newOptions);
 
-        // Keep the dropdown open after selection on mobile devices.
+        // Ensure the dropdown remains open on mobile devices
         if ('ontouchstart' in window) {
           setTimeout(() => {
             inputRef.current?.focus();
-          }, 100); // Adding a short delay before focusing back on input
+          }, 100); // Adding a short delay before refocusing the input
         }
       },
       [onChange, selected, maxSelected, onMaxSelected]
@@ -576,23 +578,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                         {dropdowns.map((option) => {
                           const isSelected = selected.some((s) => s.value === option.value);
                           return (
-                            // <div
-                            //   key={option.value}
-                            //   className='flex items-center p-2 space-x-2 hover:bg-gray-200'
-                            // >
-                            //   <Checkbox
-                            //     id={option.value}
-                            //     checked={selected.some((s) => s.value === option.value)}
-                            //     onCheckedChange={() => handleSelect(option)}
-                            //     disabled={disabled}
-                            //   />
-                            //   <label
-                            //     htmlFor={option.value}
-                            //     className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1'
-                            //   >
-                            //     {option.label}
-                            //   </label>
-                            // </div>
                             <CommandItem
                               key={option.value}
                               onSelect={() => handleSelect(option)}
@@ -605,7 +590,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                               <div
                                 className={cn(
                                   'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                                  isSelected
+                                  selected.some((s) => s.value === option.value)
                                     ? 'bg-primary text-primary-foreground'
                                     : 'opacity-50 [&_svg]:invisible'
                                 )}
