@@ -14,11 +14,5 @@ export default async function RegisterDoctorPage() {
     label: specialty.name,
     value: specialty.name,
   }));
-  return (
-    // <h1 className='text-3xl font-bold tracking-tight text-gray-900 md:text-4xl'>
-    //   Register Doctor Page
-    // </h1>
-
-    <RegisterDoctorForm specialties={options} />
-  );
+  return <RegisterDoctorForm specialties={options} />;
 }

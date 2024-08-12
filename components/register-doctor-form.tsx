@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -25,20 +25,6 @@ interface RegisterDoctorClientFormProps {
   specialties: Option[];
 }
 
-const OPTIONS: Option[] = [
-  { label: 'nextjs', value: 'Nextjs' },
-  { label: 'React', value: 'react' },
-  { label: 'Remix', value: 'remix' },
-  { label: 'Vite', value: 'vite' },
-  { label: 'Nuxt', value: 'nuxt' },
-  { label: 'Vue', value: 'vue' },
-  { label: 'Svelte', value: 'svelte' },
-  { label: 'Angular', value: 'angular' },
-  { label: 'Ember', value: 'ember', disable: true },
-  { label: 'Gatsby', value: 'gatsby', disable: true },
-  { label: 'Astro', value: 'astro' },
-];
-
 export default function RegisterDoctorForm({ specialties }: RegisterDoctorClientFormProps) {
   const router = useRouter();
 
@@ -57,6 +43,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
       doctorExperience: '',
       doctorSpecialties: [],
       doctorEducation: '',
+      doctorGraduationYear: '',
     },
   });
 
@@ -141,10 +128,9 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
   };
 
   return (
-    <Card className='w-[32rem]'>
+    <Card className='w-[28rem]'>
       <CardHeader>
-        <CardTitle>Register</CardTitle>
-        <CardDescription>Welcome Doc!</CardDescription>
+        <CardTitle>Let's Get Started!</CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -163,7 +149,6 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name='doctorSpecialties'
@@ -180,7 +165,49 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                       hidePlaceholderWhenSelected={true}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                </FormItem>
+              )}
+            />
+            <div className='flex gap-4'>
+              <FormField
+                control={form.control}
+                name='doctorExperience'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Years of Experience</FormLabel>
+                    <FormControl>
+                      <Input type='number' min='1' placeholder='5' {...field} />
+                    </FormControl>
+                    <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='doctorGraduationYear'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Graduation Year</FormLabel>
+                    <FormControl>
+                      <Input type='string' placeholder='2020' {...field} />
+                    </FormControl>
+                    <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name='doctorEducation'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Graduation Institution</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Stanford University' {...field} />
+                  </FormControl>
+                  <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                 </FormItem>
               )}
             />
@@ -198,7 +225,6 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                 </FormItem>
               )}
             />
-
             <FormErrorMessage message={errorMsg} />
             <FormSuccessMessage message={successMsg} />
             <Button disabled={isSubmitting} type='submit'>

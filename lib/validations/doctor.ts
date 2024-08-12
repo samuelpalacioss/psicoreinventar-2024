@@ -20,7 +20,34 @@ export const doctorSignUpSchema = z
     doctorSpecialties: z
       .array(optionSchema)
       .nonempty({ message: 'Please provide at least one specialty' }),
-    doctorEducation: z.string().min(5, { message: 'Please provide education' }),
+    doctorEducation: z.string().min(5, { message: 'Please provide your university' }),
+    doctorGraduationYear: z
+      .string()
+      .min(4, { message: 'Please provide graduation year' })
+      .refine(
+        (value) => {
+          return !isNaN(parseInt(value));
+        },
+        {
+          message: 'Graduation year must be a valid integer',
+        }
+      )
+      .refine(
+        (value) => {
+          return parseInt(value) >= 1950;
+        },
+        {
+          message: 'Graduation year must be 1950 or later',
+        }
+      )
+      .refine(
+        (value) => {
+          return parseInt(value) <= new Date().getFullYear() - 1;
+        },
+        {
+          message: `Graduation year must be ${new Date().getFullYear() - 1} or earlier`,
+        }
+      ),
   })
   .refine(
     (form) => {
