@@ -194,8 +194,8 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
     const [inputValue, setInputValue] = React.useState('');
     const debouncedSearchTerm = useDebounce(inputValue, delay || 500);
 
-    console.log('selected', selected.length);
-    console.log('maxSelected', maxSelected);
+    // console.log('selected', selected.length);
+    // console.log('maxSelected', maxSelected);
 
     React.useImperativeHandle(
       ref,
