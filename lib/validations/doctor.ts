@@ -10,20 +10,20 @@ export const doctorSignUpSchema = z.object({
     .string()
     .min(1, { message: 'Please provide name' })
     .max(50, { message: 'Full name must be less than 50 characters' }),
-  email: z.string().email({ message: 'Please provide email' }),
-  password: z.string().min(8, { message: 'Password must have minimum 8 characters' }),
-  confirmPassword: z.string().min(8, { message: 'Password must have minimum 8 characters' }),
-  role: z.enum(['doctor']).optional(),
-  phone: z.string().min(10, { message: 'Please provide phone number' }),
+  // email: z.string().email({ message: 'Please provide email' }),
+  // password: z.string().min(8, { message: 'Password must have minimum 8 characters' }),
+  // confirmPassword: z.string().min(8, { message: 'Password must have minimum 8 characters' }),
+  // role: z.enum(['doctor']).optional(),
+  // phone: z.string().min(10, { message: 'Please provide phone number' }),
   doctorExperience: z.string().min(1, { message: 'Please provide experience' }),
   doctorSpecialties: z
     .array(optionSchema)
     .nonempty({ message: 'Please provide at least one specialty' }),
   doctorEducation: z.string().min(3, { message: 'Please provide your university' }),
-  doctorLicenseNumber: z
-    .string()
-    .min(4, { message: 'Please provide license number' })
-    .transform((val) => val.toUpperCase()),
+  // doctorLicenseNumber: z
+  //   .string()
+  //   .min(4, { message: 'Please provide license number' })
+  //   .transform((val) => val.toUpperCase()),
   doctorGraduationYear: z
     .string()
     .min(4, { message: 'Please provide graduation year' })

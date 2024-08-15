@@ -250,10 +250,11 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
     );
 
     const clearExtraOptions = () => {
-      const newSelectedValues = selected.slice(0, maxSelected);
-      setSelected(newSelectedValues);
+      // Remove all options beyond the maxSelected
+      const newOptions = selected.slice(0, maxSelected);
+      setSelected(newOptions);
+      onChange?.(newOptions);
     };
-
     useEffect(() => {
       if (open) {
         document.addEventListener('mousedown', handleClickOutside);
