@@ -67,13 +67,13 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
     resolver: zodResolver(doctorSignUpSchema),
     defaultValues: {
       name: '',
-      // email: '',
-      // password: '',
-      // confirmPassword: '',
-      // role: 'doctor',
-      // phone: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: 'doctor',
+      phone: '',
       doctorExperience: '',
-      // doctorLicenseNumber: '',
+      doctorLicenseNumber: '',
       doctorSpecialties: [],
       doctorEducation: '',
       doctorGraduationYear: '',
@@ -110,9 +110,9 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-      // if (currentStep === steps.length - 2) {
-      //   await handleSubmit(onSubmit)();
-      // }
+      if (currentStep === steps.length - 2) {
+        await handleSubmit(onSubmit)();
+      }
       setPreviousStep(currentStep);
       setCurrentStep((step) => step + 1);
     }
@@ -207,88 +207,176 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
         <CardContent className='p-6'>
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full name</FormLabel>
-                    <FormControl>
-                      <Input placeholder='John Doe' {...field} />
-                    </FormControl>
-                    <FormMessage className='text-[0.8rem]' /> {/* Form error */}
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='doctorSpecialties'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Specialties</FormLabel>
-                    <FormControl>
-                      <MultipleSelector
-                        {...field}
-                        defaultOptions={specialties}
-                        placeholder='Select your specialties'
-                        badgeClassName='hover:bg-primary/90'
-                        maxSelected={3}
-                        hidePlaceholderWhenSelected={true}
-                      />
-                    </FormControl>
-                    <FormMessage className='text-[0.8rem]' /> {/* Form error */}
-                  </FormItem>
-                )}
-              />
+              {currentStep === 0 && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name='doctorLicenseNumber'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>License Number</FormLabel>
+                        <FormControl>
+                          <Input type='string' placeholder='MH12345' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='doctorSpecialties'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specialties</FormLabel>
+                        <FormControl>
+                          <MultipleSelector
+                            {...field}
+                            defaultOptions={specialties}
+                            placeholder='Select your specialties'
+                            badgeClassName='hover:bg-primary/90'
+                            maxSelected={3}
+                            hidePlaceholderWhenSelected={true}
+                          />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
 
-              <div className='flex gap-4'>
-                <FormField
-                  control={form.control}
-                  name='doctorExperience'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Years of Experience</FormLabel>
-                      <FormControl>
-                        <Input type='number' min='1' placeholder='5' {...field} />
-                      </FormControl>
-                      <FormMessage className='text-[0.8rem]' /> {/* Form error */}
-                    </FormItem>
-                  )}
-                />
+                  <div className='flex gap-4'>
+                    <FormField
+                      control={form.control}
+                      name='doctorExperience'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Years of Experience</FormLabel>
+                          <FormControl>
+                            <Input type='number' min='1' placeholder='5' {...field} />
+                          </FormControl>
+                          <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name='doctorGraduationYear'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Graduation Year</FormLabel>
-                      <FormControl>
-                        <Input type='string' placeholder='2020' {...field} />
-                      </FormControl>
-                      <FormMessage className='text-[0.8rem]' /> {/* Form error */}
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name='doctorEducation'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Graduation Institution</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Stanford University' {...field} />
-                    </FormControl>
-                    <FormMessage className='text-[0.8rem]' /> {/* Form error */}
-                  </FormItem>
-                )}
-              />
+                    <FormField
+                      control={form.control}
+                      name='doctorGraduationYear'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Graduation Year</FormLabel>
+                          <FormControl>
+                            <Input type='string' placeholder='2020' {...field} />
+                          </FormControl>
+                          <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name='doctorEducation'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Graduation Institution</FormLabel>
+                        <FormControl>
+                          <Input placeholder='Stanford University' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+              {currentStep === 1 && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name='name'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full name</FormLabel>
+                        <FormControl>
+                          <Input placeholder='John Doe' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='email'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type='email' placeholder='jdoe@gmail.com' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='password'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type='password' placeholder='********' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='confirmPassword'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm password</FormLabel>
+                        <FormControl>
+                          <Input type='password' placeholder='********' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='phone'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone number</FormLabel>
+                        <FormControl>
+                          <Input type='tel' placeholder='(212) 555-5555' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
               <FormErrorMessage message={errorMsg} />
               <FormSuccessMessage message={successMsg} />
               <div className='flex items-center'>
-                <Button disabled={isSubmitting} type='submit'>
-                  Submit
-                </Button>
+                {currentStep > 0 && (
+                  <Button type='button' className='mr-2' onClick={prev}>
+                    <ArrowLeft className='w-4 h-4 mr-2' />
+                    Back
+                  </Button>
+                )}
+                {currentStep === steps.length - 1 && (
+                  <Button disabled={isSubmitting} type='submit'>
+                    Submit
+                  </Button>
+                )}
+
+                {currentStep < steps.length - 1 && (
+                  <Button type='button' onClick={next}>
+                    Next
+                    <ArrowRight className='w-4 h-4 ml-2' />
+                  </Button>
+                )}
               </div>
             </form>
           </Form>
