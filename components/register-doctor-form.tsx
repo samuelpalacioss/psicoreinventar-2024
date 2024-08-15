@@ -42,14 +42,18 @@ const steps = [
     id: 1,
     name: 'Professional Info',
     fields: [
-      'name',
+      'doctorLicenseNumber',
       'doctorSpecialties',
       'doctorExperience',
       'doctorGraduationYear',
       'doctorEducation',
     ],
   },
-  { id: 2, name: 'Personal Info', fields: ['email', 'password', 'confirmPassword', 'phone'] },
+  {
+    id: 2,
+    name: 'Personal Info',
+    fields: ['name', 'email', 'password', 'confirmPassword', 'phone'],
+  },
   // { id: 3, name: 'Account Info' },
 ];
 
@@ -69,10 +73,13 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
       role: 'doctor',
       phone: '',
       doctorExperience: '',
+      doctorLicenseNumber: '',
       doctorSpecialties: [],
       doctorEducation: '',
       doctorGraduationYear: '',
     },
+
+    mode: 'onChange',
   });
 
   const {
@@ -87,7 +94,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
 
   const onSubmit: SubmitHandler<doctorSignUpType> = (data) => {
     console.log(data);
-    reset();
+    // reset();
   };
 
   const [previousStep, setPreviousStep] = useState<number>(0);
@@ -204,12 +211,12 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                 <>
                   <FormField
                     control={form.control}
-                    name='name'
+                    name='doctorLicenseNumber'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full name</FormLabel>
+                        <FormLabel>License Number</FormLabel>
                         <FormControl>
-                          <Input placeholder='John Doe' {...field} />
+                          <Input type='string' placeholder='MH12345' {...field} />
                         </FormControl>
                         <FormMessage className='text-[0.8rem]' /> {/* Form error */}
                       </FormItem>
@@ -282,6 +289,19 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
               )}
               {currentStep === 1 && (
                 <>
+                  <FormField
+                    control={form.control}
+                    name='name'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full name</FormLabel>
+                        <FormControl>
+                          <Input placeholder='John Doe' {...field} />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name='email'

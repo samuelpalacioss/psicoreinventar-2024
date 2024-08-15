@@ -20,6 +20,10 @@ export const doctorSignUpSchema = z.object({
     .array(optionSchema)
     .nonempty({ message: 'Please provide at least one specialty' }),
   doctorEducation: z.string().min(3, { message: 'Please provide your university' }),
+  doctorLicenseNumber: z
+    .string()
+    .min(4, { message: 'Please provide license number' })
+    .transform((val) => val.toUpperCase()),
   doctorGraduationYear: z
     .string()
     .min(4, { message: 'Please provide graduation year' })
