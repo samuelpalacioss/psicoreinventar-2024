@@ -110,9 +110,9 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-      if (currentStep === steps.length - 2) {
-        await handleSubmit(onSubmit)();
-      }
+      // if (currentStep === steps.length - 2) {
+      //   await handleSubmit(onSubmit)();
+      // }
       setPreviousStep(currentStep);
       setCurrentStep((step) => step + 1);
     }
