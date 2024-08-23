@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
-
 type Step = {
   id: number;
   name: string;
