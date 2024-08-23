@@ -2,11 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -16,7 +14,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { doctorSignUpSchema, doctorSignUpType } from '@/lib/validations/doctor';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -26,12 +25,6 @@ import FormSuccessMessage from './form-success-msg';
 import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
 import ProgressBar from './progress-bar';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
-});
 
 interface RegisterDoctorClientFormProps {
   specialties: Option[];
@@ -54,7 +47,16 @@ const steps = [
     name: 'Personal Info',
     fields: ['name', 'email', 'password', 'confirmPassword', 'phone'],
   },
-  // { id: 3, name: 'Account Info' },
+  {
+    id: 3,
+    name: 'Profile Info',
+    fields: ['clientExpectations', 'treatmentMethods', 'doctorStrengths'],
+  },
+  {
+    id: 4,
+    name: 'About',
+    fields: ['doctorDescription'],
+  },
 ];
 
 export default function RegisterDoctorForm({ specialties }: RegisterDoctorClientFormProps) {
@@ -77,6 +79,10 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
       doctorSpecialties: [],
       doctorEducation: '',
       doctorGraduationYear: '',
+      clientExpectations: '',
+      treatmentMethods: '',
+      doctorStrengths: '',
+      doctorDescription: '',
     },
 
     mode: 'onChange',
@@ -110,9 +116,6 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-      // if (currentStep === steps.length - 2) {
-      //   await handleSubmit(onSubmit)();
-      // }
       setPreviousStep(currentStep);
       setCurrentStep((step) => step + 1);
     }
@@ -200,10 +203,10 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
   // };
 
   return (
-    <div className='flex flex-col space-y-8'>
+    <div className='flex flex-col space-y-4'>
       {/* Top Progress bar*/}
-      <ProgressBar steps={steps} currentStep={currentStep} />
-      <Card className='w-[30rem]'>
+      <ProgressBar steps={steps} currentStep={currentStep} maxSteps={3} />
+      <Card className='w-[32rem]'>
         <CardContent className='p-6'>
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -356,6 +359,87 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                   />
                 </>
               )}
+              {currentStep === 2 && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name='clientExpectations'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What can clients expect from sessions with you?</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            id='about-me'
+                            placeholder='Describe what clients can expect from your sessions...'
+                            className='min-h-[100px] resize-none'
+                          />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='treatmentMethods'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What treatment methods do you utilize?</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            id='about-me'
+                            placeholder='List and describe your treatment methods or methodologies...'
+                            className='min-h-[100px] resize-none'
+                          />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='doctorStrengths'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What areas do you feel are your biggest strengths?</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            id='about-me'
+                            placeholder='Describe your biggest strengths...'
+                            className='min-h-[100px] resize-none'
+                          />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+              {currentStep === 3 && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name='doctorDescription'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>About Me</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            id='about-me'
+                            placeholder='Describe yourself and your practice...'
+                            className='min-h-[200px] resize-none'
+                          />
+                        </FormControl>
+                        <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
               <FormErrorMessage message={errorMsg} />
               <FormSuccessMessage message={successMsg} />
               <div className='flex items-center'>

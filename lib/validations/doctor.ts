@@ -25,6 +25,22 @@ export const doctorSignUpSchema = z
       .string()
       .min(4, { message: 'Please provide license number' })
       .transform((val) => val.toUpperCase()),
+    doctorDescription: z
+      .string()
+      .min(400, { message: 'Please provide more info about who you are' })
+      .max(1000, { message: 'Your description must be between 100 and 1000 characters' }),
+    clientExpectations: z
+      .string()
+      .min(100, { message: 'Please provide more info about your client expectations' })
+      .max(400, { message: 'Your description must be between 100 and 400 characters' }),
+    treatmentMethods: z
+      .string()
+      .min(100, { message: 'Please provide more info about your treatment methods' })
+      .max(400, { message: 'Your description must be between 100 and 400 characters' }),
+    doctorStrengths: z
+      .string()
+      .min(100, { message: 'Please provide more info about your main strengths' })
+      .max(400, { message: 'Your description must be between 100 and 400 characters' }),
     doctorGraduationYear: z
       .string()
       .min(4, { message: 'Please provide graduation year' })

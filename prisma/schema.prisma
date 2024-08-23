@@ -48,6 +48,10 @@ model User {
   // doctor role
   doctorExperience     String?
   doctorEducation      String?
+  doctorDescription    String?
+  clientExpectations   String?
+  treatmentMethods     String?
+  doctorStrengths      String?
   doctorSpecialties    Specialty[]
   // Relationships
   accounts             Account[]
