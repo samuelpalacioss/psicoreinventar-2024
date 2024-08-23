@@ -16,16 +16,16 @@ export const doctorSignUpSchema = z
     confirmPassword: z.string().min(8, { message: 'Password must have minimum 8 characters' }),
     role: z.enum(['doctor']).optional(),
     phone: z.string().min(10, { message: 'Please provide phone number' }),
-    doctorExperience: z.string().min(1, { message: 'Please provide experience' }),
-    doctorSpecialties: z
+    experience: z.string().min(1, { message: 'Please provide experience' }),
+    specialties: z
       .array(optionSchema)
       .nonempty({ message: 'Please provide at least one specialty' }),
-    doctorEducation: z.string().min(3, { message: 'Please provide your university' }),
-    doctorLicenseNumber: z
+    education: z.string().min(3, { message: 'Please provide your university' }),
+    licenseNumber: z
       .string()
       .min(4, { message: 'Please provide license number' })
       .transform((val) => val.toUpperCase()),
-    doctorDescription: z
+    description: z
       .string()
       .min(400, { message: 'Please provide more info about who you are' })
       .max(1000, { message: 'Your description must be between 100 and 1000 characters' }),
@@ -37,11 +37,11 @@ export const doctorSignUpSchema = z
       .string()
       .min(100, { message: 'Please provide more info about your treatment methods' })
       .max(400, { message: 'Your description must be between 100 and 400 characters' }),
-    doctorStrengths: z
+    strengths: z
       .string()
       .min(100, { message: 'Please provide more info about your main strengths' })
       .max(400, { message: 'Your description must be between 100 and 400 characters' }),
-    doctorGraduationYear: z
+    graduationYear: z
       .string()
       .min(4, { message: 'Please provide graduation year' })
       .refine(

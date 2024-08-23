@@ -14,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { doctorSignUpSchema, doctorSignUpType } from '@/lib/validations/doctor';
 import { useRouter } from 'next/navigation';
@@ -34,13 +33,7 @@ const steps = [
   {
     id: 1,
     name: 'Professional Info',
-    fields: [
-      'doctorLicenseNumber',
-      'doctorSpecialties',
-      'doctorExperience',
-      'doctorGraduationYear',
-      'doctorEducation',
-    ],
+    fields: ['licenseNumber', 'specialties', 'experience', 'graduationYear', 'education'],
   },
   {
     id: 2,
@@ -50,12 +43,12 @@ const steps = [
   {
     id: 3,
     name: 'Profile Info',
-    fields: ['clientExpectations', 'treatmentMethods', 'doctorStrengths'],
+    fields: ['clientExpectations', 'treatmentMethods', 'strengths'],
   },
   {
     id: 4,
     name: 'About',
-    fields: ['doctorDescription'],
+    fields: ['description'],
   },
 ];
 
@@ -74,15 +67,15 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
       confirmPassword: '',
       role: 'doctor',
       phone: '',
-      doctorExperience: '',
-      doctorLicenseNumber: '',
-      doctorSpecialties: [],
-      doctorEducation: '',
-      doctorGraduationYear: '',
+      experience: '',
+      licenseNumber: '',
+      specialties: [],
+      education: '',
+      graduationYear: '',
       clientExpectations: '',
       treatmentMethods: '',
-      doctorStrengths: '',
-      doctorDescription: '',
+      strengths: '',
+      description: '',
     },
 
     mode: 'onChange',
@@ -98,9 +91,39 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
     setError,
   } = form;
 
-  const onSubmit: SubmitHandler<doctorSignUpType> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<doctorSignUpType> = async (data) => {
+    // console.log(data);
     // reset();
+    const res = await fetch('/api/register/doctor', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+        phone: data.phone,
+        licenseNumber: data.licenseNumber,
+        experience: data.experience,
+        graduationYear: data.graduationYear,
+        education: data.education,
+        specialties: data.specialties,
+        clientExpectations: data.clientExpectations,
+        treatmentMethods: data.treatmentMethods,
+        strengths: data.strengths,
+        description: data.description,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const resData = await res.json();
+
+    if (!res.ok) {
+      setErrorMsg('Something went wrong');
+    } else {
+      setSuccessMsg(resData.success); // Mensaje con success en su respuesta de api/register
+    }
   };
 
   const [previousStep, setPreviousStep] = useState<number>(0);
@@ -136,9 +159,9 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
   //       password: data.password,
   //       confirmPassword: data.confirmPassword,
   //       phone: data.phone,
-  //       doctorExperience: data.doctorExperience,
-  //       doctorSpecialties: data.doctorSpecialties,
-  //       doctorEducation: `${data.doctorGraduationYear} ${data.doctorEducation}`,
+  //       experience: data.experience,
+  //       specialties: data.specialties,
+  //       education: `${data.graduationYearraduationYear} ${data.education}`,
   //     }),
   //     headers: {
   //       'Content-Type': 'application/json',
@@ -179,20 +202,20 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
   //         type: 'server',
   //         message: errors.phone,
   //       });
-  //     } else if (errors.doctorExperience) {
-  //       setError('doctorExperience', {
+  //     } else if (errors.experience) {
+  //       setError('experience', {
   //         type: 'server',
-  //         message: errors.doctorExperience,
+  //         message: errors.experience,
   //       });
-  //     } else if (errors.doctorSpecialties) {
-  //       setError('doctorSpecialties', {
+  //     } else if (errors.specialties) {
+  //       setError('specialties', {
   //         type: 'server',
-  //         message: errors.doctorSpecialties,
+  //         message: errors.specialties,
   //       });
-  //     } else if (errors.doctorEducation) {
-  //       setError('doctorEducation', {
+  //     } else if (errors.education) {
+  //       setError('education', {
   //         type: 'server',
-  //         message: errors.doctorEducation,
+  //         message: errors.education,
   //       });
   //     } else if (errors.limit) {
   //       setErrorMsg(errors.limit);
@@ -214,7 +237,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                 <>
                   <FormField
                     control={form.control}
-                    name='doctorLicenseNumber'
+                    name='licenseNumber'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>License Number</FormLabel>
@@ -227,7 +250,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                   />
                   <FormField
                     control={form.control}
-                    name='doctorSpecialties'
+                    name='specialties'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Specialties</FormLabel>
@@ -249,7 +272,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                   <div className='flex gap-4'>
                     <FormField
                       control={form.control}
-                      name='doctorExperience'
+                      name='experience'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Years of Experience</FormLabel>
@@ -263,7 +286,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
 
                     <FormField
                       control={form.control}
-                      name='doctorGraduationYear'
+                      name='graduationYear'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Graduation Year</FormLabel>
@@ -277,7 +300,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                   </div>
                   <FormField
                     control={form.control}
-                    name='doctorEducation'
+                    name='education'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Graduation Institution</FormLabel>
@@ -399,7 +422,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                   />
                   <FormField
                     control={form.control}
-                    name='doctorStrengths'
+                    name='strengths'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>What areas do you feel are your biggest strengths?</FormLabel>
@@ -421,7 +444,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
                 <>
                   <FormField
                     control={form.control}
-                    name='doctorDescription'
+                    name='description'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>About Me</FormLabel>

@@ -7,8 +7,21 @@ export async function POST(req: Request, res: Response) {
   try {
     const body = await req.json();
 
-    const { name, email, password, phone, doctorExperience, doctorSpecialties, doctorEducation } =
-      body;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      licenseNumber,
+      experience,
+      graduationYear,
+      specialties,
+      education,
+      description,
+      clientExpectations,
+      treatmentMethods,
+      strengths,
+    } = body;
 
     //! Check if all fields are filled
     if (
@@ -16,9 +29,15 @@ export async function POST(req: Request, res: Response) {
       !email ||
       !password ||
       !phone ||
-      !doctorExperience ||
-      !doctorSpecialties ||
-      !doctorEducation
+      !licenseNumber ||
+      !experience ||
+      !graduationYear ||
+      !specialties ||
+      !education ||
+      !description ||
+      !clientExpectations ||
+      !treatmentMethods ||
+      !strengths
     ) {
       return NextResponse.json(
         { message: 'Provide all fields, try again' },
@@ -45,12 +64,11 @@ export async function POST(req: Request, res: Response) {
       );
     }
 
-    //* Hash doctor password
+    //* Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     const role = 'doctor';
 
     //* Validate doctor data
-
     const validatedData = doctorSignUpSchema.safeParse(body);
 
     if (validatedData.success) {
@@ -59,17 +77,25 @@ export async function POST(req: Request, res: Response) {
           name: validatedData.data.name,
           email: validatedData.data.email,
           phone: validatedData.data.phone,
-
           password: hashedPassword,
           role,
-          doctorExperience: validatedData.data.doctorExperience,
-          doctorSpecialties: {
-            connect: validatedData.data.doctorSpecialties.map((specialty) => ({
-              id: specialty.value,
-              name: specialty.label,
-            })),
+          doctorProfile: {
+            create: {
+              licenseNumber: validatedData.data.licenseNumber,
+              experience: validatedData.data.experience,
+              graduationYear: validatedData.data.graduationYear,
+              education: validatedData.data.education,
+              specialties: {
+                connect: validatedData.data.specialties.map((specialty) => ({
+                  name: specialty.label,
+                })),
+              },
+              clientExpectations: validatedData.data.clientExpectations,
+              treatmentMethods: validatedData.data.treatmentMethods,
+              strengths: validatedData.data.strengths,
+              description: validatedData.data.description,
+            },
           },
-          doctorEducation: validatedData.data.doctorEducation,
         },
       });
 
@@ -77,7 +103,11 @@ export async function POST(req: Request, res: Response) {
       const { password: userPassword, ...rest } = user;
 
       return NextResponse.json(
-        { user: rest, message: 'Doctor created successfully' },
+        {
+          user: rest,
+          message: 'Doctor created successfully',
+          success: 'Welcome to the team! Please check your email for further instructions.',
+        },
         {
           status: 201,
         }

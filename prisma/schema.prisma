@@ -34,35 +34,43 @@ enum Role {
 }
 
 model User {
-  id                   String        @id @default(cuid())
+  id                   String         @id @default(cuid())
   name                 String?
-  email                String?       @unique
+  email                String?        @unique
   emailVerified        DateTime?
   password             String?
   image                String?
-  role                 Role          @default(patient)
-  isActive             Boolean       @default(true)
-  phone                String?       @unique
-  stripeCustomerId     String?       @unique
+  role                 Role           @default(patient)
+  isActive             Boolean        @default(true)
+  phone                String?        @unique
+  stripeCustomerId     String?        @unique
   stripeSubscriptionId String?
-  // doctor role
-  doctorExperience     String?
-  doctorEducation      String?
-  doctorDescription    String?
-  clientExpectations   String?
-  treatmentMethods     String?
-  doctorStrengths      String?
-  doctorSpecialties    Specialty[]
   // Relationships
+  doctorProfile        DoctorProfile? // If user is a doctor
   accounts             Account[]
   // doctorAppointments   Appointment[] @relation("doctorAppointments")
-  patientAppointments  Appointment[] @relation("patientAppointments")
+  patientAppointments  Appointment[]  @relation("patientAppointments")
+}
+
+model DoctorProfile {
+  id                 String      @id @default(cuid())
+  licenseNumber      String?     @unique
+  experience         String?
+  graduationYear     String?
+  education          String?
+  description        String?
+  clientExpectations String?
+  treatmentMethods   String?
+  strengths          String?
+  specialties        Specialty[]
+  user               User        @relation(fields: [userId], references: [id])
+  userId             String      @unique
 }
 
 model Specialty {
-  id      String @id @default(cuid())
-  name    String @unique
-  doctors User[]
+  id      String          @id @default(cuid())
+  name    String          @unique
+  doctors DoctorProfile[]
 }
 
 model Product {
