@@ -18,12 +18,10 @@ interface PsicoreinventarResetPasswordEmailProps {
   resetPasswordLink?: string;
 }
 
-const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '';
-
-export const PsicoreinventarResetPasswordEmail = ({
+export default function PsicoreinventarResetPasswordEmail({
   userFirstname,
   resetPasswordLink,
-}: PsicoreinventarResetPasswordEmailProps) => {
+}: PsicoreinventarResetPasswordEmailProps) {
   return (
     <Html>
       <Head />
@@ -59,7 +57,7 @@ export const PsicoreinventarResetPasswordEmail = ({
       </Body>
     </Html>
   );
-};
+}
 
 export const PsicoreinventarResetPasswordEmailHtml = (
   props: PsicoreinventarResetPasswordEmailProps
