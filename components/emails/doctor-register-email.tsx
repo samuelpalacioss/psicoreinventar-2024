@@ -54,6 +54,10 @@ export default function PsicoreinventarDoctorRegisterEmail({
               Complete Your Registration
             </Button>
             <Text style={text}>
+              You have 7 days to register. If you don&apos;t, you will need to request a new
+              register link.
+            </Text>
+            <Text style={text}>
               If you have any questions or need assistance during the registration process, our
               onboarding team is here to help you every step of the way.
             </Text>

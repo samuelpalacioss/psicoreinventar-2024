@@ -16,14 +16,15 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { doctorSignUpSchema, doctorSignUpType } from '@/lib/validations/doctor';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FormErrorMessage from './form-error-msg';
 import FormSuccessMessage from './form-success-msg';
 import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
 import ProgressBar from './progress-bar';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { newDoctorVerification } from '@/actions/new-doctor-verification';
 
 interface RegisterDoctorClientFormProps {
   specialties: Option[];
@@ -53,10 +54,25 @@ const steps = [
 ];
 
 export default function RegisterDoctorForm({ specialties }: RegisterDoctorClientFormProps) {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
   const router = useRouter();
 
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [successMsg, setSuccessMsg] = useState<string>('');
+
+  const checkToken = useCallback(() => {
+    if (successMsg || errorMsg) return;
+
+    if (!token) {
+      setErrorMsg('Missing token!');
+      return;
+    }
+  }, [token, successMsg, errorMsg]);
+
+  useEffect(() => {
+    checkToken();
+  }, [checkToken]);
 
   const form = useForm<doctorSignUpType>({
     resolver: zodResolver(doctorSignUpSchema),
@@ -123,6 +139,14 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
       setErrorMsg('Something went wrong');
     } else {
       setSuccessMsg(resData.success); // Mensaje con success en su respuesta de api/register
+      newDoctorVerification(token!)
+        .then((data) => {
+          setSuccessMsg(data.success!);
+          setErrorMsg(data.error!);
+        })
+        .catch(() => {
+          setErrorMsg('Something went wrong');
+        });
     }
   };
 
