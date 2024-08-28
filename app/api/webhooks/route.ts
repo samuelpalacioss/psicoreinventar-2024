@@ -95,7 +95,7 @@ export async function POST(req: Request, res: Response) {
           from: 'Psicoreinventar <no-reply@psicoreinventar.com>',
           to: patient.email!,
           subject: 'Thanks for booking a session! This is your receipt',
-          html: ReceiptEmailHtml({
+          react: ReceiptEmailHtml({
             date: new Date(),
             email: patient.email!,
             appointmentId: appointment.id,
