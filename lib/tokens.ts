@@ -1,14 +1,14 @@
+import { v4 as uuidv4 } from 'uuid';
+import prisma from '@/lib/db';
 import { getVerificationTokenByEmail } from '@/hooks/verification-token';
 import { getPasswordResetTokenByEmail } from '@/hooks/password-reset-token';
-import prisma from '@/lib/db';
 import { getDoctorRegisterTokenByEmail } from '@/hooks/doctor-verification-token';
 
 export const generatePasswordResetToken = async (email: string) => {
-  // generate 6 digit token (not starting with 0)
-  const token = (Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000).toString();
+  const token = uuidv4();
 
-  // expires 30min
-  const expires = new Date().getTime() + 30 * 60 * 1000;
+  // expires 60min
+  const expires = new Date().getTime() + 60 * 60 * 1000;
 
   // Check if user has existing token
   const existingToken = await getPasswordResetTokenByEmail(email);
@@ -64,8 +64,7 @@ export const generateVerificationToken = async (email: string) => {
 };
 
 export const generateDoctorRegisterToken = async (email: string) => {
-  // generate 6 digit token (not starting with 0)
-  const token = (Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000).toString();
+  const token = uuidv4();
 
   // expires 7 days
   const expires = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;

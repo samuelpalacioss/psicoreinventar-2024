@@ -36,19 +36,21 @@ export default function PsicoreinventarResetPasswordEmail({
           />
           <Section>
             <Text style={text}>Hi {userFirstname},</Text>
-            <Text style={text}>
+            {/* <Text style={text}>
               Someone recently requested a password change for your Psicoreinventar account. If this
+              was you, you can set a new password here:
+            </Text> */}
+            <Text style={text}>
+              Recently, a password change was requested for your Psicoreinventar account. If this
               was you, you can set a new password here:
             </Text>
             <Button style={button} href={resetPasswordLink}>
               Reset password
             </Button>
+            <Text style={text}>This link will expire in one hour.</Text>
             <Text style={text}>
               If you don&apos;t want to change your password or didn&apos;t request this, just
-              ignore and delete this message.
-            </Text>
-            <Text style={text}>
-              To keep your account secure, please don&apos;t forward this email to anyone.
+              ignore and feel free to delete this message.
             </Text>
             <Text style={text}>All the best, </Text>
             <Text style={text}>The Psicoreinventar team</Text>
