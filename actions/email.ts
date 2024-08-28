@@ -67,7 +67,7 @@ export const sendPasswordResetEmail = async (
 export const sendDoctorRegisterEmail = async (
   email: string,
   token: string,
-  doctorFirstname?: string
+  doctorName?: string
 ) => {
   // Link containing the verification token
   const registerDoctorLink = `${process.env.NEXT_PUBLIC_API_URL}/doctor-register?token=${token}`;
@@ -78,7 +78,7 @@ export const sendDoctorRegisterEmail = async (
       to: email,
       subject: 'Welcome to the Psicoreinventar Team!',
       react: PsicoreinventarDoctorRegisterEmail({
-        doctorFirstname,
+        doctorName,
         registerDoctorLink,
       }),
     });

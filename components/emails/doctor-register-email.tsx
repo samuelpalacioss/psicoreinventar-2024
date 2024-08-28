@@ -15,14 +15,14 @@ import {
 import * as React from 'react';
 
 interface PsicoreinventarDoctorRegisterEmailProps {
-  doctorFirstname?: string;
+  doctorName?: string;
   registerDoctorLink?: string;
 }
 
 const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '';
 
 export default function PsicoreinventarDoctorRegisterEmail({
-  doctorFirstname,
+  doctorName,
   registerDoctorLink,
 }: PsicoreinventarDoctorRegisterEmailProps) {
   return (
@@ -39,7 +39,7 @@ export default function PsicoreinventarDoctorRegisterEmail({
           />
           <Section>
             <Heading style={h1}>Welcome to the Psicoreinventar Team!</Heading>
-            <Text style={text}>Dear Dr. {doctorFirstname},</Text>
+            <Text style={text}>Dear Dr. {doctorName},</Text>
             <Text style={text}>
               We are thrilled to inform you that you have been selected to join the Psicoreinventar
               team as our newest mental health professional. Your expertise and dedication stood out

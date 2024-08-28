@@ -18,8 +18,8 @@ export const approveDoctor = async (email: string) => {
     return { error: 'Email not found' };
   }
 
-  // Get first name of doctor
-  const doctorFirstName = existingUser?.name?.split(' ')[0];
+  // Get  name of doctor
+  const doctorName = existingUser?.name;
 
   //* Rate limiter
   const { success, reset } = await ratelimit.limit(email);
@@ -35,7 +35,7 @@ export const approveDoctor = async (email: string) => {
 
   // Generate doctor register token and sent it by email
   const doctorRegisterToken = await generateDoctorRegisterToken(email);
-  await sendDoctorRegisterEmail(email, doctorRegisterToken.token, doctorFirstName);
+  await sendDoctorRegisterEmail(email, doctorRegisterToken.token, doctorName!);
 
   return { success: 'Reset email sent!' };
 };
