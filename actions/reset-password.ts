@@ -2,7 +2,7 @@
 
 import { resetPasswordSchema, resetPasswordType } from '@/lib/validations/auth';
 import { getUserByEmail } from '@/hooks/user';
-import { sendPasswordResetEmail } from '@/lib/email';
+import { sendPasswordResetEmail } from '@/actions/email';
 import { generatePasswordResetToken } from '@/lib/tokens';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';

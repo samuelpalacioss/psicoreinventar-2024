@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import { sendVerificationEmail } from '@/lib/email';
+import { sendVerificationEmail } from '@/actions/email';
 import { generateVerificationToken } from '@/lib/tokens';
 
 const ratelimit = new Ratelimit({
