@@ -1,9 +1,9 @@
 'use server';
 
-import { VerificationEmailHtml } from '@/components/emails/verification-token-email';
-import { PsicoreinventarResetPasswordEmailHtml } from '@/components/emails/reset-password-email';
-import PsicoreinventarDoctorRegisterEmail from '@/components/emails/doctor-register-email';
 import { Resend } from 'resend';
+import PsicoreinventarVerifyEmail from '@/components/emails/verification-token-email';
+import PsicoreinventarResetPasswordEmail from '@/components/emails/reset-password-email';
+import PsicoreinventarDoctorRegisterEmail from '@/components/emails/doctor-register-email';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -16,7 +16,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       from: 'Psicoreinventar <no-reply@psicoreinventar.com>',
       to: email,
       subject: 'Verify your email address',
-      react: VerificationEmailHtml({
+      react: PsicoreinventarVerifyEmail({
         verificationCode: token,
         confirmationLink,
       }),
@@ -46,7 +46,7 @@ export const sendPasswordResetEmail = async (
       from: 'Psicoreinventar <no-reply@psicoreinventar.com>',
       to: email,
       subject: 'Reset your password',
-      react: PsicoreinventarResetPasswordEmailHtml({
+      react: PsicoreinventarResetPasswordEmail({
         userFirstname,
         resetPasswordLink,
       }),
