@@ -1,4 +1,4 @@
-import { CheckCircle2, CheckIcon } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 interface FormSuccessMessageProps {
   message?: string;
