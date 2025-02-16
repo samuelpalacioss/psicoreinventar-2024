@@ -1,4 +1,4 @@
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { signUpSchema, signUpType } from '@/lib/validations/auth';
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';

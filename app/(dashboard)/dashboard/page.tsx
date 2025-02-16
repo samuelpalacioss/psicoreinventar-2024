@@ -2,7 +2,7 @@ import getProducts from '@/utilities/get-products';
 
 import { DataTable } from '@/components/dashboard/data-table';
 import { columns } from '@/components/dashboard/columns';
-import prisma from '@/lib/db';
+import { prisma }ma } from '@/lib/db';
 
 import ButtonRegisterDoctor from '@/components/button-register-doctor';
 

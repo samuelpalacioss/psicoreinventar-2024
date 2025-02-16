@@ -1,5 +1,5 @@
 import { stripe } from '@/lib/stripe';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 

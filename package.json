@@ -11,7 +11,7 @@
     "email": "email dev --dir components/emails"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "2.7.4",
+    "@auth/prisma-adapter": "^2.7.4",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
     "@hookform/resolvers": "^3.9.1",
@@ -42,7 +42,7 @@
     "input-otp": "^1.2.4",
     "lucide-react": "^0.456.0",
     "next": "^14.2.16",
-    "next-auth": "5.0.0-beta.25",
+    "next-auth": "^5.0.0-beta.25",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.2",

@@ -126,7 +126,7 @@ export default function SignupForm() {
         <CardTitle>Sign up</CardTitle>
         <CardDescription>
           Already have an account?{" "}
-          <Link href={"/login"} className="text-indigo-600 font-medium">
+          <Link href={"/login"} className="text-indigo-600 font-semibold">
             Sign in
           </Link>
           {showForm && (
@@ -134,7 +134,7 @@ export default function SignupForm() {
               onClick={() => {
                 setShowForm(!showForm);
               }}
-              className="inline-block text-indigo-600 font-medium hover:cursor-pointer"
+              className="inline-block text-indigo-600 font-semibold hover:cursor-pointer"
             >
               {" "}
               Sign up with google?

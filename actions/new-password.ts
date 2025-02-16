@@ -1,6 +1,6 @@
 'use server';
 
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { getPasswordResetTokenByToken } from '@/hooks/password-reset-token';
 import { getUserByEmail } from '@/hooks/user';
 import { newPasswordSchema, newPasswordType } from '@/lib/validations/auth';

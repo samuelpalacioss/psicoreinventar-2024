@@ -1,6 +1,6 @@
 'use server';
 
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { getUserByEmail } from '@/hooks/user';
 import { getVerificationTokenByToken } from '@/hooks/verification-token';
 

@@ -1,6 +1,6 @@
 import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { auth } from '@/auth';
 
 export async function POST(req: Request, res: Response) {

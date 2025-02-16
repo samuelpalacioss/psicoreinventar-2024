@@ -1,4 +1,4 @@
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { productSchema } from '@/lib/validations/product';

@@ -1,17 +1,21 @@
-import { type Session, type User } from 'next-auth';
-import type { NextAuthConfig } from 'next-auth';
-import bcrypt from 'bcryptjs';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import prisma from '@/lib/db';
-import type { JWT } from 'next-auth/jwt';
-import { getUserByEmail } from './hooks/user';
-import { stripe } from './lib/stripe';
-import { authRoutes, defaultLoginRedirect, publicRoutes } from './config/routes';
+import { type Session, type User } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
+import bcrypt from "bcryptjs";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { prisma } from "@/lib/db";
+import type { JWT } from "next-auth/jwt";
+import { getUserByEmail } from "./hooks/user";
+import { stripe } from "./lib/stripe";
+import {
+  authRoutes,
+  defaultLoginRedirect,
+  publicRoutes,
+} from "./config/routes";
 
 export default {
   pages: {
-    signIn: '/login',
+    signIn: "/login",
   },
   providers: [
     GoogleProvider({
@@ -19,14 +23,14 @@ export default {
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
         email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'jsmith@gmail.com',
+          label: "Email",
+          type: "email",
+          placeholder: "jsmith@gmail.com",
         },
-        password: { label: 'Password', type: 'password' },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         // If not credentials are provided, return null to indicate no user logged in
@@ -47,7 +51,7 @@ export default {
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
-          user.password!
+          user.password!,
         );
 
         if (!isPasswordValid) {
@@ -82,7 +86,7 @@ export default {
           email: user.email,
           image: user.image,
           role: user.role,
-          stripeCustomerId: user.stripeCustomerId || 'lol',
+          stripeCustomerId: user.stripeCustomerId || "lol",
         };
       },
     }),
@@ -121,7 +125,7 @@ export default {
   callbacks: {
     async signIn({ user, account }) {
       // Allow oauth users to sign in without verifying their email
-      if (account?.provider !== 'credentials') return true;
+      if (account?.provider !== "credentials") return true;
 
       const existingUser = await getUserByEmail(user.email!);
 
@@ -170,7 +174,8 @@ export default {
 
       //* Check if the user is on a public page
       const isOnUnprotectedPage =
-        pathname === '/' || publicRoutes.some((page) => pathname.startsWith(page));
+        pathname === "/" ||
+        publicRoutes.some((page) => pathname.startsWith(page));
       // console.log('Is on unprotected page:', isOnUnprotectedPage);
       const isProtectedPage = !isOnUnprotectedPage;
       // console.log('Is protected page:', isProtectedPage);
@@ -210,7 +215,15 @@ export default {
 
       return token;
     },
-    async session({ session, token, user }: { session: Session; token?: JWT; user?: User }) {
+    async session({
+      session,
+      token,
+      user,
+    }: {
+      session: Session;
+      token?: JWT;
+      user?: User;
+    }) {
       if (token) {
         return {
           ...session,
