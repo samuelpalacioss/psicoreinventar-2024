@@ -2,13 +2,15 @@
 
 import { loginSchema, loginType } from "@/lib/validations/auth";
 import { signIn } from "@/auth";
-import { defaultLoginRedirect } from "@/config/routes";
+import { defaultLoginRedirectPatient, defaultLoginRedirectDoctor } from "@/config/routes";
+import { Role } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/hooks/user";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/actions/email";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { User } from "lucide-react";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -45,9 +47,7 @@ export const login = async (data: loginType) => {
       };
     }
 
-    const verificationToken = await generateVerificationToken(
-      existingUser.email,
-    );
+    const verificationToken = await generateVerificationToken(existingUser.email);
 
     try {
       await sendVerificationEmail(existingUser.email, verificationToken.token);
@@ -62,11 +62,19 @@ export const login = async (data: loginType) => {
   }
 
   try {
-    await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirectTo: defaultLoginRedirect,
-    });
+    if (existingUser.role === Role.patient) {
+      await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirectTo: defaultLoginRedirectPatient,
+      });
+    } else {
+      await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirectTo: defaultLoginRedirectDoctor,
+      });
+    }
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
