@@ -3,13 +3,15 @@ import type { NextAuthConfig } from "next-auth";
 import bcrypt from "bcryptjs";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { JWT } from "next-auth/jwt";
 import { getUserByEmail } from "./hooks/user";
 import { stripe } from "./lib/stripe";
 import {
   authRoutes,
-  defaultLoginRedirect,
+  defaultLoginRedirectPatient,
+  defaultLoginRedirectDoctor,
   publicRoutes,
 } from "./config/routes";
 
@@ -61,7 +63,12 @@ export default {
         //* Create a customer in stripe for the user (if not already created). This works only for the (credentialsProvider)
         //* This is created before the user is logged in for the first time
         // Create a customer in Stripe
-        if (user.name && user.email && !user.stripeCustomerId) {
+        if (
+          user.name &&
+          user.email &&
+          user.role === Role.patient &&
+          !user.stripeCustomerId
+        ) {
           const customer = await stripe.customers.create({
             email: user.email,
             name: user.name,
@@ -95,7 +102,7 @@ export default {
     //* Create a customer in stripe for the user. This works only for the google provider
     createUser: async ({ user }) => {
       // 1. Create a customer in Stripe
-      if (user.name && user.email) {
+      if (user.name && user.email && user.role === Role.patient) {
         const customer = await stripe.customers.create({
           email: user.email,
           name: user.name,
@@ -181,10 +188,20 @@ export default {
       // console.log('Is protected page:', isProtectedPage);
 
       if (isOnAuthPage) {
-        //* Redirect to /dashboard if logged in and is on an auth page
+        //* Redirect to /dashboard based on role
         if (isLoggedIn) {
+          const redirectUrl =
+            auth.user.role === Role.patient
+              ? defaultLoginRedirectPatient
+              : auth.user.role === Role.doctor
+                ? defaultLoginRedirectDoctor
+                : // No fallback, ensure one of the roles is matched
+                  (() => {
+                    throw new Error("Invalid user role");
+                  })(); // Throws an error if no role matches
+
           // console.log('Redirecting to dashboard from auth page');
-          return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
+          return Response.redirect(new URL(redirectUrl, nextUrl));
         }
       } else if (isProtectedPage) {
         //* Redirect to /login if not logged in but is on a protected page
@@ -208,7 +225,6 @@ export default {
         return {
           ...token,
           role: user.role,
-          // If it's null, set it to an empty string
           stripeCustomerId: user.stripeCustomerId!,
         };
       }
