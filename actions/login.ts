@@ -2,19 +2,23 @@
 
 import { loginSchema, loginType } from "@/lib/validations/auth";
 import { signIn } from "@/auth";
-import { defaultLoginRedirectPatient, defaultLoginRedirectDoctor } from "@/config/routes";
+import {
+  defaultLoginRedirectPatient,
+  defaultLoginRedirectDoctor,
+} from "@/config/routes";
 import { Role } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/hooks/user";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/actions/email";
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
-import { User } from "lucide-react";
+import { redis } from "@/lib/redis";
 
 const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(4, "1 h"), // max requests per hour
+  redis,
+  limiter: Ratelimit.slidingWindow(2, "12 h"), // max requests per 12 hours
+  analytics: true,
 });
 
 export const login = async (data: loginType) => {
@@ -24,7 +28,7 @@ export const login = async (data: loginType) => {
     return { error: "Invalid fields" };
   }
 
-  const { email } = validatedData.data;
+  const { email, password } = validatedData.data;
 
   const existingUser = await getUserByEmail(email);
 
@@ -35,30 +39,51 @@ export const login = async (data: loginType) => {
 
   // Check for verified email
   if (!existingUser.emailVerified) {
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      existingUser.password,
+    );
+
+    if (!isPasswordValid) {
+      return { error: "Invalid email or password" };
+    }
+
     //* Rate limiter
-    const { success, reset } = await ratelimit.limit(email);
+    const { success, reset, limit, remaining } = await ratelimit.limit(email);
+
+    console.log(remaining, limit, success);
 
     if (!success) {
+      /*
       const now = Date.now();
-      const retryAfter = Math.floor((reset - now) / 1000 / 60);
+      const retryAfter = Math.floor((reset - now) / 1000); // in seconds
+      const minutes = Math.floor(retryAfter / 60);
+      const hours = Math.floor(retryAfter / 3600);
+
+      let message;
+      if (retryAfter < 3600) {
+        message = `Try the last code sent to your email or wait ${minutes} min${minutes !== 1 ? "s" : ""}`;
+      } else {
+        message = `Try the last code sent to your email or wait ${hours} hour${hours !== 1 ? "s" : ""}`;
+      }
+      */
 
       return {
-        error: `Try the last code sent to your email or wait ${retryAfter}m`,
+        error: "Email not verified. Check your inbox",
+        // error: message,
       };
     }
 
-    const verificationToken = await generateVerificationToken(existingUser.email);
+    const verificationToken = await generateVerificationToken(
+      existingUser.email,
+    );
 
-    try {
-      await sendVerificationEmail(existingUser.email, verificationToken.token);
-      return {
-        error: "Please confirm your email address",
-      };
-    } catch (error) {
-      return {
-        error: "Failed to send verification email. Please try again later",
-      };
-    }
+    const verificationEmail = await sendVerificationEmail(
+      existingUser.email,
+      verificationToken.token,
+    );
+
+    return { error: "Please confirm your email address" };
   }
 
   try {
