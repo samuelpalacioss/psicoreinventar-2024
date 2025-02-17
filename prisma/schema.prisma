@@ -36,7 +36,6 @@ model Account {
 enum Role {
   patient
   doctor
-  admin
 }
 
 model User {
