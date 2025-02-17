@@ -51,10 +51,10 @@ export const login = async (data: loginType) => {
     //* Rate limiter
     const { success, reset, limit, remaining } = await ratelimit.limit(email);
 
-    console.log(remaining, limit, success);
+    // console.log(remaining, limit, success); // To check remaining attempts, the limit and bool succes
 
     if (!success) {
-      /*
+      /* 
       const now = Date.now();
       const retryAfter = Math.floor((reset - now) / 1000); // in seconds
       const minutes = Math.floor(retryAfter / 60);
