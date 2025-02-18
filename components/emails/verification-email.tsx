@@ -43,7 +43,7 @@ export default function VerificationEmail({
 
           <Text style={paragraph}>
             Please click the button below to verify your Psicoreinventar
-            account. Let's get started on your therapy journey.
+            account. Let&apos;s get started on your therapy journey.
           </Text>
 
           <Section style={btnContainer}>
