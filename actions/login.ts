@@ -74,12 +74,16 @@ export const login = async (data: loginType) => {
       };
     }
 
+    // Get first name of user
+    const userFirstname = existingUser?.name?.split(" ")[0]!;
+
     const verificationToken = await generateVerificationToken(
       existingUser.email,
     );
 
     const verificationEmail = await sendVerificationEmail(
       existingUser.email,
+      userFirstname,
       verificationToken.token,
     );
 
