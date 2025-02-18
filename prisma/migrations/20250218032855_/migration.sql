@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('patient', 'doctor', 'admin');
+CREATE TYPE "Role" AS ENUM ('patient', 'doctor');
 
 -- CreateEnum
 CREATE TYPE "AppointmentStatus" AS ENUM ('pending', 'confirmed', 'cancelled');
