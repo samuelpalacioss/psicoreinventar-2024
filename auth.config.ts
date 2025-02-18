@@ -53,7 +53,7 @@ export default {
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
-          user.password!,
+          user.password!
         );
 
         if (!isPasswordValid) {
@@ -61,31 +61,7 @@ export default {
         }
 
         //* Create a customer in stripe for the user (if not already created). This works only for the (credentialsProvider)
-        //* This is created before the user is logged in for the first time
-        // Create a customer in Stripe
-        if (
-          user.name &&
-          user.email &&
-          user.role === Role.patient &&
-          !user.stripeCustomerId
-        ) {
-          const customer = await stripe.customers.create({
-            email: user.email,
-            name: user.name,
-          });
-
-          // console.log('User created in stripe');
-
-          // 2. Update the user in Prisma with the Stripe customer id
-          await prisma.user.update({
-            where: {
-              id: user.id,
-            },
-            data: {
-              stripeCustomerId: customer.id,
-            },
-          });
-        }
+        //* DELETED REFACTORING
 
         return {
           id: user.id,
@@ -93,34 +69,14 @@ export default {
           email: user.email,
           image: user.image,
           role: user.role,
-          stripeCustomerId: user.stripeCustomerId || "lol",
         };
       },
     }),
   ],
   events: {
     //* Create a customer in stripe for the user. This works only for the google provider
-    createUser: async ({ user }) => {
-      // 1. Create a customer in Stripe
-      if (user.name && user.email && user.role === Role.patient) {
-        const customer = await stripe.customers.create({
-          email: user.email,
-          name: user.name,
-        });
+    //* DELETED REFACTORING createUser
 
-        // console.log('User created in stripe');
-
-        // 2. Update the user in Prisma with the Stripe customer id
-        await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            stripeCustomerId: customer.id,
-          },
-        });
-      }
-    },
     //* Set true emailVerified if the user is created using the google provider
     async linkAccount({ user }) {
       await prisma.user.update({
@@ -141,33 +97,7 @@ export default {
 
       return true;
     },
-    // authorized({ auth, request: { nextUrl } }) {
-    //   const { pathname, search } = nextUrl;
-    //   const isLoggedIn = !!auth?.user;
 
-    //   // Check if the user is on an auth page
-    //   const isOnAuthPage = authRoutes.some((page) => pathname.startsWith(page));
-
-    //   // Check if the user is on a public page
-    //   const isOnUnprotectedPage =
-    //     pathname === '/' || // The root page '/'
-    //     publicRoutes.some((page) => pathname.startsWith(page));
-    //   const isProtectedPage = !isOnUnprotectedPage;
-
-    //   if (isOnAuthPage) {
-    //     // Redirect to /dashboard, if logged in and is on an auth page
-    //     if (isLoggedIn) return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
-    //   } else if (isProtectedPage) {
-    //     // Redirect to /login, if not logged in but is on a protected page
-    //     if (!isLoggedIn) {
-    //       const from = encodeURIComponent(pathname + search); // The /login page shall then use this `from` param as a `callbackUrl` upon successful sign in
-    //       return Response.redirect(new URL(`/login?from=${from}`, nextUrl));
-    //     }
-    //   }
-
-    //   // Don't redirect if on an unprotected page, or if logged in and is on a protected page
-    //   return true;
-    // },
     authorized({ auth, request: { nextUrl } }) {
       const { pathname, search } = nextUrl;
       const isLoggedIn = !!auth?.user;
@@ -181,8 +111,7 @@ export default {
 
       //* Check if the user is on a public page
       const isOnUnprotectedPage =
-        pathname === "/" ||
-        publicRoutes.some((page) => pathname.startsWith(page));
+        pathname === "/" || publicRoutes.some((page) => pathname.startsWith(page));
       // console.log('Is on unprotected page:', isOnUnprotectedPage);
       const isProtectedPage = !isOnUnprotectedPage;
       // console.log('Is protected page:', isProtectedPage);
@@ -225,28 +154,18 @@ export default {
         return {
           ...token,
           role: user.role,
-          stripeCustomerId: user.stripeCustomerId!,
         };
       }
 
       return token;
     },
-    async session({
-      session,
-      token,
-      user,
-    }: {
-      session: Session;
-      token?: JWT;
-      user?: User;
-    }) {
+    async session({ session, token, user }: { session: Session; token?: JWT; user?: User }) {
       if (token) {
         return {
           ...session,
           user: {
             ...session.user,
             role: token.role,
-            stripeCustomerId: token.stripeCustomerId,
           },
         };
       }
