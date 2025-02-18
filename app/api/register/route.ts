@@ -87,6 +87,8 @@ export async function POST(req: Request, res: Response) {
         },
       });
 
+      const userFirstname = user.name!.split(" ")[0];
+
       //* Return user without password
       const { password: userPassword, ...rest } = user;
 
@@ -97,6 +99,7 @@ export async function POST(req: Request, res: Response) {
 
       await sendVerificationEmail(
         validatedData.data.email,
+        userFirstname,
         verificationToken.token,
       );
 
