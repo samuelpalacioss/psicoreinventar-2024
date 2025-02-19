@@ -53,7 +53,7 @@ export default {
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
-          user.password!
+          user.password!,
         );
 
         if (!isPasswordValid) {
@@ -76,7 +76,9 @@ export default {
   events: {
     //* Create a customer in stripe for the user. This works only for the google provider
     //* DELETED REFACTORING createUser
-
+    createUser: async ({ user }) => {
+      user.role = Role.patient; // Explicitly assigning patient role to users signed up with oauth providers (google)
+    },
     //* Set true emailVerified if the user is created using the google provider
     async linkAccount({ user }) {
       await prisma.user.update({
@@ -111,7 +113,8 @@ export default {
 
       //* Check if the user is on a public page
       const isOnUnprotectedPage =
-        pathname === "/" || publicRoutes.some((page) => pathname.startsWith(page));
+        pathname === "/" ||
+        publicRoutes.some((page) => pathname.startsWith(page));
       // console.log('Is on unprotected page:', isOnUnprotectedPage);
       const isProtectedPage = !isOnUnprotectedPage;
       // console.log('Is protected page:', isProtectedPage);
@@ -159,7 +162,15 @@ export default {
 
       return token;
     },
-    async session({ session, token, user }: { session: Session; token?: JWT; user?: User }) {
+    async session({
+      session,
+      token,
+      user,
+    }: {
+      session: Session;
+      token?: JWT;
+      user?: User;
+    }) {
       if (token) {
         return {
           ...session,
