@@ -1,11 +1,11 @@
 import {
   Body,
+  Button,
   Container,
   Head,
   Hr,
   Html,
   Img,
-  Link,
   render,
   Section,
   Text,
@@ -42,19 +42,17 @@ export default function VerificationEmail({
           </Section>
 
           <Text style={paragraph}>
-            Please click the button below to verify your Psicoreinventar
-            account. Let&apos;s get started on your therapy journey.
+            Please click the button below to verify your Psicoreinventar account. Let&apos;s get
+            started on your therapy journey.
           </Text>
 
           <Section style={btnContainer}>
-            <Link href={verificationLink} style={button}>
+            <Button href={verificationLink} style={button}>
               Verify email
-            </Link>
+            </Button>
           </Section>
 
-          <Text style={smallText}>
-            This verification link will expire in 12 hours.
-          </Text>
+          <Text style={smallText}>This verification link will expire in 12 hours.</Text>
 
           <Hr style={hr} />
           {/* Footer */}
