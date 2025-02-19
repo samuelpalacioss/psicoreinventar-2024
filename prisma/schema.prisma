@@ -53,8 +53,9 @@ model User {
   // Relationships
   doctorProfile        DoctorProfile? // If user is a doctor
   accounts             Account[]
-  // doctorAppointments   Appointment[] @relation("doctorAppointments")
+  doctorAppointments   Appointment[]  @relation("doctorAppointments")
   patientAppointments  Appointment[]  @relation("patientAppointments")
+  
 }
 
 model DoctorProfile {
@@ -68,8 +69,13 @@ model DoctorProfile {
   treatmentMethods   String?
   strengths          String?
   specialties        Specialty[]
-  user               User        @relation(fields: [userId], references: [id])
-  userId             String      @unique
+  isVerified         Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  user               User                @relation(fields: [userId], references: [id])
+  userId             String              @unique
+  schedule           DoctorSchedule?
+  availabilities     DoctorAvailability[]
 }
 
 model Specialty {
@@ -87,7 +93,9 @@ model Product {
   isArchived   Boolean       @default(false)
   time         String
   image        String
-  appointments Appointment[] // Relation to Appointment model
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
 }
 
 enum AppointmentStatus {
@@ -99,16 +107,70 @@ enum AppointmentStatus {
 model Appointment {
   id              String            @id @default(cuid())
   status          AppointmentStatus
-  dateTime        String
-  // doctorId      String
+  dateTime        DateTime
+  notes           String?
+  doctorId        String
   patientId       String
   stripeSessionId String            @unique //From which stripe session this appointment was created
-  productId       String // Stripe product id
+  productId       String                    // Stripe product id
   isPaid          Boolean           @default(false)
+  feedback        AppointmentFeedback?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   product         Product           @relation(fields: [productId], references: [stripeId])
-  // doctor        User              @relation("doctorAppointments", fields: [doctorId], references: [id])
+  doctor          User              @relation("doctorAppointments", fields: [doctorId], references: [id])
   patient         User              @relation("patientAppointments", fields: [patientId], references: [stripeCustomerId])
+
+  @@index([dateTime])
 }
+
+model AppointmentFeedback {
+  id             String      @id @default(cuid())
+  rating         Int         // 1-5 star rating
+  comment        String?     
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  appointment    Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointmentId  String      @unique // One feedback per appointment
+  isPublic       Boolean     @default(true) // Whether the feedback can be shown publicly
+
+  @@index([rating])
+}
+
+model DoctorSchedule {
+  id            String   @id @default(cuid())
+  doctorProfile DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId      String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model DoctorAvailability {
+  id            String        @id @default(cuid())
+  doctorProfile DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId      String
+  weekDay       WeekDay
+  startTime     DateTime      @db.Time // Store only time part
+  endTime       DateTime      @db.Time // Store only time part
+  isAvailable   Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([doctorId, weekDay, startTime, endTime])
+  @@index([weekDay])
+  @@index([doctorId, weekDay])
+}
+
 
 model VerificationToken {
   id      String   @id @default(cuid())
@@ -136,3 +198,4 @@ model doctorRegisterToken {
 
   @@unique([email, token])
 }
+
