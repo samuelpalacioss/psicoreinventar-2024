@@ -10,7 +10,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendVerificationEmail = async (
   email: string,
   userFirstname: string,
-  token: string,
+  token: string
 ) => {
   // Link containing the verification token
   const verificationLink = `${process.env.NEXT_PUBLIC_API_URL}/verify-email?token=${token}`;
@@ -40,7 +40,7 @@ export const sendVerificationEmail = async (
 export const sendPasswordResetEmail = async (
   email: string,
   token: string,
-  userFirstname?: string,
+  userFirstname?: string
 ) => {
   // Link containing the verification token
   const resetPasswordLink = `${process.env.NEXT_PUBLIC_API_URL}/new-password?token=${token}`;
@@ -71,7 +71,7 @@ export const sendPasswordResetEmail = async (
 export const sendDoctorRegisterEmail = async (
   email: string,
   token: string,
-  doctorName?: string,
+  doctorName?: string
 ) => {
   // Link containing the verification token
   const registerDoctorLink = `${process.env.NEXT_PUBLIC_API_URL}/doctor-register?token=${token}`;

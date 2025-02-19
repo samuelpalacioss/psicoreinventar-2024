@@ -5,21 +5,21 @@ import {
   Head,
   Heading,
   Html,
+  Hr,
   Img,
-  Link,
   Preview,
   Section,
   Text,
   render,
-} from '@react-email/components';
-import * as React from 'react';
+} from "@react-email/components";
+import * as React from "react";
 
 interface PsicoreinventarDoctorRegisterEmailProps {
   doctorName?: string;
   registerDoctorLink?: string;
 }
 
-const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '';
+const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
 
 export default function PsicoreinventarDoctorRegisterEmail({
   doctorName,
@@ -31,18 +31,21 @@ export default function PsicoreinventarDoctorRegisterEmail({
       <Preview>Welcome to the Psicoreinventar Team!</Preview>
       <Body style={main}>
         <Container style={container}>
+          {/* Logo */}
           <Img
-            src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1720212860/psicoreinventar/wnhx96f5n7ptqxacj2qq.png`}
-            width='42'
-            height='42'
-            alt='Psicoreinventar Logo'
+            src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1739836330/psicoreinventar/ptfldl7wwjzzlfko5cns.png`}
+            width="56"
+            height="56"
+            alt="Psicoreinventar Logo"
+            style={logo}
           />
-          <Section>
+
+          <Section style={welcomeSection}>
             <Heading style={h1}>Welcome to the Psicoreinventar Team!</Heading>
             <Text style={text}>Dear Dr. {doctorName},</Text>
             <Text style={text}>
-              We are thrilled to inform you that you have been selected to join the Psicoreinventar
-              team as our newest mental health professional. Your expertise and dedication stood out
+              We are thrilled to inform you that you have been selected to join our team at
+              Psicoreinventar as one of our psychologists. Your expertise and dedication stood out
               during our selection process, and we are confident that you will be an invaluable
               addition to our community.
             </Text>
@@ -62,7 +65,9 @@ export default function PsicoreinventarDoctorRegisterEmail({
               onboarding team is here to help you every step of the way.
             </Text>
 
-            <Text style={text}>All the best, </Text>
+            {/* Footer */}
+            <Hr style={hr} />
+            <Text style={text}>All the best,</Text>
             <Text style={text}>The Psicoreinventar team</Text>
           </Section>
         </Container>
@@ -79,47 +84,53 @@ export const PsicoreinventarDoctorRegisterEmailHtml = (
   });
 
 const main = {
-  backgroundColor: '#f6f9fc',
-  padding: '10px 0',
+  backgroundColor: "#f9fafb",
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
-  border: '1px solid #f0f0f0',
-  padding: '45px',
+  margin: "0 auto",
+  padding: "40px 20px",
+  maxWidth: "480px",
+  backgroundColor: "#ffffff",
+  borderRadius: "12px",
+  boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+};
+
+const logo = {
+  display: "block",
+};
+
+const welcomeSection = {
+  marginTop: "24px",
 };
 
 const text = {
-  fontSize: '16px',
-  fontFamily:
-    "'Open Sans', 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif",
-  fontWeight: '300',
-  color: '#404040',
-  lineHeight: '26px',
+  fontSize: "16px",
+  lineHeight: "24px",
+  color: "#4b5563",
 };
 
 const h1 = {
-  color: '#333',
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  fontSize: '20px',
-  fontWeight: 'bold',
-  marginBottom: '15px',
+  fontSize: "24px",
+  fontWeight: "600",
+  color: "#323842",
+  marginTop: "8px",
 };
 
 const button = {
-  backgroundColor: '#0F172A',
-  borderRadius: '4px',
-  color: '#fff',
-  fontFamily: "'Open Sans', 'Helvetica Neue', Arial",
-  fontSize: '15px',
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  display: 'block',
-  width: '210px',
-  padding: '14px 7px',
+  backgroundColor: "#5e3bdb",
+  color: "#ffffff",
+  padding: "12px 24px",
+  borderRadius: "6px",
+  textDecoration: "none",
+  display: "inline-block",
+  fontSize: "16px",
+  fontWeight: "500",
 };
 
-const anchor = {
-  textDecoration: 'underline',
+const hr = {
+  borderColor: "#cccccc",
+  margin: "20px 0 0",
 };
