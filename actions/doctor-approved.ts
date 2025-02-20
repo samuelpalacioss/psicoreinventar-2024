@@ -1,21 +1,22 @@
-'use server';
+"use server";
 
-import { getUserByEmail } from '@/hooks/user';
-import { sendDoctorRegisterEmail } from '@/actions/email';
-import { generateDoctorRegisterToken } from '@/lib/tokens';
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { getUserByEmail } from "@/hooks/user";
+import { sendDoctorRegisterEmail } from "@/actions/email";
+import { generateDoctorRegisterToken } from "@/lib/tokens";
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "@/lib/redis";
 
 const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(5, '1 h'), // max requests per hour
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "1 h"), // max requests per hour
+  analytics: true,
 });
 
 export const approveDoctor = async (email: string) => {
   const existingUser = await getUserByEmail(email);
 
   if (!existingUser) {
-    return { error: 'Email not found' };
+    return { error: "Email not found" };
   }
 
   // Get  name of doctor
@@ -37,5 +38,5 @@ export const approveDoctor = async (email: string) => {
   const doctorRegisterToken = await generateDoctorRegisterToken(email);
   await sendDoctorRegisterEmail(email, doctorRegisterToken.token, doctorName!);
 
-  return { success: 'Reset email sent!' };
+  return { success: "Reset email sent!" };
 };

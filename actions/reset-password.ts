@@ -1,22 +1,23 @@
-'use server';
+"use server";
 
-import { resetPasswordSchema, resetPasswordType } from '@/lib/validations/auth';
-import { getUserByEmail } from '@/hooks/user';
-import { sendPasswordResetEmail } from '@/actions/email';
-import { generatePasswordResetToken } from '@/lib/tokens';
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { resetPasswordSchema, resetPasswordType } from "@/lib/validations/auth";
+import { getUserByEmail } from "@/hooks/user";
+import { sendPasswordResetEmail } from "@/actions/email";
+import { generatePasswordResetToken } from "@/lib/tokens";
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "@/lib/redis";
 
 const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(4, '1 h'), // max requests per hour
+  redis,
+  limiter: Ratelimit.slidingWindow(4, "1 h"), // max requests per hour
+  analytics: true,
 });
 
 export const resetPassword = async (data: resetPasswordType) => {
   const validatedData = resetPasswordSchema.safeParse(data);
 
   if (!validatedData.success) {
-    return { error: 'Invalid email' };
+    return { error: "Invalid email" };
   }
 
   const { email } = validatedData.data;
@@ -24,11 +25,11 @@ export const resetPassword = async (data: resetPasswordType) => {
   const existingUser = await getUserByEmail(email);
 
   if (!existingUser) {
-    return { error: 'Email not found' };
+    return { error: "Email not found" };
   }
 
   // Get first name of user
-  const userFirstName = existingUser?.name?.split(' ')[0];
+  const userFirstName = existingUser?.name?.split(" ")[0];
 
   //* Rate limiter
   const { success, reset } = await ratelimit.limit(email);
@@ -46,5 +47,5 @@ export const resetPassword = async (data: resetPasswordType) => {
   const passwordResetToken = await generatePasswordResetToken(email);
   await sendPasswordResetEmail(email, passwordResetToken.token, userFirstName);
 
-  return { success: 'Reset email sent!' };
+  return { success: "Reset email sent!" };
 };

@@ -1,20 +1,21 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
-import { ZodError } from 'zod';
-import { productSchema } from '@/lib/validations/product';
-import { stripe } from '@/lib/stripe';
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { productSchema } from "@/lib/validations/product";
+import { stripe } from "@/lib/stripe";
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "@/lib/redis";
 
 const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(5, '90 s'),
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "2 m"), // max requests per 2 minutes
+  analytics: true,
 });
 
 export async function POST(req: Request, res: Response) {
   try {
     //* Rate limiter
-    const ip = req.headers.get('x-forwarded-for') ?? '';
+    const ip = req.headers.get("x-forwarded-for") ?? "";
     const { success, pending, reset } = await ratelimit.limit(ip);
 
     if (!success) {
@@ -26,7 +27,7 @@ export async function POST(req: Request, res: Response) {
         },
         {
           status: 429,
-        }
+        },
       );
     }
 
@@ -35,14 +36,21 @@ export async function POST(req: Request, res: Response) {
     const { name, description, isArchived, price, image, time } = body;
 
     //! Check if all fields are filled
-    if (!name || !description || isArchived === null || !price || !image || !time) {
+    if (
+      !name ||
+      !description ||
+      isArchived === null ||
+      !price ||
+      !image ||
+      !time
+    ) {
       return NextResponse.json(
         {
-          message: 'Please provide all fields',
+          message: "Please provide all fields",
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
@@ -61,7 +69,7 @@ export async function POST(req: Request, res: Response) {
         description: validatedData.data.description,
         images: [validatedData.data.image],
         default_price_data: {
-          currency: 'usd',
+          currency: "usd",
           unit_amount: productPrice, // In cents
         },
         metadata: {
@@ -84,12 +92,12 @@ export async function POST(req: Request, res: Response) {
       });
       return NextResponse.json(
         {
-          message: 'Product created successfully',
+          message: "Product created successfully",
           product: newProduct,
         },
         {
           status: 201,
-        }
+        },
       );
     } else {
       // if (validatedData.error instanceof ZodError) {
@@ -105,22 +113,22 @@ export async function POST(req: Request, res: Response) {
       // }
       return NextResponse.json(
         {
-          message: 'Please provide valid data',
+          message: "Please provide valid data",
         },
         {
           status: 400,
-        }
+        },
       );
     }
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong',
+        message: "Something went wrong",
         error: error,
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -129,7 +137,7 @@ export async function GET(req: Request, res: Response) {
   try {
     //* Rate limiter
 
-    const ip = req.headers.get('x-forwarded-for') ?? '';
+    const ip = req.headers.get("x-forwarded-for") ?? "";
     const { success, pending, reset } = await ratelimit.limit(ip);
 
     if (!success) {
@@ -141,7 +149,7 @@ export async function GET(req: Request, res: Response) {
         },
         {
           status: 429,
-        }
+        },
       );
     }
 
@@ -156,17 +164,17 @@ export async function GET(req: Request, res: Response) {
       },
       {
         status: 200,
-      }
+      },
     );
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong',
+        message: "Something went wrong",
         error: error,
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

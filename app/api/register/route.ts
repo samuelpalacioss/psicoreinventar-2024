@@ -3,14 +3,15 @@ import { signUpSchema, signUpType } from "@/lib/validations/auth";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { sendVerificationEmail } from "@/actions/email";
 import { generateVerificationToken } from "@/lib/tokens";
-import { Role } from "@prisma/client";
+import { Role } from "@/types/enums";
+import { redis } from "@/lib/redis";
 
 const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
+  redis,
   limiter: Ratelimit.slidingWindow(5, "1 h"), // max requests per hour
+  analytics: true,
 });
 
 export async function POST(req: Request, res: Response) {
@@ -72,7 +73,7 @@ export async function POST(req: Request, res: Response) {
 
     // * Set first registered user as doctor
     const isFirstAccount = (await prisma.user.count()) === 0;
-    const role = isFirstAccount ? "doctor" : "patient";
+    const role = isFirstAccount ? Role.DOCTOR : Role.PATIENT;
 
     //* Create user (if req.body is valid)
     const validatedData = signUpSchema.safeParse(body);
