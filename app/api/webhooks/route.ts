@@ -1,21 +1,21 @@
-import { auth } from '@/auth';
-import { stripe } from '@/lib/stripe';
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { Resend } from 'resend';
-import { ReceiptEmailHtml } from '@/components/emails/appointment-email';
+import { auth } from "@/auth";
+import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
+import { Resend } from "resend";
+import { ReceiptEmailHtml } from "@/components/emails/appointment-email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request, res: Response) {
   const body = await req.text(); // raw body
-  const sig = req.headers.get('stripe-signature')!;
+  const sig = req.headers.get("stripe-signature")!;
 
   if (!sig) {
     return NextResponse.json(
       {
-        message: 'Missing the stripe signature',
+        message: "Missing the stripe signature",
       },
       {
         status: 400,
@@ -30,7 +30,7 @@ export async function POST(req: Request, res: Response) {
   } catch (err) {
     return NextResponse.json(
       {
-        message: 'Webhook error: ' + err,
+        message: "Webhook error: " + err,
       },
       {
         status: 400,
@@ -44,7 +44,29 @@ export async function POST(req: Request, res: Response) {
   if (!checkoutSession.metadata?.patientId) {
     return NextResponse.json(
       {
-        message: 'Missing patient id',
+        message: "Missing patient id",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+
+  if (!checkoutSession.metadata?.doctorId) {
+    return NextResponse.json(
+      {
+        message: "Missing doctor id",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+
+  if (!checkoutSession.metadata?.dateTime) {
+    return NextResponse.json(
+      {
+        message: "Missing appointment date and time",
       },
       {
         status: 400,
@@ -53,16 +75,30 @@ export async function POST(req: Request, res: Response) {
   }
 
   switch (event.type) {
-    case 'checkout.session.completed':
+    case "checkout.session.completed":
       // Create an appointment on the db
+      const appointmentDateTime = new Date(checkoutSession.metadata.dateTime);
+
+      // if (isNaN(appointmentDateTime.getTime())) {
+      //   return NextResponse.json(
+      //     {
+      //       message: "Invalid appointment date and time format",
+      //     },
+      //     {
+      //       status: 400,
+      //     }
+      //   );
+      // }
+
       const appointment = await prisma.appointment.create({
         data: {
-          status: 'pending',
-          dateTime: checkoutSession.metadata?.dateTime || '',
-          // doctorId: checkoutSession.metadata?.doctorId || '',
-          patientId: checkoutSession.metadata?.patientId!,
-          productId: checkoutSession.metadata?.productId!, // Stripe product id
+          status: "pending",
+          dateTime: appointmentDateTime.toISOString(),
+          doctorId: checkoutSession.metadata.doctorId!,
+          patientId: checkoutSession.metadata.patientId!,
+          productId: checkoutSession.metadata.productId!, // Stripe product id
           stripeSessionId: checkoutSession.id,
+          isPaid: true,
         },
       });
 
@@ -75,7 +111,7 @@ export async function POST(req: Request, res: Response) {
       if (!patient) {
         return NextResponse.json(
           {
-            message: 'Patient not found',
+            message: "Patient not found",
           },
           {
             status: 400,
@@ -92,9 +128,9 @@ export async function POST(req: Request, res: Response) {
       // Send an email to the patient
       try {
         const email = await resend.emails.send({
-          from: 'Psicoreinventar <no-reply@psicoreinventar.com>',
+          from: "Psicoreinventar <no-reply@psicoreinventar.com>",
           to: patient.email!,
-          subject: 'Thanks for booking a session! This is your receipt',
+          subject: "Thanks for booking a session! This is your receipt",
           react: ReceiptEmailHtml({
             date: new Date(),
             email: patient.email!,
@@ -122,11 +158,11 @@ export async function POST(req: Request, res: Response) {
         );
       }
 
-      console.log('Checkout session was completed');
+      console.log("Checkout session was completed");
       return new Response(null, { status: 200 });
       break;
     default:
-      console.log('Unhandled event type: ' + event.type);
+      console.log("Unhandled event type: " + event.type);
   }
   return new Response(null, { status: 200 });
 }
