@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { Separator } from "@/components/ui/separator";
 import { CardContent, Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,6 +7,8 @@ import formatPrice from "@/utilities/format-price";
 import { Order } from "@/lib/validations/order";
 import { auth } from "@/auth";
 import { tryCatch } from "@/utilities/tryCatch";
+
+export const dynamic = "force-dynamic";
 
 interface StripeSessionSuccessProps {
   order: Order;
@@ -24,6 +24,12 @@ async function ConfirmStripeSessionComponent() {
   console.log(session.user);
 
   const { error } = await tryCatch(Promise.resolve());
+
+  if (error) {
+    return <div>Error confirming stripe session.</div>;
+  }
+
+  return <div>Stripe session confirmed.</div>;
 }
 
 export default function StripeSessionSuccess({ order }: StripeSessionSuccessProps) {
@@ -53,6 +59,8 @@ export default function StripeSessionSuccess({ order }: StripeSessionSuccessProp
           Your payment has been successfully processed. We look forward to helping you on your journey towards
           well-being.
         </p>
+        {/* ConfirmStripeSessionComponent Implemented here  */}
+        <ConfirmStripeSessionComponent />
       </div>
       <Card className="w-full max-w-sm p-0">
         <CardContent className="p-0">

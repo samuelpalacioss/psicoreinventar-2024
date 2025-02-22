@@ -3,18 +3,21 @@ import { redis } from "@/lib/redis";
 // type STRIPE_ORDER_STATUS = "pending" | "paid" | "fulfilled" | "cancelled";
 
 export type STRIPE_ORDER_CACHE = {
-  userId: string;
-  status: string;
-  amount: number;
-  paymentIntentId: string;
-  customerEmail: string;
-  metadata: {
-    dateTime: string;
-    doctorId: string;
-    patientId: string;
-    stripePriceId: string;
-    productId: string;
-  };
+  // From checkout session
+  userId: string; // From metadata.userId
+  status: string; // Payment status from Stripe
+  amount: number; // From session.amount_total
+  paymentIntentId: string; // From session.payment_intent
+  customerEmail: string; // From customer_email
+  // From checkout session metadata
+  metadata: Record<string, any>; // As i may change the metadata in the future
+  // metadata: {
+  //   dateTime: string; // From metadata.dateTime
+  //   doctorId: string; // From metadata.doctorId
+  //   patientId: string; // From metadata.patientId
+  //   stripePriceId: string; // From metadata.stripePriceId
+  //   productId: string; // From metadata.productId
+  // };
 };
 
 export const STRIPE_CACHE_KV = {

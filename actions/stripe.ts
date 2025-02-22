@@ -85,13 +85,19 @@ export async function createCheckoutSession({
     if (!stripeCustomerId) {
       console.log("[Stripe][CheckoutSession] No stripe customer id found in KV, creating new customer");
 
-      const newCustomer = await stripe.customers.create({
-        email: session.user.email!,
-        name: session.user.name!,
-        metadata: {
-          userId: session.user.id!,
+      const newCustomer = await stripe.customers.create(
+        {
+          email: session.user.email!,
+          name: session.user.name!,
+          metadata: {
+            userId: session.user.id!,
+          },
         },
-      });
+        {
+          // prevent race conditions of creating 2 customers in stripe for one user
+          idempotencyKey: session.user.id!,
+        }
+      );
 
       await STRIPE_CACHE_KV.CUSTOMER.set(session.user.id!, newCustomer.id);
 

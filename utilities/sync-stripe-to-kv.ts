@@ -51,18 +51,10 @@ export async function syncStripeDataToKV(stripeCustomerId: string) {
   }
 }
 
-function mapPaymentIntentStatus(status: Stripe.PaymentIntent.Status): "processing" | "succeeded" | "failed" {
+function mapPaymentIntentStatus(status: Stripe.PaymentIntent.Status): "processing" | "succeeded" {
   switch (status) {
     case "succeeded":
       return "succeeded";
-    case "canceled":
-      return "failed";
-    case "requires_payment_method":
-    case "requires_confirmation":
-    case "requires_action":
-    case "processing":
-    case "requires_capture":
-      return "processing";
     default:
       return "processing";
   }
