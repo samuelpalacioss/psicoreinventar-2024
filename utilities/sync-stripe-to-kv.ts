@@ -1,6 +1,6 @@
 import { stripe } from "@/lib/stripe";
 import { STRIPE_CACHE_KV } from "@/store/stripe";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 
 export async function syncStripeDataToKV(stripeCustomerId: string) {
   try {
