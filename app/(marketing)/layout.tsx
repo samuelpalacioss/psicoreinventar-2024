@@ -1,5 +1,6 @@
-import Navbar from '@/components/main-nav';
-import { marketingConfig } from '@/config/marketing';
+import Navbar from "@/components/main-nav";
+import { marketingConfig } from "@/config/marketing";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function MarketingLayout({
   children,
@@ -8,11 +9,12 @@ export default function MarketingLayout({
 }>) {
   return (
     <div className={``}>
-      <header className='sticky top-0 bg-gray-50 shadow inset-x-0 z-[10] '>
+      <header className="sticky top-0 bg-gray-50 shadow inset-x-0 z-[10] ">
         <Navbar items={marketingConfig.mainNav} />
       </header>
 
       {children}
+      <Toaster />
     </div>
   );
 }

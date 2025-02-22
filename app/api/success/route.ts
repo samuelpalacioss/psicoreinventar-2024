@@ -1,23 +1,23 @@
-import { stripe } from '@/lib/stripe';
-import { prisma } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export async function GET(req: NextRequest, res: Response) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    const stripeSessionId = searchParams.get('session_id');
+    const stripeSessionId = searchParams.get("session_id");
 
     //* Get the user's checkout (after checkout completed)
     const stripeSession = await stripe.checkout.sessions.retrieve(stripeSessionId as string, {
-      expand: ['payment_intent.payment_method'],
+      expand: ["payment_intent.payment_method"],
     });
 
     //! Check if the session exists
     if (!stripeSession) {
       return NextResponse.json(
         {
-          message: 'Session not found',
+          message: "Session not found",
         },
         {
           status: 404,
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest, res: Response) {
     if (!appointment) {
       return NextResponse.json(
         {
-          message: 'Appointment not found',
+          message: "Appointment not found",
         },
         {
           status: 404,
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest, res: Response) {
     if (!product) {
       return NextResponse.json(
         {
-          message: 'Product not found',
+          message: "Product not found",
         },
         {
           status: 404,
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest, res: Response) {
   } catch (error) {
     return NextResponse.json(
       {
-        message: 'Something went wrong',
+        message: "Something went wrong",
         error: error,
       },
       {

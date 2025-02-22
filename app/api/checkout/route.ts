@@ -2,6 +2,7 @@ import { stripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
+import { STRIPE_CACHE_KV } from "@/store/stripe";
 
 export async function POST(req: Request, res: Response) {
   try {
@@ -84,53 +85,81 @@ export async function POST(req: Request, res: Response) {
       );
     }
 
-    // Create Stripe customer
-    let user = await prisma.user.findUnique({
-      where: {
-        email: session.user.email,
-      },
-    });
+    let stripeCustomerId = (await STRIPE_CACHE_KV.CUSTOMER.get(session.user.id!)) ?? undefined;
 
-    if (!user?.stripeCustomerId) {
-      // Create Stripe customer
-      const customer = await stripe.customers.create({
-        email: session.user.email,
-        name: session.user.name || undefined,
-      });
+    console.log("[Stripe][CheckoutSession] Here's the stripe id we got from KV:", stripeCustomerId);
 
-      // Update user with Stripe customer ID
-      user = await prisma.user.update({
-        where: {
-          email: session.user.email,
-        },
-        data: {
-          stripeCustomerId: customer.id,
+    if (!stripeCustomerId) {
+      console.log("[Stripe][CheckoutSession] No stripe customer id found in KV, creating new customer");
+
+      const newCustomer = await stripe.customers.create({
+        email: session.user.email!,
+        name: session.user.name!,
+        metadata: {
+          userId: session.user.id!,
         },
       });
+
+      await STRIPE_CACHE_KV.CUSTOMER.set(session.user.id!, newCustomer.id);
+
+      console.log("[Stripe][CheckoutSession] CUSTOMER CREATED", newCustomer);
+
+      stripeCustomerId = newCustomer.id;
     }
 
-    if (!user?.stripeCustomerId) {
-      return NextResponse.json(
-        {
-          message: "Failed to create Stripe customer",
-        },
-        {
-          status: 500,
-        }
-      );
-    }
+    // // Create Stripe customer
+    // let user = await prisma.user.findUnique({
+    //   where: {
+    //     email: session.user.email,
+    //   },
+    // });
+
+    // if (!user?.stripeCustomerId) {
+    //   // Create Stripe customer
+    //   const customer = await stripe.customers.create({
+    //     email: session.user.email,
+    //     name: session.user.name || undefined,
+    //   });
+
+    //   // Update user with Stripe customer ID
+    //   user = await prisma.user.update({
+    //     where: {
+    //       email: session.user.email,
+    //     },
+    //     data: {
+    //       stripeCustomerId: customer.id,
+    //     },
+    //   });
+    // }
+
+    // if (!user?.stripeCustomerId) {
+    //   return NextResponse.json(
+    //     {
+    //       message: "Failed to create Stripe customer",
+    //     },
+    //     {
+    //       status: 500,
+    //     }
+    //   );
+    // }
+
+    let stripeSession;
+
+    try {
+    } catch (error) {}
 
     //* Create a Stripe checkout Session.
-    const stripeSession = await stripe.checkout.sessions.create({
+    stripeSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: session.user.email as string,
+      customer: stripeCustomerId as string,
       metadata: {
         dateTime: dateTime,
         doctorId: doctorId,
         // DELETED REFACTORING CREATING CUSTOMER ID ON CHECKOUT patientId: session.user.stripeCustomerId, // Stripe customer id
-        patientId: user.stripeCustomerId,
+        // patientId: session..stripeCustomerId,
         stripePriceId: priceId,
         productId: stripeId, // Stripe product id
       },
