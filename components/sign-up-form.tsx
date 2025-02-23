@@ -3,14 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -55,6 +48,9 @@ export default function SignupForm() {
   } = form;
 
   const onSubmit = async (data: signUpType) => {
+    // Clear any previous error messages
+    setErrorMsg("");
+
     const res = await fetch("/api/register", {
       method: "POST",
       body: JSON.stringify({
@@ -161,9 +157,7 @@ export default function SignupForm() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
+                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
                 </div>
               </div>
               <Button
@@ -209,8 +203,7 @@ export default function SignupForm() {
                       <FormControl>
                         <Input placeholder="John Doe" {...field} />
                       </FormControl>
-                      <FormMessage className="text-[0.8rem]" />{" "}
-                      {/* Form error */}
+                      <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
                 />
@@ -221,14 +214,9 @@ export default function SignupForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="jdoe@gmail.com"
-                          {...field}
-                        />
+                        <Input type="email" placeholder="jdoe@gmail.com" {...field} />
                       </FormControl>
-                      <FormMessage className="text-[0.8rem]" />{" "}
-                      {/* Form error */}
+                      <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
                 />
@@ -239,14 +227,9 @@ export default function SignupForm() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="********"
-                          {...field}
-                        />
+                        <Input type="password" placeholder="********" {...field} />
                       </FormControl>
-                      <FormMessage className="text-[0.8rem]" />{" "}
-                      {/* Form error */}
+                      <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
                 />
@@ -257,14 +240,9 @@ export default function SignupForm() {
                     <FormItem>
                       <FormLabel>Confirm password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="********"
-                          {...field}
-                        />
+                        <Input type="password" placeholder="********" {...field} />
                       </FormControl>
-                      <FormMessage className="text-[0.8rem]" />{" "}
-                      {/* Form error */}
+                      <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
                 />
