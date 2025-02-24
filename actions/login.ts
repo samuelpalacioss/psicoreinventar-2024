@@ -2,10 +2,7 @@
 
 import { loginSchema, loginType } from "@/lib/validations/auth";
 import { signIn } from "@/auth";
-import {
-  defaultLoginRedirectPatient,
-  defaultLoginRedirectDoctor,
-} from "@/config/routes";
+import { defaultLoginRedirectPatient, defaultLoginRedirectDoctor } from "@/config/routes";
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -39,10 +36,7 @@ export const login = async (data: loginType) => {
 
   // Check for verified email
   if (!existingUser.emailVerified) {
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      existingUser.password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
 
     if (!isPasswordValid) {
       return { error: "Invalid email or password" };
@@ -54,40 +48,29 @@ export const login = async (data: loginType) => {
     // console.log(remaining, limit, success); // To check remaining attempts, the limit and bool succes
 
     if (!success) {
-      /* 
-      const now = Date.now();
-      const retryAfter = Math.floor((reset - now) / 1000); // in seconds
-      const minutes = Math.floor(retryAfter / 60);
-      const hours = Math.floor(retryAfter / 3600);
-
-      let message;
-      if (retryAfter < 3600) {
-        message = `Try the last code sent to your email or wait ${minutes} min${minutes !== 1 ? "s" : ""}`;
-      } else {
-        message = `Try the last code sent to your email or wait ${hours} hour${hours !== 1 ? "s" : ""}`;
-      }
-      */
-
       return {
         error: "Email not verified. Check your inbox",
-        // error: message,
       };
     }
 
-    // Get first name of user
-    const userFirstname = existingUser?.name?.split(" ")[0]!;
+    // Only re-send verification email for patients
+    if (existingUser.role === Role.patient) {
+      // Get first name of user
+      const userFirstname = existingUser?.name?.split(" ")[0]!;
 
-    const verificationToken = await generateVerificationToken(
-      existingUser.email,
-    );
+      const verificationToken = await generateVerificationToken(existingUser.email);
 
-    const verificationEmail = await sendVerificationEmail(
-      existingUser.email,
-      userFirstname,
-      verificationToken.token,
-    );
+      const verificationEmail = await sendVerificationEmail(
+        existingUser.email,
+        userFirstname,
+        verificationToken.token
+      );
 
-    return { error: "Please confirm your email address" };
+      return { error: "Please confirm your email address" };
+    }
+
+    // For non-patient roles, just return error msg do not resend verification email
+    return { error: "Email not verified. Please contact support." };
   }
 
   try {
