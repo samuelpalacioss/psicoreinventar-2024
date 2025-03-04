@@ -10,6 +10,9 @@
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks",
     "email": "email dev --dir components/emails"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
     "@headlessui/react": "^1.7.18",
