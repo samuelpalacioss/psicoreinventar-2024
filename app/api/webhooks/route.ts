@@ -40,7 +40,7 @@ async function processEvent(event: Stripe.Event) {
         // Create appointment
         const appointment = await prisma.appointment.create({
           data: {
-            status: "pending",
+            status: "confirmed",
             dateTime: appointmentDateTime.toISOString(),
             doctorId: checkoutSession.metadata?.doctorId!,
             patientId: checkoutSession.metadata?.patientId!,
