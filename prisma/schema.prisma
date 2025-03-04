@@ -62,7 +62,7 @@ model DoctorProfile {
   id                 String      @id @default(cuid())
   licenseNumber      String?     @unique
   experience         String?
-  graduationYear     Int?
+  graduationYear     String?     // Validated to be a number between 1950 and 2025 with zod
   education          String?
   description        String?
   clientExpectations String?
