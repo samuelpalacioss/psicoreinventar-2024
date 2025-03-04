@@ -61,7 +61,7 @@ export default function Footer() {
               </div>
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div className="mt-10 md:mt-0">
+              <div>
                 <h3 className="text-sm/6 font-semibold text-white">Company</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.company.map((item) => (
@@ -76,9 +76,9 @@ export default function Footer() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-10 md:mt-0 space-y-4">
+              <div className="mt-10 md:mt-0">
                 <h3 className="text-sm/6 font-semibold text-white">Contact Us</h3>
-                <ul className="space-y-3 text-sm">
+                <ul className="mt-6 space-y-4">
                   <li className="flex items-start text-sm/6 ">
                     <Mail className="mr-2 h-5 w-5 text-indigo-400 shrink-0" />
                     <div>
