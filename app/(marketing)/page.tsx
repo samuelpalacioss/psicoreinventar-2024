@@ -10,7 +10,6 @@ import { dashboardConfig } from "@/config/dashboard";
 import { marketingConfig } from "@/config/marketing";
 import ReviewsCarousel from "@/components/carousel-reviews";
 import Stats from "@/components/stats";
-import PreFooter from "@/components/pre-footer";
 
 export default function MarketingPage() {
   const features = marketingConfig.features;
@@ -120,10 +119,6 @@ export default function MarketingPage() {
             <ReviewsCarousel items={marketingConfig.testimonials} />
           </Container>
         </section> */}
-
-        <Container>
-          <PreFooter />
-        </Container>
 
         <section id="cta">
           <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl px-4 sm:px-6 lg:px-8">
