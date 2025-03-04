@@ -1,5 +1,5 @@
-import { FcGoogle } from 'react-icons/fc';
-import { VscStarFull } from 'react-icons/vsc';
+import { FcGoogle } from "react-icons/fc";
+import { VscStarFull } from "react-icons/vsc";
 import {
   Aperture,
   Brain,
@@ -13,7 +13,7 @@ import {
   Settings,
   User,
   type LucideIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
 export type Icon = LucideIcon;
 
