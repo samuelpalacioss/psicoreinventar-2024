@@ -10,6 +10,7 @@ import { dashboardConfig } from "@/config/dashboard";
 import { marketingConfig } from "@/config/marketing";
 import ReviewsCarousel from "@/components/carousel-reviews";
 import Stats from "@/components/stats";
+import FAQHomepage from "@/components/faq-homepage";
 
 export default function MarketingPage() {
   const features = marketingConfig.features;
@@ -120,8 +121,12 @@ export default function MarketingPage() {
           </Container>
         </section> */}
 
+        <div className="max-w-4xl mx-auto pb-20">
+          <FAQHomepage />
+        </div>
+
         <section id="cta">
-          <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl px-4 sm:px-6 lg:px-8">
+          <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">
             <div className="absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2">
               <CircleBackground color="#fff" className="animate-spin-slower" />
             </div>
