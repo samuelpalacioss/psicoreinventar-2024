@@ -24,7 +24,7 @@ export default function MarketingPage() {
           <Container>
             <div className=" gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center">
               <div className="w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl">
-                <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+                <h1 className="text-4xl s font-bold tracking-tight text-gray-900 sm:text-6xl">
                   Wellness Starts With Your <span className="text-indigo-600">Mental Health</span>
                 </h1>
                 <div className="mt-6 max-w-xl">
@@ -73,7 +73,7 @@ export default function MarketingPage() {
         <section id="about" className="mt-3 py-20 sm:py-24">
           <Container>
             <div className="max-w-2xl lg:mx-0">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
                 Easy Booking Process
               </h2>
               <p className="mt-6 text-base leading-7 text-gray-600">
@@ -113,7 +113,7 @@ export default function MarketingPage() {
           <Container>
             <div className="testimonials-header max-w-xl mb-6">
               <h4 className="text-lg font-bold leading-8 tracking-tight text-indigo-600">Testimonials</h4>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-">
+              <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-">
                 Insights into Their Journey
               </p>
             </div>
@@ -121,18 +121,14 @@ export default function MarketingPage() {
           </Container>
         </section> */}
 
-        <div className="max-w-4xl mx-auto pb-20">
-          <FAQHomepage />
-        </div>
-
-        <section id="cta">
+        <section id="cta" className="pb-20 sm:pb-24">
           <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">
             <div className="absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2">
               <CircleBackground color="#fff" className="animate-spin-slower" />
             </div>
             <Container className="relative">
               <div className="mx-auto max-w-md sm:text-center">
-                <h6 className="text-3xl font-medium tracking-tight text-white sm:text-4xl">
+                <h6 className="text-3xl sm:text-4xl font-medium tracking-tight text-white">
                   Start Your Journey to Emotional Well-Being Today
                 </h6>
                 <p className="mt-4 text-base text-slate-200">
@@ -159,6 +155,10 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+
+        <div className="max-w-4xl mx-auto pb-20">
+          <FAQHomepage />
+        </div>
       </div>
     </>
   );

@@ -43,8 +43,10 @@ export default function FAQHomepage() {
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-medium text-gray-800 mb-2">Frequently asked questions</h2>
-        <p className="text-xl text-gray-800">Getting started with therapy is easier than you think.</p>
+        <h2 className="text-3xl sm:text-4xl font-medium text-gray-800 mb-2">Frequently asked questions</h2>
+        <p className="text-base sm:text-xl text-gray-600">
+          Getting started with therapy is easier than you think.
+        </p>
       </div>
       <Accordion type="single" collapsible className="w-full">
         {faqItems.map((item) => (
