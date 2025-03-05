@@ -22,7 +22,7 @@ const faqItems = [
   },
   {
     id: "item-3",
-    question: "How are therapists verified on Psicoreinventar?",
+    question: "How are therapists verified?",
     answer:
       "We conduct an intensive interview process to ensure our therapists have the skills, training, and experience to help you grow.",
   },
@@ -51,7 +51,7 @@ export default function FAQHomepage() {
       <Accordion type="single" collapsible className="w-full">
         {faqItems.map((item) => (
           <AccordionItem key={item.id} value={item.id}>
-            <AccordionTrigger className="text-gray-800">{item.question}</AccordionTrigger>
+            <AccordionTrigger className="text-gray-800 text-left">{item.question}</AccordionTrigger>
             <AccordionContent className="text-base text-gray-600">{item.answer}</AccordionContent>
           </AccordionItem>
         ))}
