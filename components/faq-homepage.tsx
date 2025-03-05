@@ -48,7 +48,7 @@ export default function FAQHomepage() {
           Getting started with therapy is easier than you think.
         </p>
       </div>
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="multiple" className="w-full">
         {faqItems.map((item) => (
           <AccordionItem key={item.id} value={item.id}>
             <AccordionTrigger className="text-gray-800 text-left">{item.question}</AccordionTrigger>
