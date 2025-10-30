@@ -36,11 +36,14 @@ export default function MarketingPage() {
                   <div className="mt-10 flex items-center gap-x-6">
                     <Link
                       href="/login"
-                      className={cn(buttonVariants({ variant: "default" }), "bg-indigo-600 text-white ")}
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all px-6 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700"
                     >
                       Get started
                     </Link>
-                    <Link href="/#about" className={cn(buttonVariants({ variant: "outline" }), "gap-x-1")}>
+                    <Link 
+                      href="/#about" 
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all px-6 py-2.5 border border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
+                    >
                       Learn more{" "}
                       <span className="font-semibold" aria-hidden="true">
                         &rarr;

@@ -50,7 +50,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                           display: "inline-block",
                         }}
                       >
-                        psicoreinventar
+                        Psicoreinventar
                       </span>
                     </DisclosureButton>
                   ) : (
@@ -72,7 +72,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                           display: "inline-block",
                         }}
                       >
-                        psicoreinventar
+                        Psicoreinventar
                       </span>
                     </Link>
                   )}
