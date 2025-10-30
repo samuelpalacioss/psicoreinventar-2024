@@ -97,7 +97,7 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
                 key={rating}
                 type="button"
                 onClick={() => handleRatingClick(rating)}
-                className="focus:outline-none"
+                className="focus:outline-hidden"
               >
                 <Icons.star
                   className={`h-8 w-8 ${

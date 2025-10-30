@@ -253,7 +253,7 @@ export default function RegisterDoctorForm({ specialties }: RegisterDoctorClient
     <div className='flex flex-col space-y-4'>
       {/* Top Progress bar*/}
       <ProgressBar steps={steps} currentStep={currentStep} maxSteps={3} />
-      <Card className='w-[32rem]'>
+      <Card className='w-lg'>
         <CardContent className='p-6'>
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>

@@ -132,7 +132,7 @@ export default function SignupForm() {
             Sign in
           </Link>
           {showForm && (
-            <p
+            <span
               onClick={() => {
                 setShowForm(!showForm);
               }}
@@ -140,7 +140,7 @@ export default function SignupForm() {
             >
               {" "}
               Sign up with google?
-            </p>
+            </span>
           )}
         </CardDescription>
       </CardHeader>
@@ -206,9 +206,11 @@ export default function SignupForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Full name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Doe" {...field} />
-                      </FormControl>
+                      <div className="mt-2">
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                      </div>
                       <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
@@ -219,9 +221,11 @@ export default function SignupForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="jdoe@gmail.com" {...field} />
-                      </FormControl>
+                      <div className="mt-2">
+                        <FormControl>
+                          <Input type="email" placeholder="jdoe@gmail.com" {...field} />
+                        </FormControl>
+                      </div>
                       <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
@@ -232,9 +236,11 @@ export default function SignupForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="********" {...field} />
-                      </FormControl>
+                      <div className="mt-2">
+                        <FormControl>
+                          <Input type="password" placeholder="********" {...field} />
+                        </FormControl>
+                      </div>
                       <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}
@@ -245,9 +251,11 @@ export default function SignupForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Confirm password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="********" {...field} />
-                      </FormControl>
+                      <div className="mt-2">
+                        <FormControl>
+                          <Input type="password" placeholder="********" {...field} />
+                        </FormControl>
+                      </div>
                       <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                     </FormItem>
                   )}

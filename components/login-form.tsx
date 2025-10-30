@@ -81,14 +81,16 @@ export default function LoginForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="jdoe@gmail.com"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
+                  <div className="mt-2">
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="jdoe@gmail.com"
+                        disabled={isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
                   <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                 </FormItem>
               )}
@@ -99,14 +101,16 @@ export default function LoginForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="********"
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
+                  <div className="mt-2">
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="********"
+                        disabled={isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
                   <FormMessage className="text-[0.8rem]" /> {/* Form error */}
                   <Link
                     className={cn(

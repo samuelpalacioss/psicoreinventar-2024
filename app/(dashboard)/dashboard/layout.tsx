@@ -15,7 +15,7 @@ export default async function DashboardLayout({
 
   return (
     <div className='flex flex-col min-h-screen'>
-      <header className='sticky top-0 bg-gray-50 shadow inset-x-0 z-[50]'>
+      <header className='sticky top-0 bg-gray-50 shadow-sm inset-x-0 z-50'>
         <div className='mx-4'>
           <Navbar className='max-w-none' user={user} />
         </div>
