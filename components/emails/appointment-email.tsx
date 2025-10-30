@@ -155,7 +155,7 @@ export const ReceiptEmail = ({
             <Link href='#'>Privacy Policy </Link>
           </Text>
           <Text style={footerCopyright}>
-            Copyright © 2024 Psicoreinventar. <br /> <Link href='#'>All rights reserved</Link>
+            Copyright &copy; {new Date().getFullYear()} Psicoreinventar. <br /> <Link href='#'>All rights reserved</Link>
           </Text>
         </Container>
       </Body>
