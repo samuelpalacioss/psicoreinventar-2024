@@ -5,11 +5,10 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { MainNavItem } from "@/types";
 import { User } from "next-auth";
 import UserDropdown from "./user-dropdown";
-import { ChevronRight, ArrowRight } from "lucide-react";
 
 interface NavbarProps extends React.HTMLAttributes<HTMLDivElement> {
   items?: MainNavItem[];
@@ -23,11 +22,11 @@ export default function Navbar({ className, items, user, children }: NavbarProps
   const isOnDashboard = pathname.includes("/dashboard");
 
   return (
-    <Disclosure as="nav">
+    <Disclosure as="nav" className="border-b">
       {({ open }) => (
         <>
-          <div className={cn("mx-auto max-w-7xl px-4 md:px-6 lg:px-8", className)}>
-            <div className="flex h-14 items-center justify-between">
+          <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", className)}>
+            <div className="flex h-16 items-center justify-between">
               <div className="flex">
                 <div className="flex shrink-0">
                   {/* If mobile nav open, close it, otherwise simple link */}
@@ -35,13 +34,46 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     <DisclosureButton
                       as={Link}
                       href={"/"}
-                      className="text-lg font-semibold text-indigo-600 pt-1 "
+                      className="text-xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none"
+                      style={{
+                        fontFamily: "'Inter', 'sans-serif'",
+                        letterSpacing: "-0.04em",
+                        userSelect: "none",
+                      }}
+                      aria-label="Psicoreinventar Logo"
                     >
-                      psicoreinventar
+                      <span
+                        className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-400 bg-clip-text text-transparent"
+                        style={{
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          display: "inline-block",
+                        }}
+                      >
+                        psicoreinventar
+                      </span>
                     </DisclosureButton>
                   ) : (
-                    <Link href={"/"} className="text-lg font-semibold text-indigo-600 pt-1 ">
-                      psicoreinventar
+                    <Link
+                      href={"/"}
+                      className="text-xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none"
+                      style={{
+                        fontFamily: "'Inter', 'sans-serif'",
+                        letterSpacing: "-0.04em",
+                        userSelect: "none",
+                      }}
+                      aria-label="Psicoreinventar Logo"
+                    >
+                      <span
+                        className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-400 bg-clip-text text-transparent"
+                        style={{
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          display: "inline-block",
+                        }}
+                      >
+                        psicoreinventar
+                      </span>
                     </Link>
                   )}
                 </div>
@@ -63,26 +95,18 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     ))}
                 </div>
               </div>
-              <div className="flex items-center gap-x-4">
+              <div className="flex items-center gap-4">
                 {user ? (
                   <UserDropdown user={user} />
                 ) : (
-                  <Link
-                    href="/login"
-                    className={cn(
-                      "hidden md:inline-flex items-end gap-x-1 pt-1 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700 group"
-                    )}
-                    // className={cn(
-                    //   buttonVariants({ variant: 'default' }),
-                    //   'hidden md:inline-flex bg-indigo-600'
-                    // )}
-                  >
-                    Log in
-                    <span className="relative w-4 h-4">
-                      <ChevronRight className="w-4 h-4 absolute transition-opacity group-hover:opacity-0" />
-                      <ArrowRight className="w-4 h-4 absolute opacity-0 transition-opacity group-hover:opacity-100" />
-                    </span>
-                  </Link>
+                  <>
+                    <Button
+                      asChild
+                      className="text-sm bg-white hover:bg-gray-100 border border-gray-200 text-gray-900"
+                    >
+                      <Link href="/login">Sign in</Link>
+                    </Button>
+                  </>
                 )}
 
                 <Link
@@ -134,33 +158,19 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                             className={`block border-l-4 ${
                               isActive(item.href)
                                 ? "border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-sm font-medium text-indigo-700"
-                                : "border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+                                : "border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-cream hover:text-gray-700"
                             }`}
                           >
                             {item.title}
                           </DisclosureButton>
                         ))}
-                      <div className="flex flex-col items-start border-l-4  gap-y-4 pl-3 pr-4">
-                        <DisclosureButton
-                          as={Link}
-                          href="/login"
-                          className={cn(
-                            "inline-flex items-end gap-x-1 pt-1 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700 group"
-                          )}
-                        >
-                          Log in
-                          <span className="relative w-4 h-4">
-                            <ChevronRight className="w-4 h-4 absolute transition-opacity group-hover:opacity-0" />
-                            <ArrowRight className="w-4 h-4 absolute opacity-0 transition-opacity group-hover:opacity-100" />
-                          </span>
-                        </DisclosureButton>
-                        <DisclosureButton
-                          as={Link}
-                          href="/specialists"
-                          className={cn(buttonVariants({ variant: "default" }), "bg-indigo-600")}
-                        >
-                          Find a therapist
-                        </DisclosureButton>
+                      <div className="flex flex-col items-start border-l-4 gap-y-4 pl-3 pr-4">
+                        <Button asChild className="text-sm w-full justify-start bg-primary text-primary-foreground hover:bg-primary/90">
+                          <Link href="/login">Sign in</Link>
+                        </Button>
+                        <Button asChild className="text-sm w-full justify-start bg-indigo-600 hover:bg-indigo-700">
+                          <Link href="/specialists">Find a therapist</Link>
+                        </Button>
                       </div>
                     </ul>
                   </div>

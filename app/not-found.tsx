@@ -5,7 +5,7 @@ import Container from "@/components/container";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-cream">
       <Container>
         <div className="text-center">
           <h1 className="text-9xl font-bold text-indigo-600">404</h1>

@@ -1,4 +1,3 @@
-import { auth } from '@/auth';
 import Navbar from '@/components/main-nav';
 import Sidebar from '@/components/sidebar';
 
@@ -9,15 +8,12 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const user = session?.user;
-  console.log(user);
 
   return (
     <div className='flex flex-col min-h-screen'>
-      <header className='sticky top-0 bg-gray-50 shadow-sm inset-x-0 z-50'>
+      <header className='sticky top-0 bg-cream inset-x-0 z-50'>
         <div className='mx-4'>
-          <Navbar className='max-w-none' user={user} />
+          <Navbar className='max-w-none' /> {/* user prop missing as auth not being implemented */}
         </div>
       </header>
 
