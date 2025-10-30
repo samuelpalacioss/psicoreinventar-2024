@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { newPasswordSchema, newPasswordType } from '@/lib/validations/auth';
+// import { newPasswordSchema, newPasswordType } from '@/lib/validations/auth';
 import Link from 'next/link';
 import { Icons } from '@/components/icons';
 import { useState, useTransition } from 'react';

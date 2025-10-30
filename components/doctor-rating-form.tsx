@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DoctorRatingSchema, DoctorRatingType } from "@/lib/validations/doctor-rating";
+// import { DoctorRatingSchema, DoctorRatingType } from "@/lib/validations/doctor-rating";
 import { submitDoctorRating } from "@/actions/doctor-rating";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -23,14 +23,14 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [successMsg, setSuccessMsg] = useState<string>("");
 
-  const form = useForm<DoctorRatingType>({
-    resolver: zodResolver(DoctorRatingSchema),
-    defaultValues: {
-      doctorProfileId,
-      rating: 0,
-      comment: "",
-    },
-  });
+  // const form = useForm<DoctorRatingType>({
+  //   resolver: zodResolver(DoctorRatingSchema),
+  //   defaultValues: {
+  //     doctorProfileId,
+  //     rating: 0,
+  //     comment: "",
+  //   },
+  // });
 
   const {
     formState: { errors },

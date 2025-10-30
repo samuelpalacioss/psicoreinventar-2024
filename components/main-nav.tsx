@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Disclosure } from "@headlessui/react";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -32,13 +32,13 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                 <div className="flex shrink-0">
                   {/* If mobile nav open, close it, otherwise simple link */}
                   {open ? (
-                    <Disclosure.Button
+                    <DisclosureButton
                       as={Link}
                       href={"/"}
                       className="text-lg font-semibold text-indigo-600 pt-1 "
                     >
                       psicoreinventar
-                    </Disclosure.Button>
+                    </DisclosureButton>
                   ) : (
                     <Link href={"/"} className="text-lg font-semibold text-indigo-600 pt-1 ">
                       psicoreinventar
@@ -100,14 +100,14 @@ export default function Navbar({ className, items, user, children }: NavbarProps
               {/* Mobile menu button*/}
               {!isOnDashboard ? (
                 <div className="-mr-2 flex items-center md:hidden">
-                  <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+                  <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
                     <span className="sr-only">Open main menu</span>
                     {open ? (
                       <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                     ) : (
                       <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
                     )}
-                  </Disclosure.Button>
+                  </DisclosureButton>
                 </div>
               ) : null}
             </div>
@@ -116,20 +116,18 @@ export default function Navbar({ className, items, user, children }: NavbarProps
           {!isOnDashboard ? (
             <AnimatePresence>
               {open && (
-                <Disclosure.Panel
-                  as={motion.div}
-                  className="md:hidden overflow-hidden"
-                  static
-                  initial={{ height: 0 }}
-                  animate={{ height: "auto" }}
-                  exit={{ height: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
+                <DisclosurePanel className="md:hidden overflow-hidden" static>
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: "auto" }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
                   <div className="space-y-1 pb-3 pt-2">
                     <ul>
                       {items?.length &&
                         items.map((item, index) => (
-                          <Disclosure.Button
+                          <DisclosureButton
                             as={Link}
                             key={index}
                             href={item.href}
@@ -140,10 +138,10 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                             }`}
                           >
                             {item.title}
-                          </Disclosure.Button>
+                          </DisclosureButton>
                         ))}
                       <div className="flex flex-col items-start border-l-4  gap-y-4 pl-3 pr-4">
-                        <Disclosure.Button
+                        <DisclosureButton
                           as={Link}
                           href="/login"
                           className={cn(
@@ -155,18 +153,19 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                             <ChevronRight className="w-4 h-4 absolute transition-opacity group-hover:opacity-0" />
                             <ArrowRight className="w-4 h-4 absolute opacity-0 transition-opacity group-hover:opacity-100" />
                           </span>
-                        </Disclosure.Button>
-                        <Disclosure.Button
+                        </DisclosureButton>
+                        <DisclosureButton
                           as={Link}
                           href="/specialists"
                           className={cn(buttonVariants({ variant: "default" }), "bg-indigo-600")}
                         >
                           Find a therapist
-                        </Disclosure.Button>
+                        </DisclosureButton>
                       </div>
                     </ul>
                   </div>
-                </Disclosure.Panel>
+                  </motion.div>
+                </DisclosurePanel>
               )}
             </AnimatePresence>
           ) : null}

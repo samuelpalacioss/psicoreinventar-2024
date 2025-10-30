@@ -39,4 +39,6 @@ next-env.d.ts
 .vscode
 .cursor
 .cursorrules
-roadmap/roadmap.md
+
+/roadmap/
+/.md/
