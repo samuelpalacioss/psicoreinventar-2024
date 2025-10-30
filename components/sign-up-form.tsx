@@ -67,7 +67,13 @@ export default function SignupForm() {
     const resData = await res.json();
 
     if (!res.ok) {
-      setErrorMsg("Something went wrong");
+      // Use error message from API if available, otherwise use generic message
+      setErrorMsg(resData.message || "Something went wrong");
+      
+      // If there's a detailed error in development, log it
+      if (resData.error) {
+        console.error("Registration error details:", resData.error);
+      }
     } else {
       setSuccessMsg(resData.success); // Mensaje con success en su respuesta de api/register
       setTimeout(() => {
