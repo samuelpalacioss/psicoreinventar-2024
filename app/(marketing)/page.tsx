@@ -5,17 +5,12 @@ import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { CircleBackground } from "@/components/circle-background";
 import Container from "@/components/container";
-import { FeatureItem, TestimonialItem } from "@/types";
-import { dashboardConfig } from "@/config/dashboard";
+import { FeatureItem } from "@/types";
 import { marketingConfig } from "@/config/marketing";
-import ReviewsCarousel from "@/components/carousel-reviews";
-import Stats from "@/components/stats";
 import FAQHomepage from "@/components/faq-homepage";
 
 export default function MarketingPage() {
   const features = marketingConfig.features;
-  const testimonials = marketingConfig.testimonials;
-  const stats = marketingConfig.stats;
 
   return (
     <>
@@ -24,8 +19,8 @@ export default function MarketingPage() {
           <Container>
             <div className=" gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center">
               <div className="w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl">
-                <h1 className="text-4xl s font-bold tracking-tight text-gray-900 sm:text-6xl">
-                  Wellness Starts With Your <span className="text-indigo-600">Mental Health</span>
+                <h1 className="text-4xl s font-semibold tracking-tight text-black-900 sm:text-6xl">
+                  Wellness starts with your mental health
                 </h1>
                 <div className="mt-6 max-w-xl">
                   <p className="text-base leading-7 text-gray-600 max-w-md lg:max-w-full">
@@ -70,44 +65,65 @@ export default function MarketingPage() {
         </section>
       </main>
       <div className="wrapper">
-        <section id="about" className="hidden md:block">
-          <Stats stats={stats} />
-        </section>
-        <section id="about" className="mt-3 py-20 sm:py-24">
+
+        <section id="features" className="py-20 sm:py-24 bg-gray-50/50">
           <Container>
-            <div className="max-w-2xl lg:mx-0">
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-                Easy Booking Process
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-8">
+                Start where you are
               </h2>
-              <p className="mt-6 text-base leading-7 text-gray-600">
-                Quickly book your therapy session online. Choose your psychologist, session type, and time,
-                then pay securely. Prioritize your mental health effortlessly.
+              <p className="text-base leading-relaxed text-gray-600">
+                Share what brings you here, and we&apos;ll connect you with a therapist who can help.
               </p>
             </div>
-            <div className="mt-16 sm:mt-20 lg:mt-24">
-              {/* md:max-w-2xl  */}
-              <div className="grid grid-cols-1 gap-6 text-sm sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3">
-                {features.map((feature, index) => {
-                  const Icon = Icons[feature.icon];
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-col rounded-2xl border border-gray-200 shadow-md p-8"
-                    >
-                      <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                        <Icon className="h-6 w-6 text-white" aria-hidden="true" />
-                      </div>
-                      <h3 className="text-base font-semibold leading-7 text-gray-900">
-                        {index + 1}. {"  "}
-                        {feature.name}
-                      </h3>
-                      <p className="mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                        {feature.description}
-                      </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
+              {features.map((feature, index) => {
+                const stepNumber = String(index + 1);
+                
+                // Custom content matching the reference
+                const stepContent = [
+                  {
+                    title: "Tell us what you need",
+                    description: "Answer a few questions to help us understand your needs, preferences and goals, so you know exactly what to expect.",
+                    cta: "Begin your journey"
+                  },
+                  {
+                    title: "Choose your therapist",
+                    description: "Filter therapists by specialty, availability, approach and identity. Find someone who truly fits you.",
+                    cta: "Find your therapist"
+                  },
+                  {
+                    title: "Book and begin",
+                    description: "Book instantly online, schedule at a time that works for you. Begin your journey towards mental well-being.",
+                    cta: "Get care this week"
+                  }
+                ];
+
+                const content = stepContent[index];
+
+                return (
+                  <div 
+                    key={index} 
+                    className={`space-y-4 ${index > 0 ? 'md:border-l md:border-gray-300 md:pl-10 lg:pl-12' : ''}`}
+                  >
+                    <div className="text-6xl  font-normal text-gray-900 leading-none mb-2">
+                      {stepNumber}
                     </div>
-                  );
-                })}
-              </div>
+                    <h3 className="text-xl sm:text-2xl font-semibold leading-tight text-gray-900">
+                      {content.title}
+                    </h3>
+                    <p className="text-base leading-relaxed text-gray-600">
+                      {content.description}
+                    </p>
+                    <Link
+                      href="/login"
+                      className="inline-block text-base font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors mt-2"
+                    >
+                      {content.cta}
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </Container>
         </section>
