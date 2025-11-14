@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Image from 'next/image';
+import Autoplay from 'embla-carousel-autoplay';
 
 interface TherapistCard {
   id: string;
@@ -80,6 +81,46 @@ const DEFAULT_THERAPISTS: TherapistCard[] = [
     height: 360,
     size: 'small',
   },
+  {
+    id: '7',
+    name: 'Sarah Johnson, LCSW',
+    title: 'LCSW',
+    image: 'https://via.placeholder.com/340x430/4f46e5/ffffff?text=Sarah+Johnson',
+    description: 'Specializing in anxiety and depression treatment with evidence-based approaches.',
+    width: 340,
+    height: 430,
+    size: 'medium',
+  },
+  {
+    id: '8',
+    name: 'Marcus Williams, LMFT',
+    title: 'LMFT',
+    image: 'https://via.placeholder.com/400x320/4f46e5/ffffff?text=Marcus+Williams',
+    description: 'Expert in couples therapy and relationship counseling for all life stages.',
+    width: 400,
+    height: 320,
+    size: 'wide',
+  },
+  {
+    id: '9',
+    name: 'Jennifer Lee, LMHC',
+    title: 'LMHC',
+    image: 'https://via.placeholder.com/370x490/4f46e5/ffffff?text=Jennifer+Lee',
+    description: 'Passionate about trauma-informed care and resilience building.',
+    width: 370,
+    height: 490,
+    size: 'tall',
+  },
+  {
+    id: '10',
+    name: 'David Martinez, LCSW',
+    title: 'LCSW',
+    image: 'https://via.placeholder.com/280x340/4f46e5/ffffff?text=David+Martinez',
+    description: 'Focused on helping individuals navigate life transitions and growth.',
+    width: 280,
+    height: 340,
+    size: 'small',
+  },
 ];
 
 // Size mapping for basis widths to create varying carousel item widths
@@ -91,6 +132,12 @@ const sizeClassMap = {
 };
 
 export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: TherapistsCarouselProps) {
+  const plugin = React.useRef(
+    Autoplay({
+      delay: 2000,
+    })
+  );
+
   return (
     <section className="py-20 sm:py-24">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -108,10 +155,13 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
             opts={{
               align: 'start',
               loop: true,
+              duration: 400,
+              watchDrag: false,
             }}
+            plugins={[plugin.current]}
             className="w-full"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
+            <CarouselContent className="-ml-4">
               {therapists.map((therapist) => {
                 let heightClass = 'h-72';
                 if (therapist.size === 'tall') {
@@ -125,7 +175,7 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
                 return (
                   <CarouselItem
                     key={therapist.id}
-                    className={`pl-2 md:pl-4 ${sizeClassMap[therapist.size]}`}
+                    className={`pl-4 ${sizeClassMap[therapist.size]}`}
                   >
                     <div className={`group relative overflow-hidden rounded-xl bg-gray-900 ${heightClass}`}>
                       <Image
@@ -145,8 +195,8 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16 hover:bg-gray-200" />
-            <CarouselNext className="hidden md:flex -right-12 lg:-right-16 hover:bg-gray-200" />
+            <CarouselPrevious className="hidden" />
+            <CarouselNext className="hidden" />
           </Carousel>
         </div>
       </div>
