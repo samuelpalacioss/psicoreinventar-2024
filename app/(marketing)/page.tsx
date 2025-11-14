@@ -7,10 +7,12 @@ import { CircleBackground } from "@/components/circle-background";
 import Container from "@/components/container";
 import { FeatureItem } from "@/types";
 import { marketingConfig } from "@/config/marketing";
+import SpecialtiesSection from "@/components/specialties-section";
 import FAQHomepage from "@/components/faq-homepage";
+import { TherapistsCarousel } from "@/components/therapists-carousel";
 
 export default function MarketingPage() {
-  const features = marketingConfig.features;
+  const steps = marketingConfig.steps;
 
   return (
     <>
@@ -22,22 +24,23 @@ export default function MarketingPage() {
                 <h1 className="text-4xl s font-semibold tracking-tight text-black-900 sm:text-6xl">
                   Wellness starts with your mental health
                 </h1>
-                <div className="mt-6 max-w-xl">
+                <div className="mt-6 max-w-xl space-y-2">
                   <p className="text-base leading-7 text-gray-600 max-w-md lg:max-w-full">
-                    Discover the gateway to a fulfilling life with our focused approach to mental well-being.
-                    From personalized support to comprehensive strategies, we empower you to prioritize your
-                    mental health for a brighter future.
+                    Discover the gateway to a fulfilling life with our focused approach to mental
+                    well-being. From personalized support to comprehensive strategies, we empower
+                    you to prioritize your mental health for a brighter future.
                   </p>
-                  <div className="mt-10 flex items-center gap-x-6">
+                  <div className="flex items-center gap-x-6">
                     <Link
                       href="/login"
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all px-6 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700"
+                      className={cn(buttonVariants({ variant: "default", size: "lg" }), "mt-4 text-sm font-semibold transition-all px-6 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700")}
+
                     >
                       Get started
                     </Link>
-                    <Link 
-                      href="/#about" 
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all px-6 py-2.5 border border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
+                    <Link
+                      href="/#about"
+                      className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-4 text-sm font-semibold")}
                     >
                       Learn more{" "}
                       <span className="font-semibold" aria-hidden="true">
@@ -65,61 +68,38 @@ export default function MarketingPage() {
         </section>
       </main>
       <div className="wrapper">
-
         <section id="features" className="py-20 sm:py-24 bg-gray-50/50">
           <Container>
-            <div className="max-w-3xl mb-16">
-              <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-8">
+            <div className="max-w-3xl mb-12">
+              <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">
                 Start where you are
               </h2>
               <p className="text-base leading-relaxed text-gray-600">
-                Share what brings you here, and we&apos;ll connect you with a therapist who can help.
+                Share what brings you here, and we&apos;ll connect you with a therapist who can
+                help.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
-              {features.map((feature, index) => {
+              {steps.map((step, index) => {
                 const stepNumber = String(index + 1);
-                
-                // Custom content matching the reference
-                const stepContent = [
-                  {
-                    title: "Tell us what you need",
-                    description: "Answer a few questions to help us understand your needs, preferences and goals, so you know exactly what to expect.",
-                    cta: "Begin your journey"
-                  },
-                  {
-                    title: "Choose your therapist",
-                    description: "Filter therapists by specialty, availability, approach and identity. Find someone who truly fits you.",
-                    cta: "Find your therapist"
-                  },
-                  {
-                    title: "Book and begin",
-                    description: "Book instantly online, schedule at a time that works for you. Begin your journey towards mental well-being.",
-                    cta: "Get care this week"
-                  }
-                ];
-
-                const content = stepContent[index];
 
                 return (
-                  <div 
-                    key={index} 
-                    className={`space-y-4 ${index > 0 ? 'md:border-l md:border-gray-300 md:pl-10 lg:pl-12' : ''}`}
+                  <div
+                    key={index}
+                    className={`space-y-4 ${index > 0 ? "md:border-l md:border-gray-300 md:pl-10 lg:pl-12" : ""}`}
                   >
                     <div className="text-6xl  font-normal text-gray-900 leading-none mb-2">
                       {stepNumber}
                     </div>
                     <h3 className="text-xl sm:text-2xl font-semibold leading-tight text-gray-900">
-                      {content.title}
+                      {step.title}
                     </h3>
-                    <p className="text-base leading-relaxed text-gray-600">
-                      {content.description}
-                    </p>
+                    <p className="text-base leading-relaxed text-gray-600">{step.description}</p>
                     <Link
                       href="/login"
                       className="inline-block text-base font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors mt-2"
                     >
-                      {content.cta}
+                      {step.cta}
                     </Link>
                   </div>
                 );
@@ -128,17 +108,32 @@ export default function MarketingPage() {
           </Container>
         </section>
 
-        {/* <section id="testimonials" className="py-20 sm:py-24">
+        <section id="specialists" className="py-20 sm:py-24">
           <Container>
-            <div className="testimonials-header max-w-xl mb-6">
-              <h4 className="text-lg font-bold leading-8 tracking-tight text-indigo-600">Testimonials</h4>
-              <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl max-w-">
-                Insights into Their Journey
-              </p>
+            <div className="flex flex-col md:flex-row items-start md:items-start justify-between gap-8 w-full">
+              <div className="flex-1 max-w-xl">
+                <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-2 md:mb-0">
+                  The right therapist for you is already here
+                </h2>
+              </div>
+              <div className="flex-1 max-w-xl flex flex-col md:items-start md:self-start">
+                <p className="text-lg leading-relaxed text-gray-600 mb-2">
+                  Our therapists specialize in a wide range of specialties. Whatever you&apos;re navigating, we&apos;re here to support you.
+                </p>
+                <Link
+                  href="/specialists"
+                  className={cn(buttonVariants({ variant: "default", size: "lg" }), "mt-4 text-sm font-semibold")}
+                >
+                    Find a therapist
+                </Link>
+              </div>
             </div>
-            <ReviewsCarousel items={marketingConfig.testimonials} />
           </Container>
-        </section> */}
+        </section>
+
+        <SpecialtiesSection />
+
+        <TherapistsCarousel />
 
         <section id="cta" className="pb-20 sm:pb-24">
           <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">
@@ -151,10 +146,13 @@ export default function MarketingPage() {
                   Start Your Journey to Emotional Well-Being Today
                 </h6>
                 <p className="mt-4 text-base text-slate-200">
-                  Ready to take a step towards a brighter tomorrow? Let&apos;s embark on this journey
-                  together! Click below to start your path towards healing and happiness.
+                  Ready to take a step towards a brighter tomorrow? Let&apos;s embark on this
+                  journey together! Click below to start your path towards healing and happiness.
                 </p>
-                <Link href="/" className={cn(buttonVariants({ variant: "outline" }), "mt-4 gap-x-1")}>
+                <Link
+                  href="/"
+                  className={cn(buttonVariants({ variant: "outline" }), "mt-4 gap-x-1")}
+                >
                   Get started{" "}
                   <span className="font-semibold" aria-hidden="true">
                     &rarr;
@@ -163,7 +161,10 @@ export default function MarketingPage() {
               </div>
             </Container>
 
-            <div className="absolute -top-24 right-0 -z-10 transform-gpu blur-3xl" aria-hidden="true">
+            <div
+              className="absolute -top-24 right-0 -z-10 transform-gpu blur-3xl"
+              aria-hidden="true"
+            >
               <div
                 className="aspect-1404/767 w-351 bg-linear-to-r from-[#80caff] to-[#4f46e5] opacity-25"
                 style={{

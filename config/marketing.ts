@@ -6,24 +6,24 @@ export const marketingConfig: MarketingConfig = {
     { title: 'Services', href: '/services' },
     { title: 'Specialists', href: '/specialists' },
   ],
-  features: [
-    {
-      name: 'Register and Login',
-      description: 'Sign up with your details and log in to access our services.',
-      icon: 'user',
-    },
-    {
-      name: 'Book Your Session',
-      description:
-        'Choose the type of session you need, pick your preferred psychologist, and pick a suitable session time.',
-      icon: 'booking',
-    },
-    {
-      name: 'Start Your Therapy Journey',
-      description:
-        'Complete your payment and your appointment will be confirmed. Begin your journey towards mental well-being.',
-      icon: 'mind',
-    },
+  steps: [
+
+      {
+        title: "Tell us what you need",
+        description: "Answer a few questions to help us understand your needs, preferences and goals, so you know exactly what to expect.",
+        cta: "Begin your journey"
+      },
+      {
+        title: "Choose your therapist",
+        description: "Filter therapists by specialty, availability, approach and identity. Find someone who truly fits you.",
+        cta: "Find your therapist"
+      },
+      {
+        title: "Book and begin",
+        description: "Book instantly online, schedule at a time that works for you. Begin your journey towards mental well-being.",
+        cta: "Get care this week"
+      }
+    
   ],
   stats: [
     {
