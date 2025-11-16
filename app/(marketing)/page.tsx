@@ -140,6 +140,34 @@ export default function MarketingPage() {
 
         <FeatureShowcase />
 
+        <section id="stats" className="py-20 sm:py-24 bg-gray-50/50">
+          <Container>
+            <div className="max-w-3xl mb-12">
+              <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">
+                You're in good hands
+              </h2>
+              <p className="text-base leading-relaxed text-gray-600">
+                Join thousands who've already found the right support for their mental health journey.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+              {marketingConfig.stats.slice(0, 3).map((stat, index) => (
+                <div
+                  key={index}
+                  className="bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 rounded-3xl p-8 hover:shadow-lg hover:border-gray-300 transition-all duration-300"
+                >
+                  <div className="text-4xl md:text-5xl font-medium text-gray-900 leading-none mb-4">
+                    {stat.value}
+                  </div>
+                  <p className="text-base leading-relaxed text-gray-600">
+                    {stat.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Container>
+        </section>
+
         <section id="cta" className="pb-20 sm:pb-24">
           <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">
             <div className="absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2">

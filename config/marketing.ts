@@ -27,20 +27,16 @@ export const marketingConfig: MarketingConfig = {
   ],
   stats: [
     {
-      description: 'Clients have started their therapy journey with us',
-      value: '3,000+',
+      description: 'Clients report feeling positive changes within the first month',
+      value: '+80%',
     },
     {
-      description: 'Clients have found their therapist on the first try',
-      value: '95%',
+      description: 'Clients found a therapist who matched their needs',
+      value: '+90%',
     },
     {
-      description: 'The average time to schedule an appointment',
-      value: '5 min',
-    },
-    {
-      description: 'Confidentiality and respect for our clients',
-      value: '100%',
+      description: 'Average time to book your first appointment',
+      value: '10 min',
     },
   ],
   testimonials: [

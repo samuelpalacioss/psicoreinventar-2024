@@ -48,10 +48,10 @@ const mockupData = {
     { period: "Week 13", status: "Managing Well", level: "managed" }
   ],
   2: [
-    { time: "Dec 19, 2024", therapist: "Dr. Sarah Mitchell", status: "Upcoming", icon: "📅" },
-    { time: "Dec 12, 2024", therapist: "Dr. Sarah Mitchell", status: "Completed", icon: "✓" },
-    { time: "Dec 5, 2024", therapist: "Dr. Sarah Mitchell", status: "Completed", icon: "✓" },
-    { time: "Nov 28, 2024", therapist: "Dr. Sarah Mitchell", status: "Completed", icon: "✓" }
+    { time: "October 19, 2026", therapist: "Dr. Sarah Mitchell", status: "Upcoming", icon: "📅" },
+    { time: "October 12, 2026", therapist: "Dr. Sarah Mitchell", status: "Completed", icon: "✓" },
+    { time: "October 5, 2026", therapist: "Dr. Sarah Mitchell", status: "Completed", icon: "✓" },
+    { time: "September 28, 2026", therapist: "Dr. Sarah Mitchell", status: "Completed", icon: "✓" }
   ],
   3: [
     { message: "How are you feeling after our last session?", sender: "Dr. Mitchell", time: "2 hours ago", icon: "💬" },
