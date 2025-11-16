@@ -95,7 +95,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     ))}
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 md:gap-4">
                 {user ? (
                   <UserDropdown user={user} />
                 ) : (
@@ -106,34 +106,31 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     >
                       <Link href="/login">Sign in</Link>
                     </Button>
+                    <Link
+                      href="/specialists"
+                      className={cn(
+                        buttonVariants({ variant: "default" }),
+                        "hidden md:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
+                      )}
+                    >
+                      Find a therapist
+                    </Link>
                   </>
                 )}
-
-                <Link
-                  href="/specialists"
-                  className={cn(
-                    buttonVariants({ variant: "default" }),
-                    "hidden md:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
-                  )}
-                >
-                  Find a therapist
-                </Link>
+                {/* Mobile menu button - only show if not on dashboard */}
+                {!isOnDashboard && (
+                  <div className="flex items-center md:hidden">
+                    <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+                      <span className="sr-only">Open main menu</span>
+                      {open ? (
+                        <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                      ) : (
+                        <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                      )}
+                    </DisclosureButton>
+                  </div>
+                )}
               </div>
-
-              {/* Do not show mobile nav if the user is on the dashboard (instead is used the user dropdown) /}
-              {/* Mobile menu button*/}
-              {!isOnDashboard ? (
-                <div className="-mr-2 flex items-center md:hidden">
-                  <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-                    <span className="sr-only">Open main menu</span>
-                    {open ? (
-                      <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                    ) : (
-                      <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                    )}
-                  </DisclosureButton>
-                </div>
-              ) : null}
             </div>
           </div>
           {/* Mobile menu */}
