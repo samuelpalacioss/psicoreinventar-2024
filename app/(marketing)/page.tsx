@@ -131,9 +131,13 @@ export default function MarketingPage() {
           </Container>
         </section>
 
-        <SpecialtiesSection />
 
         <TherapistsCarousel />
+
+        
+        <SpecialtiesSection />
+
+ 
 
         <section id="cta" className="pb-20 sm:pb-24">
           <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">

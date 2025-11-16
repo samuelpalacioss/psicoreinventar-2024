@@ -5,7 +5,7 @@ import Link from "next/link";
 const specialties = [
   "Anxiety",
   "Depression",
-  "ADHD", 
+  "ADHD",
   "Trauma",
   "Couples Therapy",
   "Family Therapy",
@@ -15,36 +15,28 @@ const specialties = [
   "Grief & Loss",
   "OCD",
   "Bipolar Disorder",
-]
+];
 
 export default function SpecialtiesSection() {
   return (
     <section className="pt-12 pb-20 sm:pt-16 sm:pb-24">
-      <Container>
 
+      
+      {/* // TODO: When clicked on a specialty, it should filter by that specialty on the search bar (focusing the bar) */}
+      <Container>
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-wrap gap-3 justify-center">
             {specialties.map((specialty, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-6 py-3 rounded-full border border-gray-300 bg-white text-lg text-gray-700"
+                className="inline-flex items-center px-6 py-3 rounded-full border cursor-pointer border-gray-300 bg-white text-lg text-gray-700 hover:bg-indigo-600 hover:text-white transition-all duration-400"
               >
                 {specialty}
               </span>
             ))}
-          </div>
-          
-          <div className="mt-10 text-center">
-            <Link
-              href="/specialists"
-              className="inline-block text-base font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
-            >
-              Browse all specialists
-            </Link>
           </div>
         </div>
       </Container>
     </section>
   );
 }
-

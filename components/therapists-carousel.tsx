@@ -173,63 +173,48 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
   );
 
   return (
-    <section className="py-20 sm:py-24">
-      <Container>
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-12">
-            <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">
-              Meet Our Therapists
-            </h2>
-            <p className="text-lg leading-relaxed text-gray-600 max-w-2xl">
-              Our diverse team of licensed therapists brings expertise, compassion, and personalized
-              care to help you on your journey.
-            </p>
-          </div>
-        </div>
-      </Container>
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-          duration: 500,
-          watchDrag: false,
-        }}
-        plugins={[plugin.current]}
-        className="w-full"
-      >
-        <CarouselContent className="-ml-4">
-          {therapists.map((therapist) => {
-            const sizeClasses = getSizeClasses(therapist.size, therapist.imageOffset);
+    <Carousel
+      opts={{
+        align: "start",
+        loop: true,
+        duration: 500,
+        watchDrag: false,
+      }}
+      plugins={[plugin.current]}
+      className="w-full"
+    >
+      <CarouselContent className="-ml-4">
+        {therapists.map((therapist) => {
+          const sizeClasses = getSizeClasses(therapist.size, therapist.imageOffset);
 
-            return (
-              <CarouselItem key={therapist.id} className={sizeClasses.item}>
-                <div
-                  className={`group relative overflow-hidden rounded-xl bg-gray-900 ${sizeClasses.container}`}
-                >
-                  <Image
-                    src={therapist.image}
-                    alt={therapist.name}
-                    width={therapist.width}
-                    height={therapist.height}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                    <h3 className="text-sm sm:text-base font-semibold leading-tight">
-                      {therapist.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-200 mt-1 line-clamp-2">
-                      {therapist.description}
-                    </p>
-                  </div>
+          return (
+            <CarouselItem key={therapist.id} className={sizeClasses.item}>
+              <div
+                className={`group relative overflow-hidden rounded-xl bg-gray-900 ${sizeClasses.container}`}
+              >
+                <Image
+                  src={therapist.image}
+                  alt={therapist.name}
+                  width={therapist.width}
+                  height={therapist.height}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <h3 className="text-sm sm:text-base font-semibold leading-tight">
+                    {therapist.name}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-200 mt-1 line-clamp-2">
+                    {therapist.description}
+                  </p>
                 </div>
-              </CarouselItem>
-            );
-          })}
-        </CarouselContent>
-        <CarouselPrevious className="hidden" />
-        <CarouselNext className="hidden" />
-      </Carousel>
-    </section>
+              </div>
+            </CarouselItem>
+          );
+        })}
+      </CarouselContent>
+      <CarouselPrevious className="hidden" />
+      <CarouselNext className="hidden" />
+    </Carousel>
   );
 }
