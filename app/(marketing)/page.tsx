@@ -10,6 +10,7 @@ import { marketingConfig } from "@/config/marketing";
 import SpecialtiesSection from "@/components/specialties-section";
 import FAQHomepage from "@/components/faq-homepage";
 import { TherapistsCarousel } from "@/components/therapists-carousel";
+import FeatureShowcase from "@/components/feature-showcase";
 
 export default function MarketingPage() {
   const steps = marketingConfig.steps;
@@ -137,7 +138,7 @@ export default function MarketingPage() {
         
         <SpecialtiesSection />
 
- 
+        <FeatureShowcase />
 
         <section id="cta" className="pb-20 sm:pb-24">
           <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">
