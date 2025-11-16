@@ -25,11 +25,11 @@ export default function SpecialtiesSection() {
       {/* // TODO: When clicked on a specialty, it should filter by that specialty on the search bar (focusing the bar) */}
       <Container>
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
             {specialties.map((specialty, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-6 py-3 rounded-full border cursor-pointer border-gray-300 bg-white text-lg text-gray-700 hover:bg-indigo-600 hover:text-white transition-all duration-400"
+                className="inline-flex items-center px-3 py-1.5 sm:px-6 sm:py-3 rounded-full border cursor-pointer border-gray-300 bg-white text-base sm:text-lg text-gray-700 hover:bg-indigo-600 hover:text-white transition-all duration-400"
               >
                 {specialty}
               </span>
