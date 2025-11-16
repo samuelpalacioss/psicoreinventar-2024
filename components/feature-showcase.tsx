@@ -329,7 +329,7 @@ export default function FeatureShowcase() {
                 {/* Progress Tracking View */}
                 {activeFeature === 0 && (
                   <div className="h-full flex flex-col justify-center">
-                    <div className="bg-white rounded-lg p-8 border border-gray-200">
+                    <div className="bg-white rounded-lg p-6 pb-12 border border-gray-200 max-h-[434px]">
                       <div className="mb-6">
                         <h3 className="text-xl font-semibold text-gray-900 mb-1">How you're doing</h3>
                         <p className="text-sm text-gray-500">Small steps add up</p>
@@ -401,7 +401,7 @@ export default function FeatureShowcase() {
                       <h3 className="text-xl font-semibold mb-4 text-gray-900">
                         Messages
                       </h3>
-                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                      <div className="space-y-3 max-h-85 overflow-y-auto">
                         {mockupData[3].map((msg, index) => (
                           <div
                             key={index}
