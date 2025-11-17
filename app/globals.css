@@ -51,6 +51,7 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --animate-spin-slower: spin 6s linear infinite;
+  --animate-blob: blob 7s infinite;
 
   --breakpoint-2md: 850px;
 
@@ -79,6 +80,20 @@
     20%,
     50% {
       opacity: 0;
+    }
+  }
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
     }
   }
 }
@@ -182,5 +197,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Animation delay utilities for hero section */
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
   }
 }

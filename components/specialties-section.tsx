@@ -19,9 +19,7 @@ const specialties = [
 
 export default function SpecialtiesSection() {
   return (
-    <section className="pt-12 pb-20 sm:pt-16 sm:pb-24">
-
-      
+    <section className="py-16 sm:py-24">
       {/* // TODO: When clicked on a specialty, it should filter by that specialty on the search bar (focusing the bar) */}
       <Container>
         <div className="max-w-4xl mx-auto">

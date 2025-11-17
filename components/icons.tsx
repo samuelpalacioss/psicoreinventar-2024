@@ -2,6 +2,7 @@ import { FcGoogle } from "react-icons/fc";
 import { VscStarFull } from "react-icons/vsc";
 import {
   Aperture,
+  ArrowRight,
   Brain,
   CalendarDays,
   ChevronLeft,
@@ -20,6 +21,7 @@ export type Icon = LucideIcon;
 
 export const Icons = {
   aperture: Aperture,
+  arrowRight: ArrowRight,
   booking: ClipboardPenLine,
   calendar: CalendarDays,
   chevronLeft: ChevronLeft,

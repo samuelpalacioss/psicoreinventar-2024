@@ -18,25 +18,36 @@ export default function MarketingPage() {
   return (
     <>
       <main>
-        <section id="hero" className="py-20 sm:py-36">
+        {/* Hero - Standalone primary section with maximum impact */}
+        <section id="hero" className="relative py-20 sm:py-32 overflow-hidden">
+          {/* Subtle organic background elements */}
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+            <div className="absolute top-20 left-20 w-96 h-96 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-1/2 w-96 h-96 bg-pink-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+          </div>
+
           <Container>
-            <div className=" gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center">
+            <div className="gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center">
+              {/* Content */}
               <div className="w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl">
-                <h1 className="text-4xl s font-semibold tracking-tight text-black-900 sm:text-6xl">
-                  Wellness starts with your mental health
+                <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+                  Wellness starts with <span className="text-indigo-600">your mental health</span>
                 </h1>
-                <div className="mt-6 max-w-xl space-y-2">
+
+                <div className="mt-6 max-w-xl">
                   <p className="text-base leading-7 text-gray-600 max-w-md lg:max-w-full">
                     Discover the gateway to a fulfilling life with our focused approach to mental
                     well-being. From personalized support to comprehensive strategies, we empower
                     you to prioritize your mental health for a brighter future.
                   </p>
-                  <div className="flex items-center gap-x-6">
+
+                  <div className="mt-6 flex items-center gap-x-6">
                     <Link
                       href="/login"
                       className={cn(
                         buttonVariants({ variant: "default", size: "lg" }),
-                        "mt-4 text-sm font-semibold transition-all px-6 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700"
+                        "text-sm font-semibold transition-all px-6 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700"
                       )}
                     >
                       Get started
@@ -45,25 +56,34 @@ export default function MarketingPage() {
                       href="/#about"
                       className={cn(
                         buttonVariants({ variant: "outline", size: "lg" }),
-                        "mt-4 text-sm font-semibold"
+                        "text-sm font-semibold group"
                       )}
                     >
                       Learn more{" "}
-                      <span className="font-semibold" aria-hidden="true">
+                      <span
+                        className="ml-1 group-hover:translate-x-1 transition-transform duration-300"
+                        aria-hidden="true"
+                      >
                         &rarr;
                       </span>
                     </Link>
                   </div>
                 </div>
               </div>
+
+              {/* Image */}
               <div className="flex basis-2/6">
-                <div className="max-w-xs sm:max-w-lg pt-16 lg:pt-0 xl:order-0">
+                <div className="max-w-xs sm:max-w-lg pt-16 lg:pt-0 xl:order-0 relative">
+                  {/* Decorative floating elements */}
+                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-indigo-100 rounded-3xl opacity-70 rotate-12"></div>
+                  <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-purple-100 rounded-3xl opacity-70 -rotate-12"></div>
+
                   <Image
                     src="https://pub-a73a0280999e4a0cbf0918b31f9f798b.r2.dev/couple-hugging717622425.jpg"
                     alt="Therapist hugging patient in therapy session"
                     width={996}
                     height={859}
-                    className="w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
+                    className="relative w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
                     sizes="(min-width: 1340px) 405px, (min-width: 640px) calc(31.76vw - 14px), (min-width: 400px) 280px, calc(65vw + 73px)"
                     priority={true}
                   />
@@ -74,7 +94,8 @@ export default function MarketingPage() {
         </section>
       </main>
 
-      <section id="features" className="py-20 sm:py-24 bg-gray-50/50">
+      {/* Features/Process - Major standalone educational block */}
+      <section id="features" className="py-16 sm:py-24 bg-gray-50/50">
         <Container>
           <div className="max-w-3xl mb-12">
             <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">
@@ -113,7 +134,9 @@ export default function MarketingPage() {
         </Container>
       </section>
 
-      <section id="specialists" className="py-20 sm:py-24">
+      {/* THERAPIST CONTENT GROUP - Start */}
+      {/* Specialists Header - Introduction to therapist discovery */}
+      <section id="specialists" className="pt-16 sm:pt-24 pb-12 sm:pb-16">
         <Container>
           <div className="flex flex-col md:flex-row items-start md:items-start justify-between gap-8 w-full">
             <div className="flex-1 max-w-xl">
@@ -143,14 +166,15 @@ export default function MarketingPage() {
       <TherapistsCarousel />
 
       <SpecialtiesSection />
+      {/* THERAPIST CONTENT GROUP - End */}
 
       <FeatureShowcase />
 
-      <section id="stats" className="py-20 sm:py-24 bg-gray-50/50">
+      <section id="stats" className="py-8 sm:py-12 bg-gray-50/50">
         <Container>
           <div className="max-w-3xl mb-12">
             <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">
-              You're in good hands
+              You&apos;re in good hands
             </h2>
             <p className="text-base leading-relaxed text-gray-600">
               Join thousands who've already found the right support for their mental health journey.
@@ -160,7 +184,7 @@ export default function MarketingPage() {
             {marketingConfig.stats.slice(0, 3).map((stat, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 rounded-3xl p-8 hover:shadow-lg hover:border-gray-300 transition-all duration-300"
+                className="bg-linear-to-br from-gray-100 to-gray-50 border border-gray-200 rounded-3xl p-8 hover:shadow-lg hover:border-gray-300 transition-all duration-300"
               >
                 <div className="text-4xl md:text-5xl font-medium text-gray-900 leading-none mb-4">
                   {stat.value}
@@ -172,7 +196,8 @@ export default function MarketingPage() {
         </Container>
       </section>
 
-      <section id="cta" className="pb-20 sm:pb-24">
+      {/* CTA - Conversion action (medium spacing, related to stats but distinct) */}
+      <section id="cta" className="pt-16 sm:pt-24 pb-0">
         <div className="relative isolate overflow-hidden bg-gray-900 py-24 text-center shadow-2xl">
           <div className="absolute left-20 top-1/2 -translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2">
             <CircleBackground color="#fff" className="animate-spin-slower" />
@@ -206,9 +231,11 @@ export default function MarketingPage() {
           </div>
         </div>
       </section>
+      {/* SOCIAL PROOF + CONVERSION GROUP - End */}
 
-      <section id="faq">
-        <div className="max-w-4xl mx-auto pb-20">
+      {/* FAQ - Standalone reference material (large top spacing already provided by CTA) */}
+      <section id="faq" className="py-16 sm:py-24">
+        <div className="max-w-4xl mx-auto">
           <FAQHomepage />
         </div>
       </section>
