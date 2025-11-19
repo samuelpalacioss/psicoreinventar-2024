@@ -85,10 +85,10 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     </Link>
                   )}
                 </div>
-                <div className="hidden md:ml-6 md:flex md:gap-6">
+                <div className="hidden md:ml-6 md:flex">
                   {/* Moving the dropdown menu further down to make it less intrusive */}
                   <NavigationMenu className="[&>div:last-child]:!mt-5">
-                    <NavigationMenuList>
+                    <NavigationMenuList className="space-x-3">
                       {items?.length &&
                         items.map((link, index) => (
                           <NavigationMenuItem key={index}>
