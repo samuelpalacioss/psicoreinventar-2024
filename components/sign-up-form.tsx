@@ -129,7 +129,7 @@ export default function SignupForm() {
         <CardDescription>
           Already have an account?{" "}
           <Link href={"/login"} className="text-indigo-600 font-semibold">
-            Sign in
+            Log in
           </Link>
           {showForm && (
             <span

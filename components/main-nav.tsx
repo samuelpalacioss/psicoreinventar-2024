@@ -104,7 +104,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                       asChild
                       className="text-sm bg-white hover:bg-gray-100 border border-gray-200 text-gray-900"
                     >
-                      <Link href="/login">Sign in</Link>
+                      <Link href="/login">Log in</Link>
                     </Button>
                     <Link
                       href="/specialists"
@@ -163,7 +163,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                         ))}
                       <div className="flex flex-col items-start border-l-4 gap-y-4 pl-3 pr-4">
                         <Button asChild className="text-sm w-full justify-start bg-primary text-primary-foreground hover:bg-primary/90">
-                          <Link href="/login">Sign in</Link>
+                          <Link href="/login">Log in</Link>
                         </Button>
                         <Button asChild className="text-sm w-full justify-start bg-indigo-600 hover:bg-indigo-700">
                           <Link href="/specialists">Find a therapist</Link>
