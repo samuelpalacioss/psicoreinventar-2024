@@ -97,7 +97,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                                 <NavigationMenuTrigger className="bg-transparent h-auto inline-flex items-center px-1 pt-1 pb-1 text-sm font-medium text-muted-foreground hover:text-primary *:[svg]:-me-0.5 *:[svg]:size-3.5">
                                   {link.label}
                                 </NavigationMenuTrigger>
-                                <NavigationMenuContent className="z-50 p-3 bg-white border border-gray-100 shadow-lg rounded-lg data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16!">
+                                <NavigationMenuContent className="z-50 p-3 bg-cream border border-gray-100 shadow-lg rounded-lg data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16!">
                                   <div>
                                     <ul
                                       className={cn(
