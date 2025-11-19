@@ -86,6 +86,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                   )}
                 </div>
                 <div className="hidden md:ml-6 md:flex md:gap-6">
+                  {/* Moving the dropdown menu further down to make it less intrusive */}
                   <NavigationMenu className="[&>div:last-child]:!mt-5">
                     <NavigationMenuList>
                       {items?.length &&
