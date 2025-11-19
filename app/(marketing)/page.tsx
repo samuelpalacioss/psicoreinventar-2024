@@ -75,8 +75,8 @@ export default function MarketingPage() {
               <div className="flex basis-2/6">
                 <div className="max-w-xs sm:max-w-lg pt-16 lg:pt-0 xl:order-0 relative">
                   {/* Decorative floating elements */}
-                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-indigo-100 rounded-3xl opacity-70 rotate-12"></div>
-                  <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-purple-100 rounded-3xl opacity-70 -rotate-12"></div>
+                  <div className="hidden lg:block absolute -top-4 -left-4 w-24 h-24 bg-indigo-100 rounded-3xl opacity-70 rotate-12"></div>
+                  <div className="hidden lg:block absolute -bottom-4 -right-4 w-32 h-32 bg-purple-100 rounded-3xl opacity-70 -rotate-12"></div>
 
                   <Image
                     src="https://pub-a73a0280999e4a0cbf0918b31f9f798b.r2.dev/couple-hugging717622425.jpg"

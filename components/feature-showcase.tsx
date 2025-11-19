@@ -57,7 +57,6 @@ const mockupData = {
     { message: "How are you feeling after our last session?", sender: "Dr. Mitchell", time: "2 hours ago", icon: "💬" },
     { message: "I'm feeling much better, the techniques really helped", sender: "You", time: "1 hour ago", icon: "💬" },
     { message: "That's wonderful to hear! Keep practicing them daily", sender: "Dr. Mitchell", time: "1 hour ago", icon: "💬" },
-    { message: "Will do, thank you for your support", sender: "You", time: "45 minutes ago", icon: "💬" }
   ]
 };
 
@@ -116,7 +115,7 @@ export default function FeatureShowcase() {
                     {/* Feature Card */}
                     <div
                       onClick={() => setActiveFeature(index)}
-                      className="w-full text-left bg-white rounded-lg p-6 border border-gray-300 hover:border-gray-400 transition-all duration-300 cursor-pointer"
+                      className="w-full text-left bg-white rounded-lg p-4 border border-gray-300 hover:border-gray-400 transition-all duration-300 cursor-pointer"
                     >
                       <div className="flex items-start gap-4">
                         <div
@@ -152,36 +151,38 @@ export default function FeatureShowcase() {
                     {/* Inline Mockup for Active Feature on Mobile */}
                     {isActive && (
                       <div className="relative w-full mt-4">
-                        <div className="relative rounded-lg bg-gray-50 border border-gray-300 p-6">
+                        <div className="relative rounded-lg bg-gray-50 border border-gray-300 p-6 min-h-[388px]">
                             {/* Progress Tracking View */}
                             {activeFeature === 0 && (
-                              <div className="space-y-2">
+                              <div className="bg-white rounded-lg p-4 border border-gray-200">
                                 <div className="mb-3">
-                                  <h4 className="text-base font-medium text-gray-800 mb-1">How you're doing</h4>
+                                  <h3 className="text-lg font-semibold text-gray-900 mb-1">How you're doing</h3>
                                   <p className="text-xs text-gray-500">Small steps add up</p>
                                 </div>
-                                {mockupData[1].map((item, idx) => {
-                                  return (
-                                    <div key={idx} className="relative pl-6">
-                                      {/* Simple connection line */}
-                                      {idx < mockupData[1].length - 1 && (
-                                        <div className="absolute left-2 top-5 w-px h-5 bg-gray-200" />
-                                      )}
+                                <div className="space-y-2 pb-4">
+                                  {mockupData[1].map((item, idx) => {
+                                    return (
+                                      <div key={idx} className="relative pl-6">
+                                        {/* Simple connection line */}
+                                        {idx < mockupData[1].length - 1 && (
+                                          <div className="absolute left-2 top-5 w-px h-5 bg-gray-200" />
+                                        )}
 
-                                      {/* Simple dot */}
-                                      <div className={`absolute left-0.5 top-1.5 w-3 h-3 rounded-full border-2 border-gray-300 ${
-                                        item.level === 'managed' ? 'bg-gray-700' : 'bg-white'
-                                      }`} />
+                                        {/* Simple dot */}
+                                        <div className={`absolute left-0.5 top-1.5 w-3 h-3 rounded-full border-2 border-gray-300 ${
+                                          item.level === 'managed' ? 'bg-gray-700' : 'bg-white'
+                                        }`} />
 
-                                      <div className="pb-1">
-                                        <div className="flex items-baseline justify-between gap-2">
-                                          <p className="text-xs text-gray-700">{item.status}</p>
-                                          <p className="text-xs text-gray-400">{item.period}</p>
+                                        <div className="pb-1">
+                                          <div className="flex items-baseline justify-between gap-2">
+                                            <p className="text-sm text-gray-700">{item.status}</p>
+                                            <p className="text-sm text-gray-400">{item.period}</p>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  );
-                                })}
+                                    );
+                                  })}
+                                </div>
                               </div>
                             )}
 
@@ -219,19 +220,19 @@ export default function FeatureShowcase() {
 
                             {/* Messaging View */}
                             {activeFeature === 2 && (
-                              <div className="space-y-3 max-h-80 overflow-y-auto">
+                              <div>
                                 <div className="bg-white rounded-lg p-4 border border-gray-200">
                                   <h3 className="text-lg font-semibold mb-3 text-gray-900">
                                     Messages
                                   </h3>
-                                  <div className="space-y-3">
+                                  <div className="space-y-2 pb-2">
                                     {mockupData[3].map((msg, idx) => (
                                       <div
                                         key={idx}
-                                        className={`flex gap-3 ${msg.sender === "You" ? "justify-end" : "justify-start"}`}
+                                        className={`flex gap-2 ${msg.sender === "You" ? "justify-end" : "justify-start"}`}
                                       >
                                         <div
-                                          className={`max-w-xs px-4 py-2 rounded-lg text-sm ${
+                                          className={`max-w-xs px-3 py-1.5 rounded-lg text-sm ${
                                             msg.sender === "You"
                                               ? "bg-white text-gray-900 border border-gray-300"
                                               : "bg-gray-100 text-gray-900"
@@ -239,7 +240,7 @@ export default function FeatureShowcase() {
                                         >
                                           <p className="font-medium text-xs mb-1">{msg.sender}</p>
                                           <p className="text-xs">{msg.message}</p>
-                                          <p className="text-xs opacity-70 mt-1">{msg.time}</p>
+                                          <p className="text-xs opacity-70 mt-0.5">{msg.time}</p>
                                         </div>
                                       </div>
                                     ))}
@@ -401,14 +402,14 @@ export default function FeatureShowcase() {
                       <h3 className="text-xl font-semibold mb-4 text-gray-900">
                         Messages
                       </h3>
-                      <div className="space-y-3 max-h-85 overflow-y-auto">
+                      <div className="space-y-3 pb-5">
                         {mockupData[3].map((msg, index) => (
                           <div
                             key={index}
                             className={`flex gap-3 ${msg.sender === "You" ? "justify-end" : "justify-start"}`}
                           >
                             <div
-                              className={`max-w-xs px-4 py-3 rounded-lg ${
+                              className={`max-w-xs px-4 py-2 rounded-lg ${
                                 msg.sender === "You"
                                   ? "bg-white text-gray-900 border border-gray-300"
                                   : "bg-gray-100 text-gray-900"
@@ -416,7 +417,7 @@ export default function FeatureShowcase() {
                             >
                               <p className="font-medium text-sm mb-1">{msg.sender}</p>
                               <p className="text-sm leading-relaxed">{msg.message}</p>
-                              <p className="text-xs opacity-70 mt-2">{msg.time}</p>
+                              <p className="text-xs opacity-70 mt-1">{msg.time}</p>
                             </div>
                           </div>
                         ))}
