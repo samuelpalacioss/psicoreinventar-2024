@@ -150,7 +150,7 @@ export default function MarketingPage() {
                 navigating, we&apos;re here to support you.
               </p>
               <Link
-                href="/specialists"
+                href="/find"
                 className={cn(
                   buttonVariants({ variant: "default", size: "lg" }),
                   "mt-4 text-sm font-semibold w-auto"

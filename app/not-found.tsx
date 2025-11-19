@@ -24,7 +24,7 @@ export default function NotFound() {
               Go back home
             </Link>
             <Link
-              href="/specialists"
+              href="/find"
               className={cn(buttonVariants({ variant: "outline" }), "gap-x-1")}
             >
               Find a therapist{" "}

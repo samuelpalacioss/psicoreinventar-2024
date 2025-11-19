@@ -2,9 +2,10 @@ import { MarketingConfig } from '@/types';
 
 export const marketingConfig: MarketingConfig = {
   mainNav: [
-    { title: 'How it works', href: '/#features' },
     { title: 'Services', href: '/services' },
-    { title: 'Specialists', href: '/specialists' },
+    { title: 'About', href: '/about' },
+    { title: 'Resources', href: '/resources' },
+    { title: 'For Therapists', href: '/for-therapists' },
   ],
   steps: [
 

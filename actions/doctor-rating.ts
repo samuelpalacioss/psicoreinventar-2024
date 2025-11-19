@@ -57,7 +57,7 @@ export async function submitDoctorRating(data: DoctorRatingType) {
         },
       });
 
-      revalidatePath(`/specialists/${doctorProfile.userId}`);
+      revalidatePath(`/find/${doctorProfile.userId}`);
       return { success: "Rating updated successfully." };
     }
 
@@ -71,7 +71,7 @@ export async function submitDoctorRating(data: DoctorRatingType) {
       },
     });
 
-    revalidatePath(`/specialists/${doctorProfile.userId}`);
+    revalidatePath(`/find/${doctorProfile.userId}`);
     return { success: "Rating submitted successfully." };
   } catch (error) {
     console.error("Error submitting doctor rating:", error);

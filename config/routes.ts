@@ -1,6 +1,6 @@
 //  * Users can navigate to these routes regardless of their login status.
 // todo register doctor: change this to use a token (magic link)
-export const publicRoutes = ["/about", "/services", "/specialists", "/verify-email"];
+export const publicRoutes = ["/about", "/services", "/find", "/verify-email"];
 
 // * Users if logged in and try to navigate to these routes, they will be redirected to the corresponding defaultLoginRedirect.
 export const authRoutes = ["/login", "/register", "/reset-password", "/new-password"];

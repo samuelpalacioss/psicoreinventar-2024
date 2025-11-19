@@ -107,7 +107,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                       <Link href="/login">Log in</Link>
                     </Button>
                     <Link
-                      href="/specialists"
+                      href="/find"
                       className={cn(
                         buttonVariants({ variant: "default" }),
                         "hidden md:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
@@ -166,7 +166,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                           <Link href="/login">Log in</Link>
                         </Button>
                         <Button asChild className="text-sm w-full justify-start bg-indigo-600 hover:bg-indigo-700">
-                          <Link href="/specialists">Find a therapist</Link>
+                          <Link href="/find">Find a therapist</Link>
                         </Button>
                       </div>
                     </ul>
