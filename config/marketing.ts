@@ -2,10 +2,28 @@ import { MarketingConfig } from '@/types';
 
 export const marketingConfig: MarketingConfig = {
   mainNav: [
-    { title: 'Services', href: '/services' },
-    { title: 'About', href: '/about' },
-    { title: 'Resources', href: '/resources' },
-    { title: 'For Therapists', href: '/for-therapists' },
+    {
+      label: 'Services',
+      submenu: true,
+      type: 'simple',
+      items: [
+        {
+          href: '/services/individual-therapy',
+          label: 'Individual Therapy',
+        },
+        {
+          href: '/services/couples-therapy',
+          label: 'Couples Therapy',
+        },
+        {
+          href: '/services/teen-therapy',
+          label: 'Teen Therapy',
+        },
+      ],
+    },
+    { label: 'About', href: '/about' },
+    { label: 'Resources', href: '/resources' },
+    { label: 'For Therapists', href: '/for-therapists' },
   ],
   steps: [
 

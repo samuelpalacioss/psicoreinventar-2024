@@ -1,9 +1,18 @@
 import { Icons } from '@/components/icons';
 import type { Icon } from '@/components/icons';
 
-export type MainNavItem = {
-  title: string;
+export type MainNavSubItem = {
   href: string;
+  label: string;
+  description?: string;
+};
+
+export type MainNavItem = {
+  label: string;
+  href?: string;
+  submenu?: boolean;
+  type?: "description" | "simple";
+  items?: MainNavSubItem[];
 };
 
 export type FeatureItem = {
@@ -27,7 +36,7 @@ export type TestimonialItem = {
 };
 
 export type MarketingConfig = {
-  mainNav: mainNavItem[];
+  mainNav: MainNavItem[];
   steps: StepItem[];
   stats: StatItem[];
   testimonials: TestimonialItem[];
