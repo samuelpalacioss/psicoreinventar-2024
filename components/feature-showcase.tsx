@@ -114,9 +114,9 @@ export default function FeatureShowcase() {
                 return (
                   <div key={feature.id}>
                     {/* Feature Card */}
-                    <button
+                    <div
                       onClick={() => setActiveFeature(index)}
-                      className="w-full text-left bg-white rounded-lg p-6 border border-gray-300 hover:border-gray-400 transition-all duration-300"
+                      className="w-full text-left bg-white rounded-lg p-6 border border-gray-300 hover:border-gray-400 transition-all duration-300 cursor-pointer"
                     >
                       <div className="flex items-start gap-4">
                         <div
@@ -147,7 +147,7 @@ export default function FeatureShowcase() {
                           </p>
                         </div>
                       </div>
-                    </button>
+                    </div>
 
                     {/* Inline Mockup for Active Feature on Mobile */}
                     {isActive && (
@@ -263,10 +263,10 @@ export default function FeatureShowcase() {
               const Icon = feature.icon;
 
               return (
-                <button
+                <div
                   key={feature.id}
                   onClick={() => setActiveFeature(index)}
-                  className={`w-full text-left py-6 transition-all duration-300 ${
+                  className={`w-full text-left py-6 transition-all duration-300 cursor-pointer ${
                     index < features.length - 1 ? "border-b border-gray-300" : ""
                   }`}
                 >
@@ -297,7 +297,7 @@ export default function FeatureShowcase() {
                       </p>
                     </div>
                   </div>
-                  </button>
+                  </div>
               );
             })}
 
@@ -310,7 +310,7 @@ export default function FeatureShowcase() {
                     onClick={() => setActiveFeature(index)}
                       onMouseEnter={stopAutoRotation}
                       onMouseLeave={startAutoRotation}
-                    className={`h-2 rounded-full transition-all duration-300 ${
+                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                       index === activeFeature
                         ? "w-8 bg-gray-900"
                         : "w-2 bg-gray-500 hover:bg-gray-600"
