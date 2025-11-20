@@ -88,20 +88,20 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                 <div className="hidden md:ml-6 md:flex">
                   {/* Moving the dropdown menu further down to make it less intrusive */}
                   <NavigationMenu className="[&>div:last-child]:!mt-5">
-                    <NavigationMenuList className="space-x-3">
+                    <NavigationMenuList className="space-x-2">
                       {items?.length &&
                         items.map((link, index) => (
                           <NavigationMenuItem key={index}>
                             {link.submenu ? (
                               <>
-                                <NavigationMenuTrigger className="bg-transparent h-auto inline-flex items-center px-1 pt-1 pb-1 text-sm font-medium text-muted-foreground hover:text-primary *:[svg]:-me-0.5 *:[svg]:size-3.5">
+                                <NavigationMenuTrigger className="bg-transparent h-auto inline-flex items-center px-2 pt-1 pb-1 text-sm font-medium text-muted-foreground hover:text-primary *:[svg]:-me-0.5 *:[svg]:size-3.5">
                                   {link.label}
                                 </NavigationMenuTrigger>
-                                <NavigationMenuContent className="z-50 p-3 bg-cream border border-gray-100 shadow-lg rounded-lg data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16!">
+                                <NavigationMenuContent className="z-50 p-2 bg-cream border border-gray-100 shadow-lg rounded-lg data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16!">
                                   <div>
                                     <ul
                                       className={cn(
-                                        link.type === "description" ? "min-w-72 space-y-1" : "min-w-56 space-y-1"
+                                        link.type === "description" ? "min-w-64 space-y-0.5" : "min-w-52 space-y-0.5"
                                       )}
                                     >
                                       {link.items?.map((item, itemIndex) => (
@@ -109,13 +109,12 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                                           <NavigationMenuLink asChild>
                                             <Link
                                               href={item.href}
-                                              className="group block select-none rounded-md py-2.5 px-3.5 text-sm font-medium leading-none no-underline outline-none transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-700 focus:bg-indigo-50 focus:text-indigo-700 relative overflow-hidden"
+                                              className="group block select-none rounded-md py-2 px-3 text-sm font-medium leading-none no-underline outline-none transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-700 focus:bg-indigo-50 focus:text-indigo-700"
                                             >
                                               <span className="relative z-10 flex items-center gap-2">
                                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-indigo-600 transition-colors duration-200"></span>
                                                 {item.label}
                                               </span>
-                                              <span className="absolute inset-0 bg-linear-to-r from-indigo-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-0"></span>
                                             </Link>
                                           </NavigationMenuLink>
                                         </li>
@@ -129,7 +128,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                                 <Link
                                   href={link.href || "#"}
                                   className={cn(
-                                    "inline-flex items-center px-1 pt-1 pb-1 text-sm font-medium",
+                                    "inline-flex items-center px-2 pt-1 pb-1 text-sm font-medium",
                                     isActive(link.href || "")
                                       ? "text-gray-800"
                                       : "text-gray-500 transition-colors hover:text-gray-700"
@@ -194,27 +193,30 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     exit={{ height: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="space-y-1 pb-3 pt-2">
-                      <ul>
+                    <div className="pb-5 pt-2 px-2">
+                      <ul className="space-y-1">
                         {items?.length &&
                           items.map((item, index) => (
                             <li key={index}>
                               {item.submenu ? (
-                                <div>
-                                  <div className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500">
+                                <div className="mb-2">
+                                  {/* Submenu Category Label */}
+                                  <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                                     {item.label}
                                   </div>
-                                  <ul className="pl-6 space-y-1">
+                                  {/* Submenu Items */}
+                                  <ul className="space-y-0.5 mt-1">
                                     {item.items?.map((subItem, subIndex) => (
                                       <li key={subIndex}>
                                         <DisclosureButton
                                           as={Link}
                                           href={subItem.href}
-                                          className={`block border-l-4 ${
+                                          className={cn(
+                                            "block px-3 py-2 rounded-md text-sm font-medium transition-colors",
                                             isActive(subItem.href)
-                                              ? "border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-sm font-medium text-indigo-700"
-                                              : "border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-cream hover:text-gray-700"
-                                          }`}
+                                              ? "bg-indigo-50 text-indigo-700"
+                                              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                          )}
                                         >
                                           {subItem.label}
                                         </DisclosureButton>
@@ -226,32 +228,42 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                                 <DisclosureButton
                                   as={Link}
                                   href={item.href || "#"}
-                                  className={`block border-l-4 ${
+                                  className={cn(
+                                    "block px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                                     isActive(item.href || "")
-                                      ? "border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-sm font-medium text-indigo-700"
-                                      : "border-transparent py-2 pl-3 pr-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:bg-cream hover:text-gray-700"
-                                  }`}
+                                      ? "bg-indigo-50 text-indigo-700"
+                                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                  )}
                                 >
                                   {item.label}
                                 </DisclosureButton>
                               )}
                             </li>
                           ))}
-                        <div className="flex flex-col items-start border-l-4 gap-y-4 pl-3 pr-4">
-                          <Button
-                            asChild
-                            className="text-sm w-full justify-start bg-primary text-primary-foreground hover:bg-primary/90"
-                          >
-                            <Link href="/login">Log in</Link>
-                          </Button>
-                          <Button
-                            asChild
-                            className="text-sm w-full justify-start bg-indigo-600 hover:bg-indigo-700"
-                          >
-                            <Link href="/find">Find a therapist</Link>
-                          </Button>
-                        </div>
                       </ul>
+
+                      {/* Action Buttons Section */}
+                      {!user && (
+                        <div className="mt-5 pt-4 border-t border-gray-200">
+                          <div className="space-y-2.5 px-1">
+                            {/* Log in button - Secondary style */}
+                            <Button
+                              asChild
+                              className="w-full h-10 text-sm font-medium bg-white hover:bg-gray-50 border border-gray-200 text-gray-900"
+                            >
+                              <Link href="/login">Log in</Link>
+                            </Button>
+
+                            {/* Find a therapist button - Primary style */}
+                            <Button
+                              asChild
+                              className="w-full h-10 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white"
+                            >
+                              <Link href="/find">Find a therapist</Link>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 </DisclosurePanel>
