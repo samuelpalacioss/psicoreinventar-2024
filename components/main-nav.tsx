@@ -244,7 +244,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
 
                       {/* Action Buttons Section */}
                       {!user && (
-                        <div className="mt-5 pt-4 border-t border-gray-200">
+                        <div className="mt-4">
                           <div className="space-y-2.5 px-1">
                             {/* Log in button - Secondary style */}
                             <Button
