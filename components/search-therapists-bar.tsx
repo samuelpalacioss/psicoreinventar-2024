@@ -314,10 +314,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action buttons */}
-          <div className="sticky bottom-0 border-t bg-white px-4 py-4 flex gap-3">
+          <div className="sticky bottom-0 border-t bg-white px-4 py-6 flex gap-3">
             <Button
               variant="outline"
-              className="flex-1"
+              className="flex-1 py-6"
               onClick={() => {
                 setSelectedSessionType("Virtual");
                 setSelectedTherapyTypes([]);
@@ -328,7 +328,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               Clear all
             </Button>
             <Button
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-6"
               onClick={() => setIsFiltersModalOpen(false)}
             >
               Show results
@@ -413,7 +413,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action button */}
-          <div className="mt-auto sticky bottom-0 border-t bg-white px-4 py-5 shrink-0">
+          <div className="mt-auto sticky bottom-0 border-t bg-white px-4 py-6 shrink-0">
             <Button
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full text-base"
               onClick={() => setIsFindProviderModalOpen(false)}
@@ -458,11 +458,11 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto">
+            <ul className="flex-1 overflow-y-auto">
               {locations
                 .filter((loc) => loc.toLowerCase().includes(locationSearch.toLowerCase()))
                 .map((loc) => (
-                  <button
+                  <li
                     key={loc}
                     onClick={() => {
                       setLocation(loc);
@@ -470,15 +470,26 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       setIsFindProviderModalOpen(true);
                       setLocationSearch("");
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setLocation(loc);
+                        setIsLocationModalOpen(false);
+                        setIsFindProviderModalOpen(true);
+                        setLocationSearch("");
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className={cn(
-                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors",
+                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
                       location === loc ? "bg-indigo-100 text-gray-900" : "text-gray-700"
                     )}
                   >
                     {loc}
-                  </button>
+                  </li>
                 ))}
-            </div>
+            </ul>
           </div>
         </DialogContent>
       </Dialog>
@@ -517,11 +528,11 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto">
+            <ul className="flex-1 overflow-y-auto">
               {paymentMethods
                 .filter((method) => method.toLowerCase().includes(paymentSearch.toLowerCase()))
                 .map((method) => (
-                  <button
+                  <li
                     key={method}
                     onClick={() => {
                       setPaymentMethod(method);
@@ -529,15 +540,26 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       setIsFindProviderModalOpen(true);
                       setPaymentSearch("");
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setPaymentMethod(method);
+                        setIsPaymentModalOpen(false);
+                        setIsFindProviderModalOpen(true);
+                        setPaymentSearch("");
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className={cn(
-                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors",
+                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
                       paymentMethod === method ? "bg-indigo-100 text-gray-900" : "text-gray-700"
                     )}
                   >
                     {method}
-                  </button>
+                  </li>
                 ))}
-            </div>
+            </ul>
           </div>
         </DialogContent>
       </Dialog>
@@ -553,10 +575,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           setIsSpecialtiesModalOpen(open);
         }}
       >
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden">
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+            <div className="flex items-center gap-3 border-b bg-white px-4 py-3 shrink-0">
               <button
                 onClick={() => {
                   setSelectedSpecialties(tempSelectedSpecialties);
@@ -573,7 +595,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Search */}
-            <div className="px-4 pt-4 pb-3">
+            <div className="px-4 pt-4 pb-3 shrink-0">
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
@@ -587,30 +609,31 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Checkbox List - Scrollable */}
-            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+            <ul className="flex-1 overflow-y-auto min-h-0">
               {specialtiesList
                 .filter((spec) => spec.toLowerCase().includes(specialtiesSearch.toLowerCase()))
                 .map((spec) => (
-                  <label
-                    key={spec}
-                    className={cn(
-                      "flex items-center gap-3 cursor-pointer px-4 py-4",
-                      tempSelectedSpecialties.includes(spec) ? "bg-indigo-50" : ""
-                    )}
-                  >
-                    <Checkbox
-                      checked={tempSelectedSpecialties.includes(spec)}
-                      onCheckedChange={() => toggleCheckbox(spec, tempSelectedSpecialties, setTempSelectedSpecialties)}
-                    />
-                    <span className="text-sm text-gray-900">{spec}</span>
-                  </label>
+                  <li key={spec}>
+                    <label
+                      className={cn(
+                        "flex items-center gap-3 cursor-pointer px-4 py-4 force-cursor-pointer",
+                        tempSelectedSpecialties.includes(spec) ? "bg-indigo-50" : ""
+                      )}
+                    >
+                      <Checkbox
+                        checked={tempSelectedSpecialties.includes(spec)}
+                        onCheckedChange={() => toggleCheckbox(spec, tempSelectedSpecialties, setTempSelectedSpecialties)}
+                      />
+                      <span className="text-sm text-gray-900">{spec}</span>
+                    </label>
+                  </li>
                 ))}
-            </div>
+            </ul>
 
-            {/* Footer with action buttons - Sticky at bottom */}
-            <div className="sticky bottom-0 bg-white px-4 pb-4 pt-3 space-y-3">
+            {/* Footer with action buttons - Fixed at bottom */}
+            <div className="mt-auto border-t bg-white px-4 pb-6 pt-4 space-y-3 shrink-0">
               <Button
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-full"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full"
                 onClick={() => {
                   setSelectedSpecialties(tempSelectedSpecialties);
                   setIsSpecialtiesModalOpen(false);
@@ -622,7 +645,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               </Button>
               <Button
                 variant="outline"
-                className="w-full py-3 rounded-full"
+                className="w-full py-6 rounded-full"
                 onClick={() => {
                   setTempSelectedSpecialties([]);
                 }}
