@@ -7,12 +7,9 @@ import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { MultiSelectDropdown } from "./multi-select-dropdown";
 import Link from "next/link";
-
-interface FilterOption {
-  label: string;
-  value: string;
-}
 
 interface SearchTherapistsBarProps {
   className?: string;
@@ -21,11 +18,6 @@ interface SearchTherapistsBarProps {
 export default function SearchTherapistsBar({ className }: SearchTherapistsBarProps) {
   const [location, setLocation] = useState<string>("Alaska");
   const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
-  const [sessionType, setSessionType] = useState<string>("Virtual");
-  const [therapyType, setTherapyType] = useState<string>("Talk therapy");
-  const [specialty, setSpecialty] = useState<string>("ADHD");
-  const [treatmentMethod, setTreatmentMethod] = useState<string>("Treatment methods");
-  const [moreFiltersCount] = useState<number>(4);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState<boolean>(false);
@@ -42,7 +34,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [specialtiesSearch, setSpecialtiesSearch] = useState<string>("");
 
   // State for checkbox filters in modal
-  const [selectedSessionTypes, setSelectedSessionTypes] = useState<string[]>(["Virtual"]);
+  const [selectedSessionType, setSelectedSessionType] = useState<string>("Virtual");
   const [selectedTherapyTypes, setSelectedTherapyTypes] = useState<string[]>(["Talk therapy"]);
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(["ADHD"]);
   const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>(["ADHD"]);
@@ -50,7 +42,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
   // Data lists
   const locations = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York, USA", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
-  const paymentMethods = ["Cash", "Insurance", "Medicare", "Medicaid", "Out of pocket", "Aetna", "Blue Cross Blue Shield", "Cigna", "United Healthcare", "Humana"];
+  const paymentMethods = ["Cash", "Zelle", "Bank transfer", "Pago Movil"];
   const specialtiesList = ["ADHD", "Anxiety", "Depression", "Trauma", "Stress", "Relationship issues", "Grief", "Coping Skills", "Addiction", "Bipolar Disorder", "Eating Disorders", "OCD", "PTSD", "Self Esteem"];
 
   const toggleCheckbox = (value: string, selectedValues: string[], setter: (values: string[]) => void) => {
@@ -134,7 +126,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 <span className="truncate">
                   {location.length > 8 ? `${location.substring(0, 8)}...` : location}
                   {' • '}
-                  {paymentMethod}
+                  {paymentMethod.length > 5 ? `${paymentMethod.substring(0, 6)}...` : paymentMethod}
                   {selectedSpecialties.length > 0 && (
                     <> • Specialties ({selectedSpecialties.length})</>
                   )}
@@ -154,46 +146,91 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Desktop: Show all filters inline */}
-          <span className="hidden md:inline text-sm font-medium text-gray-700">Therapists in</span>
-
-          <div className="hidden md:inline">
-            <FilterDropdown value={location} onChange={setLocation}>
-              {location}
-            </FilterDropdown>
-          </div>
-
-          <span className="hidden md:inline text-sm font-medium text-gray-700">accepting</span>
-
-          <div className="hidden md:inline">
-            <FilterDropdown value={paymentMethod} onChange={setPaymentMethod}>
-              {paymentMethod}
-            </FilterDropdown>
-          </div>
-
-          {/* Desktop: Show all filters inline */}
           <div className="hidden md:flex md:flex-wrap md:items-center md:gap-3">
-            <FilterDropdown value={sessionType} onChange={setSessionType}>
-              {sessionType}
-            </FilterDropdown>
+            <span className="text-sm font-medium text-gray-700">Therapists in</span>
 
-            <FilterDropdown value={therapyType} onChange={setTherapyType}>
-              {therapyType}
-            </FilterDropdown>
+            <Select value={location} onValueChange={setLocation}>
+              <SelectTrigger className="w-auto h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                className="max-h-[300px]"
 
-            <FilterDropdown value={specialty} onChange={setSpecialty}>
-              {specialty}
-            </FilterDropdown>
+              >
+                {locations.map((loc) => (
+                  <SelectItem key={loc} value={loc}>
+                    {loc}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            <FilterDropdown value={treatmentMethod} onChange={setTreatmentMethod}>
-              {treatmentMethod}
-            </FilterDropdown>
+            <span className="text-sm font-medium text-gray-700">accepting</span>
 
-            <Button
-              variant="outline"
-              className="rounded-full border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              More filters ({moreFiltersCount})
-            </Button>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="w-auto h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {paymentMethods.map((method) => (
+                  <SelectItem key={method} value={method}>
+                    {method}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <MultiSelectDropdown
+              label={
+                selectedSpecialties.length === 0
+                  ? "Specialties"
+                  : selectedSpecialties.length === 1
+                  ? selectedSpecialties[0]
+                  : `${selectedSpecialties[0]} +${selectedSpecialties.length - 1}`
+              }
+              options={specialtiesList}
+              selectedValues={selectedSpecialties}
+              onChange={setSelectedSpecialties}
+            />
+
+            <Select value={selectedSessionType} onValueChange={setSelectedSessionType}>
+              <SelectTrigger className="w-auto h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <MultiSelectDropdown
+              label={
+                selectedTherapyTypes.length === 0
+                  ? "Therapy type"
+                  : selectedTherapyTypes.length === 1
+                  ? selectedTherapyTypes[0]
+                  : `${selectedTherapyTypes[0]} +${selectedTherapyTypes.length - 1}`
+              }
+              options={["Talk therapy", "Couples therapy", "Teen therapy"]}
+              selectedValues={selectedTherapyTypes}
+              onChange={setSelectedTherapyTypes}
+            />
+
+            <MultiSelectDropdown
+              label={
+                selectedTreatmentMethods.length === 0
+                  ? "Treatment method"
+                  : selectedTreatmentMethods.length === 1
+                  ? selectedTreatmentMethods[0]
+                  : `${selectedTreatmentMethods[0]} +${selectedTreatmentMethods.length - 1}`
+              }
+              options={["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"]}
+              selectedValues={selectedTreatmentMethods}
+              onChange={setSelectedTreatmentMethods}
+            />
           </div>
         </div>
       </div>
@@ -219,14 +256,17 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             <div className="mb-8">
               <h3 className="text-base font-semibold text-gray-900 mb-4">Session type</h3>
               <div className="space-y-3">
-                {["Virtual", "In-person", "Phone"].map((type) => (
+                {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
                   <label
                     key={type}
                     className="flex items-center gap-3 cursor-pointer py-2"
                   >
-                    <Checkbox
-                      checked={selectedSessionTypes.includes(type)}
-                      onCheckedChange={() => toggleCheckbox(type, selectedSessionTypes, setSelectedSessionTypes)}
+                    <input
+                      type="radio"
+                      name="sessionType"
+                      checked={selectedSessionType === type}
+                      onChange={() => setSelectedSessionType(type)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-600"
                     />
                     <span className="text-sm text-gray-700">{type}</span>
                   </label>
@@ -238,7 +278,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             <div className="mb-8">
               <h3 className="text-base font-semibold text-gray-900 mb-4">Therapy type</h3>
               <div className="space-y-3">
-                {["Talk therapy", "Couples therapy", "Family therapy", "Group therapy", "Child therapy"].map((type) => (
+                {["Talk therapy", "Couples therapy", "Teen therapy"].map((type) => (
                   <label
                     key={type}
                     className="flex items-center gap-3 cursor-pointer py-2"
@@ -279,7 +319,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               variant="outline"
               className="flex-1"
               onClick={() => {
-                setSelectedSessionTypes([]);
+                setSelectedSessionType("Virtual");
                 setSelectedTherapyTypes([]);
                 setSelectedSpecialties([]);
                 setSelectedTreatmentMethods([]);
@@ -318,7 +358,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             {/* Address Section */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Address
+                State
               </label>
               <button
                 onClick={() => {
@@ -332,10 +372,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               </button>
             </div>
 
-            {/* Your Insurance Section */}
+            {/* Payment Method Section */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Your Insurance
+                Payment method
               </label>
               <button
                 onClick={() => {
@@ -459,7 +499,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               >
                 <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
               </button>
-              <DialogTitle className="text-lg font-semibold">Your Insurance</DialogTitle>
+              <DialogTitle className="text-lg font-semibold">Payment method</DialogTitle>
             </div>
 
             {/* Search */}
@@ -594,22 +634,5 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-interface FilterDropdownProps {
-  value: string;
-  onChange: (value: string) => void;
-  children: React.ReactNode;
-}
-
-function FilterDropdown({ children }: FilterDropdownProps) {
-  return (
-    <button
-      className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-    >
-      {children}
-      <ChevronDownIcon className="h-4 w-4 text-gray-500" />
-    </button>
   );
 }
