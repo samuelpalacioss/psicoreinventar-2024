@@ -1,9 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronDownIcon, MagnifyingGlassIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, MagnifyingGlassIcon, ArrowLeftIcon, XMarkIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
 import Link from "next/link";
 
 interface FilterOption {
@@ -25,6 +28,38 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [moreFiltersCount] = useState<number>(4);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isFiltersModalOpen, setIsFiltersModalOpen] = useState<boolean>(false);
+  const [isFindProviderModalOpen, setIsFindProviderModalOpen] = useState<boolean>(false);
+
+  // Individual field modals
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
+  const [isSpecialtiesModalOpen, setIsSpecialtiesModalOpen] = useState<boolean>(false);
+
+  // Search states for each modal
+  const [locationSearch, setLocationSearch] = useState<string>("");
+  const [paymentSearch, setPaymentSearch] = useState<string>("");
+  const [specialtiesSearch, setSpecialtiesSearch] = useState<string>("");
+
+  // State for checkbox filters in modal
+  const [selectedSessionTypes, setSelectedSessionTypes] = useState<string[]>(["Virtual"]);
+  const [selectedTherapyTypes, setSelectedTherapyTypes] = useState<string[]>(["Talk therapy"]);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(["ADHD"]);
+  const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>(["ADHD"]);
+  const [selectedTreatmentMethods, setSelectedTreatmentMethods] = useState<string[]>([]);
+
+  // Data lists
+  const locations = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York, USA", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
+  const paymentMethods = ["Cash", "Insurance", "Medicare", "Medicaid", "Out of pocket", "Aetna", "Blue Cross Blue Shield", "Cigna", "United Healthcare", "Humana"];
+  const specialtiesList = ["ADHD", "Anxiety", "Depression", "Trauma", "Stress", "Relationship issues", "Grief", "Coping Skills", "Addiction", "Bipolar Disorder", "Eating Disorders", "OCD", "PTSD", "Self Esteem"];
+
+  const toggleCheckbox = (value: string, selectedValues: string[], setter: (values: string[]) => void) => {
+    if (selectedValues.includes(value)) {
+      setter(selectedValues.filter(v => v !== value));
+    } else {
+      setter([...selectedValues, value]);
+    }
+  };
 
   return (
     <div className={cn("border-b bg-cream", className)}>
@@ -89,42 +124,475 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
         {/* Filters Section */}
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-gray-700">Therapists in</span>
+          {/* Mobile: Show current selections and "More" buttons */}
+          <div className="flex gap-3 w-full md:hidden">
+            <button
+              onClick={() => setIsFindProviderModalOpen(true)}
+              className="w-[60%] rounded-full border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left truncate"
+            >
+              {location && paymentMethod ? (
+                <span className="truncate">
+                  {location.length > 8 ? `${location.substring(0, 8)}...` : location}
+                  {' • '}
+                  {paymentMethod}
+                  {selectedSpecialties.length > 0 && (
+                    <> • Specialties ({selectedSpecialties.length})</>
+                  )}
+                </span>
+              ) : (
+                'Find a provider'
+              )}
+            </button>
+            <Button
+              onClick={() => setIsFiltersModalOpen(true)}
+              variant="outline"
+              className="flex-1 h-auto rounded-full border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+            >
+              <span>More</span>
+              <AdjustmentsHorizontalIcon className="h-4 w-4" />
+            </Button>
+          </div>
 
-          <FilterDropdown value={location} onChange={setLocation}>
-            {location}
-          </FilterDropdown>
+          {/* Desktop: Show all filters inline */}
+          <span className="hidden md:inline text-sm font-medium text-gray-700">Therapists in</span>
 
-          <span className="text-sm font-medium text-gray-700">accepting</span>
+          <div className="hidden md:inline">
+            <FilterDropdown value={location} onChange={setLocation}>
+              {location}
+            </FilterDropdown>
+          </div>
 
-          <FilterDropdown value={paymentMethod} onChange={setPaymentMethod}>
-            {paymentMethod}
-          </FilterDropdown>
+          <span className="hidden md:inline text-sm font-medium text-gray-700">accepting</span>
 
-          <FilterDropdown value={sessionType} onChange={setSessionType}>
-            {sessionType}
-          </FilterDropdown>
+          <div className="hidden md:inline">
+            <FilterDropdown value={paymentMethod} onChange={setPaymentMethod}>
+              {paymentMethod}
+            </FilterDropdown>
+          </div>
 
-          <FilterDropdown value={therapyType} onChange={setTherapyType}>
-            {therapyType}
-          </FilterDropdown>
+          {/* Desktop: Show all filters inline */}
+          <div className="hidden md:flex md:flex-wrap md:items-center md:gap-3">
+            <FilterDropdown value={sessionType} onChange={setSessionType}>
+              {sessionType}
+            </FilterDropdown>
 
-          <FilterDropdown value={specialty} onChange={setSpecialty}>
-            {specialty}
-          </FilterDropdown>
+            <FilterDropdown value={therapyType} onChange={setTherapyType}>
+              {therapyType}
+            </FilterDropdown>
 
-          <FilterDropdown value={treatmentMethod} onChange={setTreatmentMethod}>
-            {treatmentMethod}
-          </FilterDropdown>
+            <FilterDropdown value={specialty} onChange={setSpecialty}>
+              {specialty}
+            </FilterDropdown>
 
-          <Button
-            variant="outline"
-            className="rounded-full border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            More filters ({moreFiltersCount})
-          </Button>
+            <FilterDropdown value={treatmentMethod} onChange={setTreatmentMethod}>
+              {treatmentMethod}
+            </FilterDropdown>
+
+            <Button
+              variant="outline"
+              className="rounded-full border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              More filters ({moreFiltersCount})
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile More Filters Modal */}
+      <Dialog open={isFiltersModalOpen} onOpenChange={setIsFiltersModalOpen}>
+        <DialogContent className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom">
+          {/* Header */}
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-3">
+            <DialogTitle className="text-xl font-semibold">More filters</DialogTitle>
+            <button
+              onClick={() => setIsFiltersModalOpen(false)}
+              className="rounded-md p-2 hover:bg-gray-100 transition-colors"
+              aria-label="Close filters"
+            >
+              <XMarkIcon className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="overflow-y-auto flex-1 px-4 py-6">
+            {/* Session Type Section */}
+            <div className="mb-8">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Session type</h3>
+              <div className="space-y-3">
+                {["Virtual", "In-person", "Phone"].map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center gap-3 cursor-pointer py-2"
+                  >
+                    <Checkbox
+                      checked={selectedSessionTypes.includes(type)}
+                      onCheckedChange={() => toggleCheckbox(type, selectedSessionTypes, setSelectedSessionTypes)}
+                    />
+                    <span className="text-sm text-gray-700">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Therapy Type Section */}
+            <div className="mb-8">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Therapy type</h3>
+              <div className="space-y-3">
+                {["Talk therapy", "Couples therapy", "Family therapy", "Group therapy", "Child therapy"].map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center gap-3 cursor-pointer py-2"
+                  >
+                    <Checkbox
+                      checked={selectedTherapyTypes.includes(type)}
+                      onCheckedChange={() => toggleCheckbox(type, selectedTherapyTypes, setSelectedTherapyTypes)}
+                    />
+                    <span className="text-sm text-gray-700">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Treatment Method Section */}
+            <div className="mb-8">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Treatment method</h3>
+              <div className="space-y-3">
+                {["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"].map((method) => (
+                  <label
+                    key={method}
+                    className="flex items-center gap-3 cursor-pointer py-2"
+                  >
+                    <Checkbox
+                      checked={selectedTreatmentMethods.includes(method)}
+                      onCheckedChange={() => toggleCheckbox(method, selectedTreatmentMethods, setSelectedTreatmentMethods)}
+                    />
+                    <span className="text-sm text-gray-700">{method}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer with action buttons */}
+          <div className="sticky bottom-0 border-t bg-white px-4 py-4 flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                setSelectedSessionTypes([]);
+                setSelectedTherapyTypes([]);
+                setSelectedSpecialties([]);
+                setSelectedTreatmentMethods([]);
+              }}
+            >
+              Clear all
+            </Button>
+            <Button
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+              onClick={() => setIsFiltersModalOpen(false)}
+            >
+              Show results
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Find a Provider Modal (Mobile Only) */}
+
+      <Dialog open={isFindProviderModalOpen} onOpenChange={setIsFindProviderModalOpen}>
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b bg-white px-4 h-14 shrink-0">
+            <DialogTitle className="text-lg font-semibold">Find a provider</DialogTitle>
+            <button
+              onClick={() => setIsFindProviderModalOpen(false)}
+              className="rounded-md p-2 hover:bg-gray-100 transition-colors"
+              aria-label="Close"
+            >
+              <XMarkIcon className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="px-4 py-4">
+            {/* Address Section */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Address
+              </label>
+              <button
+                onClick={() => {
+                  setIsLocationModalOpen(true);
+                  setIsFindProviderModalOpen(false);
+                }}
+                className="w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+              >
+                <span>{location}</span>
+                <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Your Insurance Section */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Your Insurance
+              </label>
+              <button
+                onClick={() => {
+                  setIsPaymentModalOpen(true);
+                  setIsFindProviderModalOpen(false);
+                }}
+                className="w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+              >
+                <span>{paymentMethod}</span>
+                <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Specialties Section */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Specialties
+              </label>
+              <button
+                onClick={() => {
+                  setTempSelectedSpecialties(selectedSpecialties);
+                  setIsSpecialtiesModalOpen(true);
+                  setIsFindProviderModalOpen(false);
+                }}
+                className="w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+              >
+                <span>
+                  {selectedSpecialties.length > 0
+                    ? `Specialties (${selectedSpecialties.length})`
+                    : "Select specialties"}
+                </span>
+                <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+          </div>
+
+          {/* Footer with action button */}
+          <div className="mt-auto sticky bottom-0 border-t bg-white px-4 py-5 shrink-0">
+            <Button
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full text-base"
+              onClick={() => setIsFindProviderModalOpen(false)}
+            >
+              Show results
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Location Selector Modal */}
+      <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden">
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+              <button
+                onClick={() => {
+                  setIsLocationModalOpen(false);
+                  setIsFindProviderModalOpen(true);
+                }}
+                className="rounded-md p-2 hover:bg-gray-100 transition-colors"
+                aria-label="Back"
+              >
+                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+              </button>
+              <DialogTitle className="text-lg font-semibold">State</DialogTitle>
+            </div>
+
+            {/* Search */}
+            <div className="px-4 pt-4 pb-3">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search"
+                  value={locationSearch}
+                  onChange={(e) => setLocationSearch(e.target.value)}
+                  className="pl-10 rounded-lg border-gray-300"
+                />
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto">
+              {locations
+                .filter((loc) => loc.toLowerCase().includes(locationSearch.toLowerCase()))
+                .map((loc) => (
+                  <button
+                    key={loc}
+                    onClick={() => {
+                      setLocation(loc);
+                      setIsLocationModalOpen(false);
+                      setIsFindProviderModalOpen(true);
+                      setLocationSearch("");
+                    }}
+                    className={cn(
+                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors",
+                      location === loc ? "bg-indigo-100 text-gray-900" : "text-gray-700"
+                    )}
+                  >
+                    {loc}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Method Selector Modal */}
+      <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden">
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+              <button
+                onClick={() => {
+                  setIsPaymentModalOpen(false);
+                  setIsFindProviderModalOpen(true);
+                }}
+                className="rounded-md p-2 hover:bg-gray-100 transition-colors"
+                aria-label="Back"
+              >
+                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+              </button>
+              <DialogTitle className="text-lg font-semibold">Your Insurance</DialogTitle>
+            </div>
+
+            {/* Search */}
+            <div className="px-4 pt-4 pb-3">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search"
+                  value={paymentSearch}
+                  onChange={(e) => setPaymentSearch(e.target.value)}
+                  className="pl-10 rounded-lg border-gray-300"
+                />
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto">
+              {paymentMethods
+                .filter((method) => method.toLowerCase().includes(paymentSearch.toLowerCase()))
+                .map((method) => (
+                  <button
+                    key={method}
+                    onClick={() => {
+                      setPaymentMethod(method);
+                      setIsPaymentModalOpen(false);
+                      setIsFindProviderModalOpen(true);
+                      setPaymentSearch("");
+                    }}
+                    className={cn(
+                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors",
+                      paymentMethod === method ? "bg-indigo-100 text-gray-900" : "text-gray-700"
+                    )}
+                  >
+                    {method}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Specialties Selector Modal */}
+      <Dialog
+        open={isSpecialtiesModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Reset temp state when closing without applying
+            setTempSelectedSpecialties(selectedSpecialties);
+          }
+          setIsSpecialtiesModalOpen(open);
+        }}
+      >
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden">
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+              <button
+                onClick={() => {
+                  setSelectedSpecialties(tempSelectedSpecialties);
+                  setIsSpecialtiesModalOpen(false);
+                  setIsFindProviderModalOpen(true);
+                  setSpecialtiesSearch("");
+                }}
+                className="rounded-md p-2 hover:bg-gray-100 transition-colors"
+                aria-label="Back"
+              >
+                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+              </button>
+              <DialogTitle className="text-lg font-semibold">Specialties</DialogTitle>
+            </div>
+
+            {/* Search */}
+            <div className="px-4 pt-4 pb-3">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search"
+                  value={specialtiesSearch}
+                  onChange={(e) => setSpecialtiesSearch(e.target.value)}
+                  className="pl-10 rounded-lg border-gray-300"
+                />
+              </div>
+            </div>
+
+            {/* Checkbox List - Scrollable */}
+            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+              {specialtiesList
+                .filter((spec) => spec.toLowerCase().includes(specialtiesSearch.toLowerCase()))
+                .map((spec) => (
+                  <label
+                    key={spec}
+                    className={cn(
+                      "flex items-center gap-3 cursor-pointer px-4 py-4",
+                      tempSelectedSpecialties.includes(spec) ? "bg-indigo-50" : ""
+                    )}
+                  >
+                    <Checkbox
+                      checked={tempSelectedSpecialties.includes(spec)}
+                      onCheckedChange={() => toggleCheckbox(spec, tempSelectedSpecialties, setTempSelectedSpecialties)}
+                    />
+                    <span className="text-sm text-gray-900">{spec}</span>
+                  </label>
+                ))}
+            </div>
+
+            {/* Footer with action buttons - Sticky at bottom */}
+            <div className="sticky bottom-0 bg-white px-4 pb-4 pt-3 space-y-3">
+              <Button
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-full"
+                onClick={() => {
+                  setSelectedSpecialties(tempSelectedSpecialties);
+                  setIsSpecialtiesModalOpen(false);
+                  setIsFindProviderModalOpen(true);
+                  setSpecialtiesSearch("");
+                }}
+              >
+                Apply
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full py-3 rounded-full"
+                onClick={() => {
+                  setTempSelectedSpecialties([]);
+                }}
+              >
+                Clear filters
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -135,7 +603,7 @@ interface FilterDropdownProps {
   children: React.ReactNode;
 }
 
-function FilterDropdown({ value, onChange, children }: FilterDropdownProps) {
+function FilterDropdown({ children }: FilterDropdownProps) {
   return (
     <button
       className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
