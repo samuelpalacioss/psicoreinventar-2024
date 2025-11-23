@@ -172,9 +172,9 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
-                        <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon className="cursor-pointer block h-6 w-6" aria-hidden="true" />
                       ) : (
-                        <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                        <Bars3Icon className="cursor-pointer block h-6 w-6" aria-hidden="true" />
                       )}
                     </DisclosureButton>
                   </div>

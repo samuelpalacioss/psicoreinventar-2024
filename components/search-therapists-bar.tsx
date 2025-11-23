@@ -57,38 +57,78 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     <div className={cn("border-b bg-cream", className)}>
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {/* Logo Section */}
-        <div className="flex items-center mb-6">
-          <Link
-            href="/"
-            className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </Link>
-
-          <Link
-            href="/"
-            className="text-2xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none absolute left-1/2 transform -translate-x-1/2"
-            style={{
-              fontFamily: "'Inter', 'sans-serif'",
-              letterSpacing: "-0.04em",
-              userSelect: "none",
-            }}
-            aria-label="Psicoreinventar Logo"
-          >
-            <span
-              className="bg-linear-to-r from-indigo-700 via-indigo-600 to-indigo-400 bg-clip-text text-transparent"
-              style={{
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                display: "inline-block",
-              }}
+        <div className="mb-6">
+          <div className="flex items-center">
+            <Link
+              href="/"
+              className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
             >
-              Psicoreinventar
-            </span>
-          </Link>
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
 
-          <div className="ml-auto flex items-center h-10">
-            {isSearchOpen ? (
+            <Link
+              href="/"
+              className="text-2xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none absolute left-1/2 transform -translate-x-1/2"
+              style={{
+                fontFamily: "'Inter', 'sans-serif'",
+                letterSpacing: "-0.04em",
+                userSelect: "none",
+              }}
+              aria-label="Psicoreinventar Logo"
+            >
+              <span
+                className="bg-linear-to-r from-indigo-700 via-indigo-600 to-indigo-400 bg-clip-text text-transparent"
+                style={{
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  display: "inline-block",
+                }}
+              >
+                Psicoreinventar
+              </span>
+            </Link>
+
+            <div className="ml-auto flex items-center h-10">
+              {/* Desktop search */}
+              <div className="hidden md:flex">
+                {isSearchOpen ? (
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by name"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onBlur={() => {
+                        if (!searchQuery) setIsSearchOpen(false);
+                      }}
+                      className="bg-white pl-10 pr-4 h-10 text-sm border-2 border-indigo-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-64"
+                      autoFocus
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setIsSearchOpen(true)}
+                    className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-gray-300 transition-colors hover:bg-gray-100"
+                  >
+                    <MagnifyingGlassIcon className="cursor-pointer h-5 w-5 text-gray-600" />
+                  </button>
+                )}
+              </div>
+
+              {/* Mobile search icon */}
+              <button
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="md:hidden flex h-10 w-10 items-center justify-center rounded-md border-2 border-gray-300 transition-colors hover:bg-gray-100"
+              >
+                <MagnifyingGlassIcon className="cursor-pointer h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile search bar - full width below header */}
+          {isSearchOpen && (
+            <div className="md:hidden mt-4">
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
@@ -96,22 +136,21 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   placeholder="Search by name"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onBlur={() => {
-                    if (!searchQuery) setIsSearchOpen(false);
-                  }}
-                  className="pl-10 pr-4 h-10 text-sm border-2 border-indigo-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-64"
+                  className="bg-white pl-10 pr-10 h-10 text-sm border-2 border-indigo-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
                   autoFocus
                 />
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setIsSearchOpen(false);
+                  }}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                >
+                  <XMarkIcon className="cursor-pointer h-5 w-5 text-gray-400 hover:text-gray-600" />
+                </button>
               </div>
-            ) : (
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-gray-300 transition-colors hover:bg-gray-100"
-              >
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-600" />
-              </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Filters Section */}
@@ -246,7 +285,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               className="rounded-md p-2 hover:bg-gray-100 transition-colors"
               aria-label="Close filters"
             >
-              <XMarkIcon className="h-6 w-6 text-gray-600" />
+              <XMarkIcon className="cursor-pointer h-6 w-6 text-gray-600" />
             </button>
           </div>
 
@@ -346,7 +385,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               className="rounded-md p-2 hover:bg-gray-100 transition-colors"
               aria-label="Close"
             >
-              <XMarkIcon className="h-6 w-6 text-gray-600" />
+              <XMarkIcon className="cursor-pointer h-6 w-6 text-gray-600" />
             </button>
           </div>
 
@@ -435,7 +474,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 className="rounded-md p-2 hover:bg-gray-100 transition-colors"
                 aria-label="Back"
               >
-                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+                <ArrowLeftIcon className="cursor-pointer h-6 w-6 text-gray-600" />
               </button>
               <DialogTitle className="text-lg font-semibold">State</DialogTitle>
             </div>
@@ -443,7 +482,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             {/* Search */}
             <div className="px-4 pt-4 pb-3">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <MagnifyingGlassIcon className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Search"
@@ -505,7 +544,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 className="rounded-md p-2 hover:bg-gray-100 transition-colors"
                 aria-label="Back"
               >
-                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+                <ArrowLeftIcon className="cursor-pointer h-6 w-6 text-gray-600" />
               </button>
               <DialogTitle className="text-lg font-semibold">Payment method</DialogTitle>
             </div>
@@ -513,7 +552,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             {/* Search */}
             <div className="px-4 pt-4 pb-3">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <MagnifyingGlassIcon className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Search"
@@ -586,7 +625,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 className="rounded-md p-2 hover:bg-gray-100 transition-colors"
                 aria-label="Back"
               >
-                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+                <ArrowLeftIcon className="cursor-pointer h-6 w-6 text-gray-600" />
               </button>
               <DialogTitle className="text-lg font-semibold">Specialties</DialogTitle>
             </div>
@@ -594,7 +633,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             {/* Search */}
             <div className="px-4 pt-4 pb-3 shrink-0">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <MagnifyingGlassIcon className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Search"
