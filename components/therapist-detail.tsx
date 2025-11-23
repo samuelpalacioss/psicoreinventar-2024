@@ -98,18 +98,18 @@ export default function TherapistDetail({
     <div className={cn(className)}>
       {/* Navbar */}
       <div className="border-b bg-cream">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-7xl px-6 py-3 sm:py-6">
           <div className="flex items-center">
             <Link
               href="/therapists"
-              className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-md border-2 border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
             >
-              <ArrowLeftIcon className="h-5 w-5" />
+              <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </Link>
 
             <Link
               href="/"
-              className="text-2xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none absolute left-1/2 transform -translate-x-1/2"
+              className="text-xl sm:text-2xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none absolute left-1/2 transform -translate-x-1/2"
               style={{
                 fontFamily: "'Inter', 'sans-serif'",
                 letterSpacing: "-0.04em",
@@ -132,15 +132,15 @@ export default function TherapistDetail({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
         {/* Top info bar - Licensed to practice, Specializes in */}
         <div className="mb-6 pb-4 border-b flex flex-wrap gap-4 text-sm text-gray-700">
-          <div className="flex items-center flex-wrap gap-1">
+          <div className="flex items-center flex-wrap gap-1 text-xs sm:text-sm">
             <span className="text-gray-600">Specializes in</span>{" "}
             {specialties.slice(0, 3).map((specialty) => (
               <Badge
                 key={specialty}
-                className="bg-stone-100 text-gray-700 hover:bg-stone-100 mx-1 font-normal text-sm px-3 py-1.5"
+                className="bg-stone-200 text-gray-700 text-xs sm:text-sm hover:bg-stone-100 mx-1 font-normal px-2.5 py-1 sm:px-3 sm:py-1.5"
               >
                 {specialty}
               </Badge>
@@ -158,7 +158,7 @@ export default function TherapistDetail({
 
         {/* Hero Section - Full Width */}
         <div className="space-y-8 mb-8">
-          <div className="flex flex-col sm:flex-row gap-6 relative">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 relative">
             {/* Book Session CTA - Top Right */}
             <div className="absolute top-0 right-0 hidden lg:block">
               <Button className="cursor-pointer bg-indigo-600! hover:bg-indigo-700! text-white! h-10 px-7 py-3">
@@ -166,13 +166,13 @@ export default function TherapistDetail({
               </Button>
             </div>
 
-            <div className="shrink-0 relative">
+            <div className="shrink-0 relative flex flex-col items-center sm:items-start">
               <Avatar
                 className={cn(
                   "cursor-pointer transition-all duration-300 ease-in-out",
                   isAvatarExpanded
                     ? "w-[166px] h-[166px] sm:w-[208px] sm:h-[208px]"
-                    : "w-32 h-32 sm:w-40 sm:h-40"
+                    : "w-36 h-36 sm:w-40 sm:h-40"
                 )}
                 onClick={() => setIsAvatarExpanded(!isAvatarExpanded)}
               >
@@ -182,9 +182,9 @@ export default function TherapistDetail({
                 </AvatarFallback>
               </Avatar>
               {averageRating > 0 && (
-                <div className="mt-3 flex items-center gap-1.5 justify-center sm:justify-start">
-                  <Icons.star className="w-5 h-5 text-gray-900 fill-gray-900" />
-                  <span className="text-base font-medium text-gray-900">
+                <div className="mt-3 flex items-center gap-1.5">
+                  <Icons.star className="w-4 h-4 text-gray-700 fill-gray-700" />
+                  <span className="text-base font-medium text-gray-700">
                     {averageRating.toFixed(1)} ({totalRatings})
                   </span>
                 </div>
@@ -192,20 +192,22 @@ export default function TherapistDetail({
             </div>
 
             <div className="flex-1 space-y-4">
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-semibold text-gray-950 mb-2">{name}</h1>
-                <p className="text-lg text-gray-700 mb-3">
+              <div className="text-center sm:text-left">
+                <h1 className="text-2xl sm:text-4xl font-semibold text-gray-900 mb-2">{name}</h1>
+                <p className="text-base sm:text-lg text-gray-600 mb-3">
                   {credentials}, {yearsInPractice} years of experience
                 </p>
                 {sessionPrice && (
-                  <p className="text-base text-gray-700 mb-3">${sessionPrice}/session</p>
+                  <Badge className="bg-white mb-3 text-gray-600 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5">
+                    ${sessionPrice}/session
+                  </Badge>
                 )}
                 {personalityTraits && personalityTraits.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="flex flex-wrap gap-2 mb-3 justify-center sm:justify-start">
                     {personalityTraits.map((trait) => (
                       <Badge
                         key={trait}
-                        className="bg-white text-gray-700 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5"
+                        className="bg-white text-gray-600 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5"
                       >
                         {trait}
                       </Badge>
@@ -214,19 +216,21 @@ export default function TherapistDetail({
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-700">
-                {isVirtual && (
-                  <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-gray-600" />
-                    <span>Virtual</span>
-                  </div>
-                )}
-                {nextAvailable && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gray-600" />
-                    <span>Next available on {nextAvailable}</span>
-                  </div>
-                )}
+              <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-700 items-center sm:items-start">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {isVirtual && (
+                    <div className="flex items-center gap-2">
+                      <Video className="w-4 h-4 text-gray-600" />
+                      <span>Virtual</span>
+                    </div>
+                  )}
+                  {nextAvailable && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-600" />
+                      <span>Next available on {nextAvailable}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -245,31 +249,31 @@ export default function TherapistDetail({
           <div className="lg:col-span-2 space-y-8">
             {/* About Me */}
             <section>
-              <h2 className="text-2xl font-semibold text-gray-950 mb-4">About me</h2>
-              <p className="text-base leading-relaxed text-gray-700 whitespace-pre-line">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">About me</h2>
+              <p className="text-base leading-relaxed text-gray-600 whitespace-pre-line">
                 {aboutMe}
               </p>
             </section>
 
             {/* Get to Know Me */}
             <section>
-              <h2 className="text-2xl font-semibold text-gray-950 mb-4">Get to know me</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get to know me</h2>
 
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">
+                  <h3 className="text-base font-medium text-gray-800 mb-2">
                     In our first session together, here&apos;s what you can expect
                   </h3>
-                  <p className="text-base leading-relaxed text-gray-700">
+                  <p className="text-base leading-relaxed text-gray-600">
                     {getToKnowMe.firstSession}
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">
+                  <h3 className="text-base font-medium text-gray-800 mb-2">
                     The biggest strengths that I bring into our sessions
                   </h3>
-                  <p className="text-base leading-relaxed text-gray-700">{getToKnowMe.strengths}</p>
+                  <p className="text-base leading-relaxed text-gray-600">{getToKnowMe.strengths}</p>
                 </div>
               </div>
             </section>
@@ -278,7 +282,7 @@ export default function TherapistDetail({
 
             {/* Specialties */}
             <section>
-              <h2 className="text-2xl font-semibold text-gray-950 mb-4">Specialties</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Specialties</h2>
 
               <div className="space-y-4">
                 <div>
@@ -320,7 +324,7 @@ export default function TherapistDetail({
             {/* Serves Ages */}
             {agesServed.length > 0 && (
               <section>
-                <h2 className="text-2xl font-semibold text-gray-950 mb-4">Serves ages</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Serves ages</h2>
                 <div className="flex flex-wrap gap-2">
                   {agesServed.map((age) => (
                     <Badge
@@ -339,12 +343,12 @@ export default function TherapistDetail({
             {/* Treatment Methods */}
             {treatmentMethods.length > 0 && (
               <section>
-                <h2 className="text-2xl font-semibold text-gray-950 mb-4">My treatment methods</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">My treatment methods</h2>
                 <div className="space-y-4">
                   {treatmentMethods.map((method) => (
                     <div key={method.name}>
-                      <h3 className="text-base font-semibold text-gray-900 mb-2">{method.name}</h3>
-                      <p className="text-base leading-relaxed text-gray-700">
+                      <h3 className="text-base font-medium text-gray-800 mb-2">{method.name}</h3>
+                      <p className="text-base leading-relaxed text-gray-600">
                         {method.description}
                       </p>
                     </div>
@@ -357,9 +361,9 @@ export default function TherapistDetail({
 
             {/* Location */}
             <section>
-              <h2 className="text-2xl font-semibold text-gray-950 mb-4">Location</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Location</h2>
               {isVirtual && (
-                <div className="flex items-center gap-2 text-gray-700">
+                <div className="flex items-center gap-2 text-gray-600">
                   <Video className="w-4 h-4" />
                   <span>Virtual</span>
                 </div>
@@ -370,7 +374,7 @@ export default function TherapistDetail({
 
             {/* Licensed In */}
             <section>
-              <h2 className="text-2xl font-semibold text-gray-950 mb-4">Licensed in</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Licensed in</h2>
               <div className="flex flex-wrap gap-2 items-center">
                 {displayedLicenses.map((state) => (
                   <Badge
@@ -406,7 +410,7 @@ export default function TherapistDetail({
 
             {/* Accepts */}
             <section>
-              <h2 className="text-2xl font-semibold text-gray-950 mb-4">Accepts</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Accepts</h2>
               <div className="flex flex-wrap gap-2 items-center">
                 {displayedInsurances.map((insurance) => (
                   <Badge
@@ -442,9 +446,9 @@ export default function TherapistDetail({
             {/* Rating */}
             <section>
               <div className="flex items-center gap-3 mb-3">
-                <Icons.star className="w-8 h-8 text-gray-900 fill-gray-900" />
+                <Icons.star className="w-8 h-8 text-gray-700 fill-gray-700" />
                 <div>
-                  <span className="text-3xl font-semibold text-gray-950">
+                  <span className="text-3xl font-semibold text-gray-900">
                     {averageRating.toFixed(1)}
                   </span>
                   <span className="text-xl text-gray-600"> ({totalRatings})</span>
@@ -453,7 +457,7 @@ export default function TherapistDetail({
 
               {totalRatings === 0 && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-600">
                     This provider hasn&apos;t received any written reviews yet. We started
                     collecting written reviews January 1, 2025.
                   </p>
@@ -467,7 +471,7 @@ export default function TherapistDetail({
             <Card className="sticky top-6">
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-baseline justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-950">Book session</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">Book session</h3>
                   <span className="text-sm text-gray-600">GMT-4 Timezone</span>
                 </div>
 
@@ -543,10 +547,15 @@ export default function TherapistDetail({
 
       {/* About Therapist Modal */}
       <Dialog open={isSpecialtiesModalOpen} onOpenChange={setIsSpecialtiesModalOpen}>
-        <DialogContent showCloseButton={false} className="max-w-2xl max-h-[80vh] overflow-y-auto p-0">
-          <div className="px-6 pt-6 pb-3">
+        <DialogContent
+          showCloseButton={false}
+          className="w-[calc(100%-2rem)] max-w-2xl sm:max-w-3xl max-h-[80vh] overflow-y-auto p-0"
+        >
+          <div className="px-6 pt-6">
             <div className="flex items-center justify-between">
-              <DialogTitle className="text-2xl font-semibold text-gray-950">About {name}</DialogTitle>
+              <DialogTitle className="text-xl sm:text-2xl font-semibold text-gray-900">
+                About {name}
+              </DialogTitle>
               <button
                 onClick={() => setIsSpecialtiesModalOpen(false)}
                 className="rounded-md p-2 hover:bg-gray-100 transition-colors"
@@ -562,7 +571,7 @@ export default function TherapistDetail({
           {/* Licensed In Section */}
           {licensedIn.length > 0 && (
             <div className="px-6 py-2">
-              <h3 className="text-lg font-semibold text-gray-950 mb-3">Licensed in</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Licensed in</h3>
               <div className="flex flex-wrap gap-2">
                 {licensedIn.map((state) => (
                   <Badge
@@ -582,7 +591,7 @@ export default function TherapistDetail({
           {/* Serves Ages Section */}
           {agesServed.length > 0 && (
             <div className="px-6 py-2">
-              <h3 className="text-lg font-semibold text-gray-950 mb-3">Serves ages</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Serves ages</h3>
               <div className="flex flex-wrap gap-2">
                 {agesServed.map((age) => (
                   <Badge
@@ -600,7 +609,7 @@ export default function TherapistDetail({
 
           {/* Specialties Section */}
           <div className="px-6 py-2 pb-6">
-            <h3 className="text-lg font-semibold text-gray-950 mb-3">Specialties</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Specialties</h3>
             <div className="flex flex-wrap gap-2">
               {specialties.map((specialty) => (
                 <Badge
