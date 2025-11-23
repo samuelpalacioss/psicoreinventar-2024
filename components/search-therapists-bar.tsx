@@ -261,12 +261,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                     key={type}
                     className="flex items-center gap-3 cursor-pointer py-2"
                   >
-                    <input
-                      type="radio"
-                      name="sessionType"
+                    <Checkbox
                       checked={selectedSessionType === type}
-                      onChange={() => setSelectedSessionType(type)}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-600"
+                      onCheckedChange={() => setSelectedSessionType(type)}
                     />
                     <span className="text-sm text-gray-700">{type}</span>
                   </label>
