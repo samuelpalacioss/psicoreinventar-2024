@@ -7,12 +7,13 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Calendar, Video, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
-import { ArrowLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 import { Icons } from "./icons";
 import { useState } from "react";
-import Link from "next/link";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import SimpleNav from "./simple-nav";
+import Container from "./container";
 
 // Extended interface based on TherapistCardProps
 export interface TherapistDetailProps {
@@ -96,454 +97,449 @@ export default function TherapistDetail({
 
   return (
     <div className={cn(className)}>
-      {/* Navbar */}
-      <div className="border-b bg-cream">
-        <div className="mx-auto max-w-7xl px-6 py-3 sm:py-6">
-          <div className="flex items-center">
-            <Link
-              href="/therapists"
-              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-md border-2 border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-            >
-              <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Link>
-
-            <Link
-              href="/"
-              className="text-xl sm:text-2xl font-extrabold tracking-tight text-primary hover:text-primary/90 flex items-center gap-1 select-none absolute left-1/2 transform -translate-x-1/2"
-              style={{
-                fontFamily: "'Inter', 'sans-serif'",
-                letterSpacing: "-0.04em",
-                userSelect: "none",
-              }}
-              aria-label="Psicoreinventar Logo"
-            >
-              <span
-                className="bg-linear-to-r from-indigo-700 via-indigo-600 to-indigo-400 bg-clip-text text-transparent"
-                style={{
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  display: "inline-block",
-                }}
-              >
-                Psicoreinventar
-              </span>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-        {/* Top info bar - Licensed to practice, Specializes in */}
-        <div className="mb-6 pb-4 border-b flex flex-wrap gap-4 text-sm text-gray-700">
-          <div className="flex items-center flex-wrap gap-1 text-xs sm:text-sm">
-            <span className="text-gray-600">Specializes in</span>{" "}
-            {specialties.slice(0, 3).map((specialty) => (
-              <Badge
-                key={specialty}
-                className="bg-stone-200 text-gray-700 text-xs sm:text-sm hover:bg-stone-100 mx-1 font-normal px-2.5 py-1 sm:px-3 sm:py-1.5"
-              >
-                {specialty}
-              </Badge>
-            ))}
-            {specialties.length > 3 && (
-              <button
-                onClick={() => setIsSpecialtiesModalOpen(true)}
-                className="text-gray-600 ml-1 hover:text-indigo-600 font-medium underline cursor-pointer"
-              >
-                +{specialties.length - 3}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Hero Section - Full Width */}
-        <div className="space-y-8 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 relative">
-            {/* Book Session CTA - Top Right */}
-            <div className="absolute top-0 right-0 hidden lg:block">
-              <Button className="cursor-pointer bg-indigo-600! hover:bg-indigo-700! text-white! h-10 px-7 py-3">
-                Book session
-              </Button>
-            </div>
-
-            <div className="shrink-0 relative flex flex-col items-center sm:items-start">
-              <Avatar
-                className={cn(
-                  "cursor-pointer transition-all duration-300 ease-in-out",
-                  isAvatarExpanded
-                    ? "w-[166px] h-[166px] sm:w-[208px] sm:h-[208px]"
-                    : "w-36 h-36 sm:w-40 sm:h-40"
-                )}
-                onClick={() => setIsAvatarExpanded(!isAvatarExpanded)}
-              >
-                <AvatarImage src={image} alt={name} />
-                <AvatarFallback className="text-3xl bg-gray-200 text-gray-600">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              {averageRating > 0 && (
-                <div className="mt-3 flex items-center gap-1.5">
-                  <Icons.star className="w-4 h-4 text-gray-700 fill-gray-700" />
-                  <span className="text-base font-medium text-gray-700">
-                    {averageRating.toFixed(1)} ({totalRatings})
-                  </span>
-                </div>
+      {/* Top info bar - Licensed to practice, Specializes in */}
+      <section className="py-6">
+        <Container>
+          <div className="mb-6 pb-4 border-b flex flex-wrap gap-4 text-sm text-gray-700">
+            <div className="flex items-center flex-wrap gap-1 text-xs sm:text-sm">
+              <span className="text-gray-600">Specializes in</span>{" "}
+              {specialties.slice(0, 3).map((specialty) => (
+                <Badge
+                  key={specialty}
+                  className="bg-stone-200 text-gray-700 text-xs sm:text-sm hover:bg-stone-100 mx-1 font-normal px-2.5 py-1 sm:px-3 sm:py-1.5"
+                >
+                  {specialty}
+                </Badge>
+              ))}
+              {specialties.length > 3 && (
+                <button
+                  onClick={() => setIsSpecialtiesModalOpen(true)}
+                  className="text-gray-600 ml-1 hover:text-indigo-600 font-medium underline cursor-pointer"
+                >
+                  +{specialties.length - 3}
+                </button>
               )}
             </div>
+          </div>
+        </Container>
+      </section>
 
-            <div className="flex-1 space-y-4">
-              <div className="text-center sm:text-left">
-                <h1 className="text-2xl sm:text-4xl font-semibold text-gray-900 mb-2">{name}</h1>
-                <p className="text-base sm:text-lg text-gray-600 mb-3">
-                  {credentials}, {yearsInPractice} years of experience
-                </p>
-                {sessionPrice && (
-                  <Badge className="bg-white mb-3 text-gray-600 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5">
-                    ${sessionPrice}/session
-                  </Badge>
-                )}
-                {personalityTraits && personalityTraits.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3 justify-center sm:justify-start">
-                    {personalityTraits.map((trait) => (
-                      <Badge
-                        key={trait}
-                        className="bg-white text-gray-600 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5"
-                      >
-                        {trait}
-                      </Badge>
-                    ))}
+      {/* Hero Section - Full Width */}
+      <section>
+        <Container>
+          <div className="space-y-8 mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 relative">
+              {/* Book Session CTA - Top Right */}
+              <div className="absolute top-0 right-0 hidden lg:block">
+                <Button className="cursor-pointer bg-indigo-600! hover:bg-indigo-700! text-white! h-10 px-7 py-3">
+                  Book session
+                </Button>
+              </div>
+
+              <div className="shrink-0 relative flex flex-col items-center sm:items-start">
+                <Avatar
+                  className={cn(
+                    "cursor-pointer transition-all duration-300 ease-in-out",
+                    isAvatarExpanded
+                      ? "w-[166px] h-[166px] sm:w-[208px] sm:h-[208px]"
+                      : "w-36 h-36 sm:w-40 sm:h-40"
+                  )}
+                  onClick={() => setIsAvatarExpanded(!isAvatarExpanded)}
+                >
+                  <AvatarImage src={image} alt={name} />
+                  <AvatarFallback className="text-3xl bg-gray-200 text-gray-600">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                {averageRating > 0 && (
+                  <div className="mt-3 flex items-center gap-1.5">
+                    <Icons.star className="w-4 h-4 text-gray-700 fill-gray-700" />
+                    <span className="text-base font-medium text-gray-700">
+                      {averageRating.toFixed(1)} ({totalRatings})
+                    </span>
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-700 items-center sm:items-start">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {isVirtual && (
-                    <div className="flex items-center gap-2">
-                      <Video className="w-4 h-4 text-gray-600" />
-                      <span>Virtual</span>
+              <div className="flex-1 space-y-4">
+                <div className="text-center sm:text-left">
+                  <h1 className="text-2xl sm:text-4xl font-semibold text-gray-900 mb-2">{name}</h1>
+                  <p className="text-base sm:text-lg text-gray-600 mb-3">
+                    {credentials}, {yearsInPractice} years of experience
+                  </p>
+                  {sessionPrice && (
+                    <Badge className="bg-white mb-3 text-gray-600 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5">
+                      ${sessionPrice}/session
+                    </Badge>
+                  )}
+                  {personalityTraits && personalityTraits.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3 justify-center sm:justify-start">
+                      {personalityTraits.map((trait) => (
+                        <Badge
+                          key={trait}
+                          className="bg-white text-gray-600 border border-gray-300 hover:bg-white font-normal text-sm px-3 py-1.5"
+                        >
+                          {trait}
+                        </Badge>
+                      ))}
                     </div>
                   )}
-                  {nextAvailable && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-600" />
-                      <span>Next available on {nextAvailable}</span>
-                    </div>
-                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-700 items-center sm:items-start">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {isVirtual && (
+                      <div className="flex items-center gap-2">
+                        <Video className="w-4 h-4 text-gray-600" />
+                        <span>Virtual</span>
+                      </div>
+                    )}
+                    {nextAvailable && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-gray-600" />
+                        <span>Next available on {nextAvailable}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Overview Tab */}
-          <div className="border-b">
-            <button className="px-4 py-3 text-gray-900 font-medium border-b-2 border-indigo-600">
-              Overview
-            </button>
-          </div>
-        </div>
-
-        {/* Content Grid with Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* About Me */}
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">About me</h2>
-              <p className="text-base leading-relaxed text-gray-600 whitespace-pre-line">
-                {aboutMe}
-              </p>
-            </section>
-
-            {/* Get to Know Me */}
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get to know me</h2>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-base font-medium text-gray-800 mb-2">
-                    In our first session together, here&apos;s what you can expect
-                  </h3>
-                  <p className="text-base leading-relaxed text-gray-600">
-                    {getToKnowMe.firstSession}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-medium text-gray-800 mb-2">
-                    The biggest strengths that I bring into our sessions
-                  </h3>
-                  <p className="text-base leading-relaxed text-gray-600">{getToKnowMe.strengths}</p>
-                </div>
+            {/* Overview Tab */}
+            <div className="relative">
+              <div className="inline-block py-3 pr-3 text-gray-900 font-medium relative z-10 border-b-3 border-indigo-600">
+                Overview
               </div>
-            </section>
+              <div className="-mx-6 lg:mx-0 absolute bottom-0 left-0 right-0">
+                <Separator />
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
 
-            <Separator />
+      {/* Content Grid with Sidebar */}
+      <section>
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* About Me */}
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">About me</h2>
+                <p className="text-base leading-relaxed text-gray-600 whitespace-pre-line">
+                  {aboutMe}
+                </p>
+              </section>
 
-            {/* Specialties */}
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Specialties</h2>
+              {/* Get to Know Me */}
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get to know me</h2>
 
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Top specialties</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {specialties.slice(0, 3).map((specialty, index) => (
-                      <Badge
-                        key={specialty}
-                        className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
-                      >
-                        {index === 0 && <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />}
-                        <Icons.star className="w-3.5 h-3.5 mr-1.5 fill-gray-700" />
-                        {specialty}
-                      </Badge>
-                    ))}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-base font-medium text-gray-800 mb-2">
+                      In our first session together, here&apos;s what you can expect
+                    </h3>
+                    <p className="text-base leading-relaxed text-gray-600">
+                      {getToKnowMe.firstSession}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-medium text-gray-800 mb-2">
+                      The biggest strengths that I bring into our sessions
+                    </h3>
+                    <p className="text-base leading-relaxed text-gray-600">
+                      {getToKnowMe.strengths}
+                    </p>
                   </div>
                 </div>
+              </section>
 
-                {otherSpecialties.length > 0 && (
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
+              </div>
+
+              {/* Specialties */}
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Specialties</h2>
+
+                <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">Other specialties</h3>
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">Top specialties</h3>
                     <div className="flex flex-wrap gap-2">
-                      {otherSpecialties.map((specialty) => (
+                      {specialties.slice(0, 3).map((specialty, index) => (
                         <Badge
                           key={specialty}
                           className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
                         >
+                          {index === 0 && <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />}
+                          <Icons.star className="w-3.5 h-3.5 mr-1.5 fill-gray-700" />
                           {specialty}
                         </Badge>
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
-            </section>
 
-            <Separator />
-
-            {/* Serves Ages */}
-            {agesServed.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Serves ages</h2>
-                <div className="flex flex-wrap gap-2">
-                  {agesServed.map((age) => (
-                    <Badge
-                      key={age}
-                      className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
-                    >
-                      {age}
-                    </Badge>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <Separator />
-
-            {/* Treatment Methods */}
-            {treatmentMethods.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">My treatment methods</h2>
-                <div className="space-y-4">
-                  {treatmentMethods.map((method) => (
-                    <div key={method.name}>
-                      <h3 className="text-base font-medium text-gray-800 mb-2">{method.name}</h3>
-                      <p className="text-base leading-relaxed text-gray-600">
-                        {method.description}
-                      </p>
+                  {otherSpecialties.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700 mb-3">Other specialties</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {otherSpecialties.map((specialty) => (
+                          <Badge
+                            key={specialty}
+                            className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
+                          >
+                            {specialty}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </section>
-            )}
 
-            <Separator />
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
+              </div>
 
-            {/* Location */}
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Location</h2>
-              {isVirtual && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Video className="w-4 h-4" />
-                  <span>Virtual</span>
-                </div>
+              {/* Serves Ages */}
+              {agesServed.length > 0 && (
+                <section>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">Serves ages</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {agesServed.map((age) => (
+                      <Badge
+                        key={age}
+                        className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
+                      >
+                        {age}
+                      </Badge>
+                    ))}
+                  </div>
+                </section>
               )}
-            </section>
 
-            <Separator />
-
-            {/* Licensed In */}
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Licensed in</h2>
-              <div className="flex flex-wrap gap-2 items-center">
-                {displayedLicenses.map((state) => (
-                  <Badge
-                    key={state}
-                    className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                    {state}
-                  </Badge>
-                ))}
-                {remainingLicenses > 0 && !showAllLicenses && (
-                  <button
-                    onClick={() => setShowAllLicenses(true)}
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
-                  >
-                    Show {remainingLicenses} more
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                )}
-                {showAllLicenses && remainingLicenses > 0 && (
-                  <button
-                    onClick={() => setShowAllLicenses(false)}
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
-                  >
-                    Show less
-                    <ChevronUp className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </section>
-
-            <Separator />
-
-            {/* Accepts */}
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Accepts</h2>
-              <div className="flex flex-wrap gap-2 items-center">
-                {displayedInsurances.map((insurance) => (
-                  <Badge
-                    key={insurance}
-                    className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
-                  >
-                    {insurance}
-                  </Badge>
-                ))}
-                {remainingInsurances > 0 && !showAllInsurances && (
-                  <button
-                    onClick={() => setShowAllInsurances(true)}
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
-                  >
-                    Show more
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                )}
-                {showAllInsurances && remainingInsurances > 0 && (
-                  <button
-                    onClick={() => setShowAllInsurances(false)}
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
-                  >
-                    Show less
-                    <ChevronUp className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </section>
-
-            <Separator />
-
-            {/* Rating */}
-            <section>
-              <div className="flex items-center gap-3 mb-3">
-                <Icons.star className="w-8 h-8 text-gray-700 fill-gray-700" />
-                <div>
-                  <span className="text-3xl font-semibold text-gray-900">
-                    {averageRating.toFixed(1)}
-                  </span>
-                  <span className="text-xl text-gray-600"> ({totalRatings})</span>
-                </div>
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
               </div>
 
-              {totalRatings === 0 && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                  <p className="text-sm text-gray-600">
-                    This provider hasn&apos;t received any written reviews yet. We started
-                    collecting written reviews January 1, 2025.
-                  </p>
-                </div>
-              )}
-            </section>
-          </div>
-
-          {/* Sticky Booking Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-6">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-baseline justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900">Book session</h3>
-                  <span className="text-sm text-gray-600">GMT-4 Timezone</span>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Insurance name
-                  </label>
-                  <Select value={selectedInsurance} onValueChange={setSelectedInsurance}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select insurance" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      {accepts.map((insurance) => (
-                        <SelectItem
-                          key={insurance}
-                          value={insurance.toLowerCase().replace(/\s+/g, "-")}
-                        >
-                          {insurance}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-3">
-                    Select a virtual session:
-                  </label>
-
-                  {/* Date Selector */}
-                  <div className="space-y-3">
-                    {availableSlots.map((slot, index) => (
-                      <div key={slot.date}>
-                        <button
-                          onClick={() => setSelectedDate(selectedDate === index ? -1 : index)}
-                          className="text-sm font-medium text-gray-700 mb-2 block w-full text-left hover:text-gray-900"
-                        >
-                          {slot.date}
-                        </button>
-
-                        {selectedDate === index && (
-                          <div className="grid grid-cols-3 gap-2 mb-3">
-                            {slot.times.map((time) => (
-                              <Button
-                                key={time}
-                                variant="outline"
-                                size="sm"
-                                className="text-sm font-normal"
-                              >
-                                {time}
-                              </Button>
-                            ))}
-                          </div>
-                        )}
+              {/* Treatment Methods */}
+              {treatmentMethods.length > 0 && (
+                <section>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    My treatment methods
+                  </h2>
+                  <div className="space-y-4">
+                    {treatmentMethods.map((method) => (
+                      <div key={method.name}>
+                        <h3 className="text-base font-medium text-gray-800 mb-2">{method.name}</h3>
+                        <p className="text-base leading-relaxed text-gray-600">
+                          {method.description}
+                        </p>
                       </div>
                     ))}
                   </div>
+                </section>
+              )}
+
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
+              </div>
+
+              {/* Location */}
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Location</h2>
+                {isVirtual && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Video className="w-4 h-4" />
+                    <span>Virtual</span>
+                  </div>
+                )}
+              </section>
+
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
+              </div>
+
+              {/* Licensed In */}
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Licensed in</h2>
+                <div className="flex flex-wrap gap-2 items-center">
+                  {displayedLicenses.map((state) => (
+                    <Badge
+                      key={state}
+                      className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                      {state}
+                    </Badge>
+                  ))}
+                  {remainingLicenses > 0 && !showAllLicenses && (
+                    <button
+                      onClick={() => setShowAllLicenses(true)}
+                      className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                    >
+                      Show {remainingLicenses} more
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  )}
+                  {showAllLicenses && remainingLicenses > 0 && (
+                    <button
+                      onClick={() => setShowAllLicenses(false)}
+                      className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                    >
+                      Show less
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </section>
+
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
+              </div>
+
+              {/* Accepts */}
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Accepts</h2>
+                <div className="flex flex-wrap gap-2 items-center">
+                  {displayedInsurances.map((insurance) => (
+                    <Badge
+                      key={insurance}
+                      className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3"
+                    >
+                      {insurance}
+                    </Badge>
+                  ))}
+                  {remainingInsurances > 0 && !showAllInsurances && (
+                    <button
+                      onClick={() => setShowAllInsurances(true)}
+                      className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                    >
+                      Show more
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  )}
+                  {showAllInsurances && remainingInsurances > 0 && (
+                    <button
+                      onClick={() => setShowAllInsurances(false)}
+                      className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                    >
+                      Show less
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </section>
+
+              <div className="-mx-6 lg:mx-0">
+                <Separator />
+              </div>
+
+              {/* Rating */}
+              <section>
+                <div className="flex items-center gap-3 mb-3">
+                  <Icons.star className="w-8 h-8 text-gray-700 fill-gray-700" />
+                  <div>
+                    <span className="text-3xl font-semibold text-gray-900">
+                      {averageRating.toFixed(1)}
+                    </span>
+                    <span className="text-xl text-gray-600"> ({totalRatings})</span>
+                  </div>
                 </div>
 
-                <Button className="cursor-pointer w-full bg-indigo-600! hover:bg-indigo-700! text-white! h-11 px-7 py-3">
-                  Book session
-                </Button>
+                {totalRatings === 0 && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-md">
+                    <p className="text-sm text-gray-600">
+                      This provider hasn&apos;t received any written reviews yet. We started
+                      collecting written reviews January 1, 2025.
+                    </p>
+                  </div>
+                )}
+              </section>
+            </div>
 
-                <button className="cursor-pointer w-full text-sm text-indigo-600 hover:text-indigo-700 font-medium text-center">
-                  See more availabilities
-                </button>
-              </CardContent>
-            </Card>
+            {/* Sticky Booking Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="sticky top-6">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-baseline justify-between mb-4">
+                    <h3 className="text-xl font-semibold text-gray-900">Book session</h3>
+                    <span className="text-sm text-gray-600">GMT-4 Timezone</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Insurance name
+                    </label>
+                    <Select value={selectedInsurance} onValueChange={setSelectedInsurance}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select insurance" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cash">Cash</SelectItem>
+                        {accepts.map((insurance) => (
+                          <SelectItem
+                            key={insurance}
+                            value={insurance.toLowerCase().replace(/\s+/g, "-")}
+                          >
+                            {insurance}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-3">
+                      Select a virtual session:
+                    </label>
+
+                    {/* Date Selector */}
+                    <div className="space-y-3">
+                      {availableSlots.map((slot, index) => (
+                        <div key={slot.date}>
+                          <button
+                            onClick={() => setSelectedDate(selectedDate === index ? -1 : index)}
+                            className="text-sm font-medium text-gray-700 mb-2 block w-full text-left hover:text-gray-900"
+                          >
+                            {slot.date}
+                          </button>
+
+                          {selectedDate === index && (
+                            <div className="grid grid-cols-3 gap-2 mb-3">
+                              {slot.times.map((time) => (
+                                <Button
+                                  key={time}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-sm font-normal"
+                                >
+                                  {time}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button className="cursor-pointer w-full bg-indigo-600! hover:bg-indigo-700! text-white! h-11 px-7 py-3">
+                    Book session
+                  </Button>
+
+                  <button className="cursor-pointer w-full text-sm text-indigo-600 hover:text-indigo-700 font-medium text-center">
+                    See more availabilities
+                  </button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      </div>
+        </Container>
+      </section>
 
       {/* About Therapist Modal */}
       <Dialog open={isSpecialtiesModalOpen} onOpenChange={setIsSpecialtiesModalOpen}>

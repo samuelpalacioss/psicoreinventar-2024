@@ -50,7 +50,7 @@ export default function Specialists() {
   return (
     <>
       <SearchTherapistsBar />
-      <main className='mx-auto max-w-7xl px-4 sm:px-6 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32'>
+      <main className='mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32'>
         <h1 className='font-semibold text-3xl md:text-7xl mb-8'>Specialists</h1>
 
         <div className='space-y-6'>

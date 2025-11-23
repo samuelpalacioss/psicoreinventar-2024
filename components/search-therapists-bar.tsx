@@ -55,7 +55,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
   return (
     <div className={cn("border-b bg-cream", className)}>
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-3 sm:py-6">
         {/* Logo Section */}
         <div className="mb-6">
           <div className="flex items-center">

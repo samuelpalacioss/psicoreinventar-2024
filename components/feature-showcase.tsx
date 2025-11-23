@@ -88,8 +88,8 @@ export default function FeatureShowcase() {
   }
 
   return (
-    <section id="feature-showcase" className="px-6 pt-16 sm:pt-24 pb-16 sm:pb-24">
-      <div className="max-w-6xl mx-auto">
+    <section id="feature-showcase" className="pt-16 sm:pt-24 pb-16 sm:pb-24">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 ">
         {/* Section Header */}
         <div className="max-w-3xl mb-12">
           <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">

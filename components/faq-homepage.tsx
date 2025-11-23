@@ -41,7 +41,7 @@ const faqItems = [
 
 export default function FAQHomepage() {
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="px-6 lg:px-8">
       <div className="text-center mb-12">
         <h2 className="text-3xl sm:text-4xl font-medium text-gray-800 mb-2">Frequently asked questions</h2>
         <p className="text-base sm:text-lg text-gray-600">

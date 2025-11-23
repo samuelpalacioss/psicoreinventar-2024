@@ -33,7 +33,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
     <Disclosure as="nav" className="border-b">
       {({ open }) => (
         <>
-          <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", className)}>
+          <div className={cn("mx-auto max-w-7xl px-6 lg:px-8", className)}>
             <div className="flex h-16 items-center justify-between">
               <div className="flex">
                 <div className="flex shrink-0">
@@ -169,12 +169,12 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                 {/* Mobile menu button - only show if not on dashboard */}
                 {!isOnDashboard && (
                   <div className="flex items-center md:hidden">
-                    <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+                    <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 -mr-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
-                        <XMarkIcon className="cursor-pointer block h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon className="cursor-pointer block h-7 w-7" aria-hidden="true" />
                       ) : (
-                        <Bars3Icon className="cursor-pointer block h-6 w-6" aria-hidden="true" />
+                        <Bars3Icon className="cursor-pointer block h-7 w-7" aria-hidden="true" />
                       )}
                     </DisclosureButton>
                   </div>

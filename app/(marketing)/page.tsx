@@ -28,7 +28,7 @@ export default function MarketingPage() {
           </div>
 
           <Container>
-            <div className="gap-x-6 lg:mx-0 sm:flex lg:max-w-none lg:items-center">
+            <div className="lg:mx-0 sm:flex lg:max-w-none lg:items-center">
               {/* Content */}
               <div className="w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl">
                 <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
