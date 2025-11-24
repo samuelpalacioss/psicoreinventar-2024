@@ -101,9 +101,9 @@ export default function TherapistDetail({
   return (
     <div className={cn(className)}>
       {/* Top info bar - Licensed to practice, Specializes in */}
-      <section className="py-6">
+      <section className="py-4 sm:py-6">
         <Container>
-          <div className="mb-6 pb-4 border-b flex flex-wrap gap-4 text-sm text-gray-700">
+          <div className="mb-0 sm:mb-6 pb-4 border-b flex flex-wrap gap-4 text-sm text-gray-700">
             <div className="flex items-center flex-wrap gap-1 text-xs sm:text-sm">
               <span className="text-gray-600">Specializes in</span>{" "}
               {specialties.slice(0, 3).map((specialty) => (
@@ -128,7 +128,7 @@ export default function TherapistDetail({
       </section>
 
       {/* Hero Section - Full Width */}
-      <section>
+      <section id="hero">
         <Container>
           <div className="space-y-8 mb-8">
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 relative">
@@ -647,9 +647,9 @@ export default function TherapistDetail({
           <div className="px-6 py-2 pb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Specialties</h3>
             <div className="flex flex-wrap gap-2">
-              {specialties.map((specialty) => (
+              {specialties.map((specialty, index) => (
                 <Badge
-                  key={specialty}
+                  key={`${specialty}-${index}`}
                   className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-2 px-3"
                 >
                   {specialty}
