@@ -172,7 +172,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   )}
                 </span>
               ) : (
-                'Find a provider'
+                'Find a therapist'
               )}
             </button>
             <Button
@@ -373,13 +373,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
         </DialogContent>
       </Dialog>
 
-      {/* Find a Provider Modal (Mobile Only) */}
+      {/* Find a Therapist Modal (Mobile Only) */}
 
       <Dialog open={isFindProviderModalOpen} onOpenChange={setIsFindProviderModalOpen}>
-        <DialogContent showCloseButton={false} className="h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col">
+        <DialogContent showCloseButton={false} className="fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col translate-x-0 translate-y-0 top-0 left-0">
           {/* Header */}
-          <div className="flex items-center justify-between border-b bg-white px-4 h-14 shrink-0">
-            <DialogTitle className="text-lg font-semibold">Find a provider</DialogTitle>
+          <div className="flex items-center justify-between border-b bg-white px-4 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+            <DialogTitle className="text-lg font-semibold">Find a therapist</DialogTitle>
             <button
               onClick={() => setIsFindProviderModalOpen(false)}
               className="rounded-md p-2 hover:bg-gray-100 transition-colors"
@@ -449,9 +449,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action button */}
-          <div className="border-t bg-white px-4 py-6 shrink-0">
+          <div className="border-t bg-white px-4 py-4 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
             <Button
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full text-base"
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full"
               onClick={() => setIsFindProviderModalOpen(false)}
             >
               Show results
