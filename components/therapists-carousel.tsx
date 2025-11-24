@@ -170,6 +170,7 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
         speed: 1,
         stopOnInteraction: false,
         stopOnMouseEnter: false,
+        stopOnFocusIn: false
       })
     ]
   );
