@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { MultiSelectDropdown } from "./multi-select-dropdown";
@@ -276,9 +277,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
       {/* Mobile More Filters Modal */}
       <Dialog open={isFiltersModalOpen} onOpenChange={setIsFiltersModalOpen}>
-        <DialogContent className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom">
+        <DialogContent showCloseButton={false} className="h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col">
           {/* Header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-3">
+          <div className="flex items-center justify-between border-b bg-white px-6 py-3 shrink-0">
             <DialogTitle className="text-xl font-semibold">More filters</DialogTitle>
             <button
               onClick={() => setIsFiltersModalOpen(false)}
@@ -290,24 +291,23 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 px-4 py-6">
+          <div className="overflow-y-auto flex-1 px-6 py-6 min-h-0">
             {/* Session Type Section */}
             <div className="mb-8">
               <h3 className="text-base font-semibold text-gray-900 mb-4">Session type</h3>
-              <div className="space-y-3">
-                {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
-                  <label
-                    key={type}
-                    className="flex items-center gap-3 cursor-pointer py-2"
-                  >
-                    <Checkbox
-                      checked={selectedSessionType === type}
-                      onCheckedChange={() => setSelectedSessionType(type)}
-                    />
-                    <span className="text-sm text-gray-700">{type}</span>
-                  </label>
-                ))}
-              </div>
+              <RadioGroup value={selectedSessionType} onValueChange={setSelectedSessionType}>
+                <div className="space-y-3">
+                  {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
+                    <label
+                      key={type}
+                      className="flex items-center gap-3 cursor-pointer py-2"
+                    >
+                      <RadioGroupItem value={type} id={`session-${type}`} />
+                      <span className="text-sm text-gray-700">{type}</span>
+                    </label>
+                  ))}
+                </div>
+              </RadioGroup>
             </div>
 
             {/* Therapy Type Section */}
@@ -350,7 +350,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action buttons */}
-          <div className="sticky bottom-0 border-t bg-white px-4 py-6 flex gap-3">
+          <div className="border-t bg-white px-6 py-6 flex gap-3 shrink-0">
             <Button
               variant="outline"
               className="flex-1 py-6"
@@ -376,7 +376,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
       {/* Find a Provider Modal (Mobile Only) */}
 
       <Dialog open={isFindProviderModalOpen} onOpenChange={setIsFindProviderModalOpen}>
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col">
+        <DialogContent showCloseButton={false} className="h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between border-b bg-white px-4 h-14 shrink-0">
             <DialogTitle className="text-lg font-semibold">Find a provider</DialogTitle>
@@ -390,7 +390,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Scrollable content */}
-          <div className="px-4 py-4">
+          <div className="overflow-y-auto flex-1 px-4 py-4 min-h-0">
             {/* Address Section */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -449,7 +449,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action button */}
-          <div className="mt-auto sticky bottom-0 border-t bg-white px-4 py-6 shrink-0">
+          <div className="border-t bg-white px-4 py-6 shrink-0">
             <Button
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full text-base"
               onClick={() => setIsFindProviderModalOpen(false)}
