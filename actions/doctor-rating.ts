@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/db";
+// import { prisma } from "@/lib/db";
 import { DoctorRatingSchema, DoctorRatingType } from "@/lib/validations/doctor-rating";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
@@ -19,13 +19,15 @@ export async function submitDoctorRating(data: DoctorRatingType) {
     }
 
     // Check if doctor exists
-    const doctorProfile = await prisma.doctorProfile.findUnique({
-      where: { id: validatedData.doctorProfileId },
-    });
+    // TODO: Replace with your database solution
+    // const doctorProfile = await prisma.doctorProfile.findUnique({
+    //   where: { id: validatedData.doctorProfileId },
+    // });
 
-    if (!doctorProfile) {
-      return { error: "Doctor not found." };
-    }
+    // if (!doctorProfile) {
+    //   return { error: "Doctor not found." };
+    // }
+    const doctorProfile = { userId: "" };
 
     // Check if rating is valid (1-5)
     if (validatedData.rating < 1 || validatedData.rating > 5) {
@@ -37,39 +39,40 @@ export async function submitDoctorRating(data: DoctorRatingType) {
     }
 
     // Check if user has already rated this doctor
-    const existingRating = await prisma.doctorRating.findUnique({
-      where: {
-        patientId_doctorProfileId: {
-          patientId: session.user.id!,
-          doctorProfileId: validatedData.doctorProfileId,
-        },
-      },
-    });
+    // TODO: Replace with your database solution
+    // const existingRating = await prisma.doctorRating.findUnique({
+    //   where: {
+    //     patientId_doctorProfileId: {
+    //       patientId: session.user.id!,
+    //       doctorProfileId: validatedData.doctorProfileId,
+    //     },
+    //   },
+    // });
 
-    if (existingRating) {
-      // Update existing rating
-      await prisma.doctorRating.update({
-        where: { id: existingRating.id },
-        data: {
-          rating: validatedData.rating,
-          comment: validatedData.comment,
-          updatedAt: new Date(),
-        },
-      });
+    // if (existingRating) {
+    //   // Update existing rating
+    //   await prisma.doctorRating.update({
+    //     where: { id: existingRating.id },
+    //     data: {
+    //       rating: validatedData.rating,
+    //       comment: validatedData.comment,
+    //       updatedAt: new Date(),
+    //     },
+    //   });
 
-      revalidatePath(`/find/${doctorProfile.userId}`);
-      return { success: "Rating updated successfully." };
-    }
+    //   revalidatePath(`/find/${doctorProfile.userId}`);
+    //   return { success: "Rating updated successfully." };
+    // }
 
-    // Create new rating
-    await prisma.doctorRating.create({
-      data: {
-        rating: validatedData.rating,
-        comment: validatedData.comment,
-        patientId: session.user.id!,
-        doctorProfileId: validatedData.doctorProfileId,
-      },
-    });
+    // // Create new rating
+    // await prisma.doctorRating.create({
+    //   data: {
+    //     rating: validatedData.rating,
+    //     comment: validatedData.comment,
+    //     patientId: session.user.id!,
+    //     doctorProfileId: validatedData.doctorProfileId,
+    //   },
+    // });
 
     revalidatePath(`/find/${doctorProfile.userId}`);
     return { success: "Rating submitted successfully." };
@@ -96,23 +99,25 @@ export async function submitDoctorRating(data: DoctorRatingType) {
 
 // Get average rating for a doctor
 export async function getDoctorAverageRating(doctorProfileId: string) {
+  // TODO: Replace with your database solution
   try {
-    const ratings = await prisma.doctorRating.findMany({
-      where: { doctorProfileId },
-      select: { rating: true },
-    });
+    // const ratings = await prisma.doctorRating.findMany({
+    //   where: { doctorProfileId },
+    //   select: { rating: true },
+    // });
 
-    if (ratings.length === 0) {
-      return { averageRating: 0, totalRatings: 0 };
-    }
+    // if (ratings.length === 0) {
+    //   return { averageRating: 0, totalRatings: 0 };
+    // }
 
-    const sum = ratings.reduce((acc: number, curr: { rating: number }) => acc + curr.rating, 0);
-    const average = sum / ratings.length;
+    // const sum = ratings.reduce((acc: number, curr: { rating: number }) => acc + curr.rating, 0);
+    // const average = sum / ratings.length;
 
-    return {
-      averageRating: parseFloat(average.toFixed(1)),
-      totalRatings: ratings.length,
-    };
+    // return {
+    //   averageRating: parseFloat(average.toFixed(1)),
+    //   totalRatings: ratings.length,
+    // };
+    return { averageRating: 0, totalRatings: 0 };
   } catch (error) {
     console.error("Error getting doctor average rating:", error);
     return { error: "Failed to get doctor rating." };
@@ -121,21 +126,23 @@ export async function getDoctorAverageRating(doctorProfileId: string) {
 
 // Get all ratings for a doctor
 export async function getDoctorRatings(doctorProfileId: string) {
+  // TODO: Replace with your database solution
   try {
-    const ratings = await prisma.doctorRating.findMany({
-      where: { doctorProfileId },
-      include: {
-        patient: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    // const ratings = await prisma.doctorRating.findMany({
+    //   where: { doctorProfileId },
+    //   include: {
+    //     patient: {
+    //       select: {
+    //         name: true,
+    //         image: true,
+    //       },
+    //     },
+    //   },
+    //   orderBy: { createdAt: "desc" },
+    // });
 
-    return { ratings };
+    // return { ratings };
+    return { ratings: [] };
   } catch (error) {
     console.error("Error getting doctor ratings:", error);
     return { error: "Failed to get doctor ratings." };

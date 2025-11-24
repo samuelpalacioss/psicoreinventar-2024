@@ -1,10 +1,11 @@
 'use server';
 
-import { prisma } from '@/lib/db';
+// import { prisma } from '@/lib/db';
 import { getUserByEmail } from '@/hooks/user';
 import { getDoctorRegisterTokenByToken } from '@/hooks/doctor-verification-token';
 
 export const newDoctorVerification = async (token: string) => {
+  // TODO: Replace with your database solution
   const existingToken = await getDoctorRegisterTokenByToken(token);
 
   if (!existingToken) {
@@ -29,14 +30,14 @@ export const newDoctorVerification = async (token: string) => {
     };
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { emailVerified: new Date(), email: existingToken.email },
-  });
+  // await prisma.user.update({
+  //   where: { id: user.id },
+  //   data: { emailVerified: new Date(), email: existingToken.email },
+  // });
 
-  await prisma.doctorRegisterToken.delete({
-    where: { id: existingToken.id },
-  });
+  // await prisma.doctorRegisterToken.delete({
+  //   where: { id: existingToken.id },
+  // });
 
   return { success: 'Email verified' };
 };

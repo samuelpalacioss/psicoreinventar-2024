@@ -4,31 +4,33 @@ import ButtonCheckout from '@/components/checkout-button';
 import DashboardContainer from '@/components/dashboard-container';
 import { DataTable } from '@/components/dashboard/data-table';
 import { columns } from '@/components/dashboard/columns';
-import { prisma } from '@/lib/db';
+// import { prisma } from '@/lib/db';
 import Container from '@/components/container';
 
 async function getPatients() {
-  const patients = await prisma.user.findMany({
-    where: {
-      role: 'patient',
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      isActive: true,
-    },
-  });
+  // TODO: Replace with your database solution
+  // const patients = await prisma.user.findMany({
+  //   where: {
+  //     role: 'patient',
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     email: true,
+  //     phone: true,
+  //     isActive: true,
+  //   },
+  // });
 
-  const patientsCoolId = patients.map((patient) => {
-    return {
-      ...patient,
-      id: patient.id.slice(0, 12), // First 12 chars
-    };
-  });
+  // const patientsCoolId = patients.map((patient) => {
+  //   return {
+  //     ...patient,
+  //     id: patient.id.slice(0, 12), // First 12 chars
+  //   };
+  // });
 
-  return patientsCoolId;
+  // return patientsCoolId;
+  return [];
 }
 
 export default async function AppointmentsPage() {

@@ -1,6 +1,13 @@
 'use client';
-import type { User } from '@prisma/client';
+// import type { User } from '@prisma/client';
 import { ColumnDef } from '@tanstack/react-table';
+
+type User = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  isActive: boolean;
+};
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {

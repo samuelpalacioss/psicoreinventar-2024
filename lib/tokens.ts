@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
-import { prisma } from '@/lib/db';
+// import { prisma } from '@/lib/db';
 import { getVerificationTokenByEmail } from '@/hooks/verification-token';
 import { getPasswordResetTokenByEmail } from '@/hooks/password-reset-token';
 import { getDoctorRegisterTokenByEmail } from '@/hooks/doctor-verification-token';
 
 export const generatePasswordResetToken = async (email: string) => {
+  // TODO: Replace with your database solution
   const token = uuidv4();
 
   // expires 60min
@@ -14,26 +15,28 @@ export const generatePasswordResetToken = async (email: string) => {
   const existingToken = await getPasswordResetTokenByEmail(email);
 
   if (existingToken) {
-    await prisma.passwordResetToken.delete({
-      where: {
-        id: existingToken.id,
-      },
-    });
+    // await prisma.passwordResetToken.delete({
+    //   where: {
+    //     id: existingToken.id,
+    //   },
+    // });
   }
 
   // Create new token
-  const passwordToken = await prisma.passwordResetToken.create({
-    data: {
-      email,
-      token,
-      expires: new Date(expires),
-    },
-  });
+  // const passwordToken = await prisma.passwordResetToken.create({
+  //   data: {
+  //     email,
+  //     token,
+  //     expires: new Date(expires),
+  //   },
+  // });
 
-  return passwordToken;
+  // return passwordToken;
+  return { email, token, expires: new Date(expires) };
 };
 
 export const generateVerificationToken = async (email: string) => {
+  // TODO: Replace with your database solution
   // generate 6 digit token (not starting with 0)
   const token = (Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000).toString();
 
@@ -44,26 +47,28 @@ export const generateVerificationToken = async (email: string) => {
   const existingToken = await getVerificationTokenByEmail(email);
 
   if (existingToken) {
-    await prisma.verificationToken.delete({
-      where: {
-        id: existingToken.id,
-      },
-    });
+    // await prisma.verificationToken.delete({
+    //   where: {
+    //     id: existingToken.id,
+    //   },
+    // });
   }
 
   // Create new token
-  const verificationToken = await prisma.verificationToken.create({
-    data: {
-      email,
-      token,
-      expires: new Date(expires),
-    },
-  });
+  // const verificationToken = await prisma.verificationToken.create({
+  //   data: {
+  //     email,
+  //     token,
+  //     expires: new Date(expires),
+  //   },
+  // });
 
-  return verificationToken;
+  // return verificationToken;
+  return { email, token, expires: new Date(expires) };
 };
 
 export const generateDoctorRegisterToken = async (email: string) => {
+  // TODO: Replace with your database solution
   const token = uuidv4();
 
   // expires 7 days
@@ -73,21 +78,22 @@ export const generateDoctorRegisterToken = async (email: string) => {
   const existingToken = await getDoctorRegisterTokenByEmail(email);
 
   if (existingToken) {
-    await prisma.doctorRegisterToken.delete({
-      where: {
-        id: existingToken.id,
-      },
-    });
+    // await prisma.doctorRegisterToken.delete({
+    //   where: {
+    //     id: existingToken.id,
+    //   },
+    // });
   }
 
   // Create new token
-  const verificationToken = await prisma.doctorRegisterToken.create({
-    data: {
-      email,
-      token,
-      expires: new Date(expires),
-    },
-  });
+  // const verificationToken = await prisma.doctorRegisterToken.create({
+  //   data: {
+  //     email,
+  //     token,
+  //     expires: new Date(expires),
+  //   },
+  // });
 
-  return verificationToken;
+  // return verificationToken;
+  return { email, token, expires: new Date(expires) };
 };

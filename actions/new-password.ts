@@ -1,12 +1,13 @@
 'use server';
 
-import { prisma } from '@/lib/db';
+// import { prisma } from '@/lib/db';
 import { getPasswordResetTokenByToken } from '@/hooks/password-reset-token';
 import { getUserByEmail } from '@/hooks/user';
 import { newPasswordSchema, newPasswordType } from '@/lib/validations/auth';
 import bcrypt from 'bcryptjs';
 
 export const newPassword = async (data: newPasswordType, token?: string | null) => {
+  // TODO: Replace with your database solution
   if (!token) {
     return { error: 'Missing token' };
   }
@@ -45,15 +46,15 @@ export const newPassword = async (data: newPasswordType, token?: string | null) 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   //* Update user password
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { password: hashedPassword },
-  });
+  // await prisma.user.update({
+  //   where: { id: user.id },
+  //   data: { password: hashedPassword },
+  // });
 
   //* Delete token
-  await prisma.passwordResetToken.delete({
-    where: { id: existingToken.id },
-  });
+  // await prisma.passwordResetToken.delete({
+  //   where: { id: existingToken.id },
+  // });
 
   return { success: "Password updated!" };
 };

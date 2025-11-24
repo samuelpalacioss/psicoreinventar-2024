@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+// import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { doctorSignUpSchema } from '@/lib/validations/doctor';
@@ -48,10 +48,13 @@ export async function POST(req: Request, res: Response) {
     }
 
     //! Check if email already exists
-    const emailAlreadyExists = await prisma.user.findUnique({
-      where: { email: email },
-    });
+    // TODO: Replace with your database solution
+    // const emailAlreadyExists = await prisma.user.findUnique({
+    //   where: { email: email },
+    // });
 
+    // if (emailAlreadyExists) {
+    const emailAlreadyExists = false;
     if (emailAlreadyExists) {
       return NextResponse.json(
         {
@@ -72,35 +75,37 @@ export async function POST(req: Request, res: Response) {
     const validatedData = doctorSignUpSchema.safeParse(body);
 
     if (validatedData.success) {
-      const user = await prisma.user.create({
-        data: {
-          name: validatedData.data.name,
-          email: validatedData.data.email,
-          phone: validatedData.data.phone,
-          password: hashedPassword,
-          role,
-          doctorProfile: {
-            create: {
-              licenseNumber: validatedData.data.licenseNumber,
-              experience: validatedData.data.experience,
-              graduationYear: validatedData.data.graduationYear,
-              education: validatedData.data.education,
-              specialties: {
-                connect: validatedData.data.specialties.map((specialty) => ({
-                  name: specialty.label,
-                })),
-              },
-              clientExpectations: validatedData.data.clientExpectations,
-              treatmentMethods: validatedData.data.treatmentMethods,
-              strengths: validatedData.data.strengths,
-              description: validatedData.data.description,
-            },
-          },
-        },
-      });
+      // TODO: Replace with your database solution
+      // const user = await prisma.user.create({
+      //   data: {
+      //     name: validatedData.data.name,
+      //     email: validatedData.data.email,
+      //     phone: validatedData.data.phone,
+      //     password: hashedPassword,
+      //     role,
+      //     doctorProfile: {
+      //       create: {
+      //         licenseNumber: validatedData.data.licenseNumber,
+      //         experience: validatedData.data.experience,
+      //         graduationYear: validatedData.data.graduationYear,
+      //         education: validatedData.data.education,
+      //         specialties: {
+      //           connect: validatedData.data.specialties.map((specialty) => ({
+      //             name: specialty.label,
+      //           })),
+      //         },
+      //         clientExpectations: validatedData.data.clientExpectations,
+      //         treatmentMethods: validatedData.data.treatmentMethods,
+      //         strengths: validatedData.data.strengths,
+      //         description: validatedData.data.description,
+      //       },
+      //     },
+      //   },
+      // });
 
-      //* Return user without password
-      const { password: userPassword, ...rest } = user;
+      // //* Return user without password
+      // const { password: userPassword, ...rest } = user;
+      const rest = { id: '', name: validatedData.data.name, email: validatedData.data.email };
 
       return NextResponse.json(
         {

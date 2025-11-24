@@ -1,7 +1,8 @@
-import { prisma } from '@/lib/db';
+// import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request, res: Response) {
+  // TODO: Replace with your database solution
   const body = await req.json();
 
   const { name } = body;
@@ -16,11 +17,12 @@ export async function POST(req: Request, res: Response) {
     );
   }
 
-  const specialty = await prisma.specialty.create({
-    data: {
-      name,
-    },
-  });
+  // const specialty = await prisma.specialty.create({
+  //   data: {
+  //     name,
+  //   },
+  // });
 
-  return NextResponse.json({ specialty });
+  // return NextResponse.json({ specialty });
+  return NextResponse.json({ specialty: { id: '', name } });
 }

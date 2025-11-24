@@ -3,7 +3,8 @@
 import { loginSchema, loginType } from "@/lib/validations/auth";
 import { signIn } from "@/auth";
 import { defaultLoginRedirectPatient, defaultLoginRedirectDoctor } from "@/config/routes";
-import { Role } from "@prisma/client";
+// import { Role } from "@prisma/client";
+type Role = "patient" | "doctor" | "admin";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/hooks/user";
@@ -54,7 +55,7 @@ export const login = async (data: loginType) => {
     }
 
     // Only re-send verification email for patients
-    if (existingUser.role === Role.patient) {
+    if (existingUser.role === "patient") {
       // Get first name of user
       const userFirstname = existingUser?.name?.split(" ")[0]!;
 
@@ -74,7 +75,7 @@ export const login = async (data: loginType) => {
   }
 
   try {
-    if (existingUser.role === Role.patient) {
+    if (existingUser.role === "patient") {
       await signIn("credentials", {
         email: data.email,
         password: data.password,
