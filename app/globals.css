@@ -52,6 +52,7 @@
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --animate-spin-slower: spin 6s linear infinite;
   --animate-blob: blob 7s infinite;
+  --animate-scroll-left: scroll-left 20s linear infinite;
 
   --breakpoint-2md: 850px;
 
@@ -94,6 +95,14 @@
     }
     100% {
       transform: translate(0px, 0px) scale(1);
+    }
+  }
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
     }
   }
 }

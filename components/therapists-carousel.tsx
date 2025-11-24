@@ -1,16 +1,9 @@
 "use client";
 
 import * as React from "react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import Image from "next/image";
-import Autoplay from "embla-carousel-autoplay";
-import Container from "./container";
+import useEmblaCarousel from "embla-carousel-react";
+import AutoScroll from "embla-carousel-auto-scroll";
 
 interface TherapistCard {
   id: string;
@@ -160,61 +153,65 @@ const getSizeClasses = (
   const config = SIZE_CONFIG[size] || SIZE_CONFIG.small;
   const offsetClass = OFFSET_CONFIG[offset || "none"];
   return {
-    item: `${config.width} shrink-0 grow-0 flex-none ${offsetClass}`,
+    item: `flex-[0_0_auto] min-w-0 ${config.width} ${offsetClass}`,
     container: `w-full ${config.height}`,
   };
 };
 
 export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: TherapistsCarouselProps) {
-  const plugin = React.useRef(
-    Autoplay({
-      delay: 3000,
-    })
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "start",
+      dragFree: true,
+    },
+    [
+      AutoScroll({
+        speed: 1,
+        stopOnInteraction: false,
+        stopOnMouseEnter: false,
+      })
+    ]
   );
 
   return (
-    <Carousel
-      opts={{
-        align: "start",
-        loop: true,
-        duration: 500,
-        watchDrag: false,
-      }}
-      plugins={[plugin.current]}
-      className="w-full"
-    >
-      <CarouselContent className="-ml-4">
-        {therapists.map((therapist) => {
+    <div className="w-full overflow-hidden" ref={emblaRef}>
+      <div className="flex touch-pan-y -ml-4">
+        {therapists.map((therapist, index) => {
           const sizeClasses = getSizeClasses(therapist.size, therapist.imageOffset);
 
           return (
-            <CarouselItem key={therapist.id} className={sizeClasses.item}>
-              <div
-                className={`group relative overflow-hidden rounded-xl bg-gray-900 ${sizeClasses.container}`}
-              >
-                <Image
-                  src={therapist.image}
-                  alt={therapist.name}
-                  width={therapist.width}
-                  height={therapist.height}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-sm sm:text-base font-semibold leading-tight">
-                    {therapist.name}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-200 mt-1 line-clamp-2">
-                    {therapist.description}
-                  </p>
+            <div
+              key={`${therapist.id}-${index}`}
+              className={sizeClasses.item}
+              style={{ transform: 'translate3d(0, 0, 0)' }}
+            >
+              <div className="pl-4">
+                <div
+                  className={`group relative overflow-hidden rounded-xl bg-gray-900 ${sizeClasses.container}`}
+                >
+                  <Image
+                    src={therapist.image}
+                    alt={therapist.name}
+                    width={therapist.width}
+                    height={therapist.height}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 className="text-sm sm:text-base font-semibold leading-tight">
+                      {therapist.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-200 mt-1 line-clamp-2">
+                      {therapist.description}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </CarouselItem>
+            </div>
           );
         })}
-      </CarouselContent>
-      <CarouselPrevious className="hidden" />
-      <CarouselNext className="hidden" />
-    </Carousel>
+      </div>
+    </div>
   );
 }
