@@ -222,7 +222,7 @@ export default function TherapistDetail({
       </section>
 
       {/* Content Grid with Sidebar */}
-      <section>
+      <section className="pb-28 lg:pb-0">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
@@ -494,8 +494,8 @@ export default function TherapistDetail({
               </section>
             </div>
 
-            {/* Sticky Booking Sidebar */}
-            <div className="lg:col-span-1">
+            {/* Sticky Booking Sidebar - Hidden on mobile */}
+            <div className="lg:col-span-1 hidden lg:block">
               <Card className="sticky top-6">
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-baseline justify-between mb-4">
@@ -573,6 +573,13 @@ export default function TherapistDetail({
           </div>
         </Container>
       </section>
+
+      {/* Mobile Sticky Footer - Only visible on mobile */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 border-t border-gray-400 bg-white px-4 py-6 z-50">
+        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full text-base">
+          Book session
+        </Button>
+      </div>
 
       {/* About Therapist Modal */}
       <Dialog open={isSpecialtiesModalOpen} onOpenChange={setIsSpecialtiesModalOpen}>
