@@ -23,6 +23,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState<boolean>(false);
   const [isFindProviderModalOpen, setIsFindProviderModalOpen] = useState<boolean>(false);
+  const [isNavigatingBetweenModals, setIsNavigatingBetweenModals] = useState<boolean>(false);
 
   // Individual field modals
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
@@ -158,6 +159,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
         <div className="flex flex-wrap items-center gap-3">
           {/* Mobile: Show current selections and "More" buttons */}
           <div className="flex gap-3 w-full md:hidden">
+            {/* Current selections or "Find a therapist" button */}
             <button
               onClick={() => setIsFindProviderModalOpen(true)}
               className="w-[60%] rounded-full border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left truncate"
@@ -279,7 +281,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
       <Dialog open={isFiltersModalOpen} onOpenChange={setIsFiltersModalOpen}>
         <DialogContent showCloseButton={false} className="fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col translate-x-0 translate-y-0 top-0 left-0">
           {/* Header */}
-          <div className="flex items-center justify-between border-b bg-white px-4 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+          <div className="flex items-center justify-between border-b bg-white px-6 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
             <DialogTitle className="text-lg font-semibold">More filters</DialogTitle>
             <button
               onClick={() => setIsFiltersModalOpen(false)}
@@ -291,7 +293,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 px-4 py-4 min-h-0">
+          <div className="overflow-y-auto flex-1 px-6 pt-4 min-h-0">
             {/* Session Type Section */}
             <div className="mb-6">
               <h3 className="text-base font-semibold text-gray-900 mb-3">Session type</h3>
@@ -330,7 +332,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Treatment Method Section */}
-            <div className="mb-6 pb-4">
+            <div className="mb-6">
               <h3 className="text-base font-semibold text-gray-900 mb-3">Treatment method</h3>
               <div className="space-y-2">
                 {["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"].map((method) => (
@@ -350,7 +352,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action buttons */}
-          <div className="border-t bg-white px-4 py-4 flex gap-3 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <div className="border-t bg-white px-6 py-4 flex gap-3 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
             <Button
               variant="outline"
               className="flex-1 h-12 rounded-full"
@@ -376,12 +378,19 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
       {/* Find a Therapist Modal (Mobile Only) */}
 
       <Dialog open={isFindProviderModalOpen} onOpenChange={setIsFindProviderModalOpen}>
-        <DialogContent showCloseButton={false} className="fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col translate-x-0 translate-y-0 top-0 left-0">
+        <DialogContent showCloseButton={false} className={cn(
+          "fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col translate-x-0 translate-y-0 top-0 left-0",
+          !isNavigatingBetweenModals && "data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
+          isNavigatingBetweenModals && "duration-0"
+        )}>
           {/* Header */}
-          <div className="flex items-center justify-between border-b bg-white px-4 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+          <div className="flex items-center justify-between border-b bg-white px-6 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
             <DialogTitle className="text-lg font-semibold">Find a therapist</DialogTitle>
             <button
-              onClick={() => setIsFindProviderModalOpen(false)}
+              onClick={() => {
+                setIsNavigatingBetweenModals(false);
+                setIsFindProviderModalOpen(false);
+              }}
               className="rounded-md p-2 hover:bg-gray-100 transition-colors"
               aria-label="Close"
             >
@@ -390,7 +399,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 px-4 py-4 min-h-0">
+          <div className="overflow-y-auto flex-1 px-6 py-4 min-h-0">
             {/* Address Section */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -398,10 +407,11 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               </label>
               <button
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setIsLocationModalOpen(true);
                   setIsFindProviderModalOpen(false);
                 }}
-                className="w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                className="w-full rounded-full border border-gray-300 bg-white px-6 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
               >
                 <span>{location}</span>
                 <ChevronDownIcon className="h-5 w-5 text-gray-500" />
@@ -415,10 +425,11 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               </label>
               <button
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setIsPaymentModalOpen(true);
                   setIsFindProviderModalOpen(false);
                 }}
-                className="w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                className="w-full rounded-full border border-gray-300 bg-white px-6 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
               >
                 <span>{paymentMethod}</span>
                 <ChevronDownIcon className="h-5 w-5 text-gray-500" />
@@ -432,11 +443,12 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               </label>
               <button
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setTempSelectedSpecialties(selectedSpecialties);
                   setIsSpecialtiesModalOpen(true);
                   setIsFindProviderModalOpen(false);
                 }}
-                className="w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                className="w-full rounded-full border border-gray-300 bg-white px-6 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
               >
                 <span>
                   {selectedSpecialties.length > 0
@@ -449,10 +461,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action button */}
-          <div className="border-t bg-white px-4 py-4 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <div className="border-t bg-white px-6 py-4 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
             <Button
               className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full"
-              onClick={() => setIsFindProviderModalOpen(false)}
+              onClick={() => {
+                setIsNavigatingBetweenModals(false);
+                setIsFindProviderModalOpen(false);
+              }}
             >
               Show results
             </Button>
@@ -462,12 +477,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
       {/* Location Selector Modal */}
       <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden">
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+            <div className="flex items-center gap-3 border-b bg-white px-6 py-3">
               <button
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setIsLocationModalOpen(false);
                   setIsFindProviderModalOpen(true);
                 }}
@@ -480,7 +496,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Search */}
-            <div className="px-4 pt-4 pb-3">
+            <div className="px-6 pt-4 pb-3">
               <div className="relative">
                 <MagnifyingGlassIcon className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
@@ -505,6 +521,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       setIsLocationModalOpen(false);
                       setIsFindProviderModalOpen(true);
                       setLocationSearch("");
+                      setTimeout(() => setIsNavigatingBetweenModals(false), 100);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -518,7 +535,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                     role="button"
                     tabIndex={0}
                     className={cn(
-                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
+                      "w-full px-6 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
                       location === loc ? "bg-indigo-100 text-gray-900" : "text-gray-700"
                     )}
                   >
@@ -532,12 +549,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
       {/* Payment Method Selector Modal */}
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden">
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+            <div className="flex items-center gap-3 border-b bg-white px-6 py-3">
               <button
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setIsPaymentModalOpen(false);
                   setIsFindProviderModalOpen(true);
                 }}
@@ -550,7 +568,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Search */}
-            <div className="px-4 pt-4 pb-3">
+            <div className="px-6 pt-4 pb-3">
               <div className="relative">
                 <MagnifyingGlassIcon className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
@@ -588,7 +606,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                     role="button"
                     tabIndex={0}
                     className={cn(
-                      "w-full px-4 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
+                      "w-full px-6 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
                       paymentMethod === method ? "bg-indigo-100 text-gray-900" : "text-gray-700"
                     )}
                   >
@@ -611,12 +629,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           setIsSpecialtiesModalOpen(open);
         }}
       >
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col">
+        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col duration-0">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-4 py-3 shrink-0">
+            <div className="flex items-center gap-3 border-b bg-white px-6 py-3 shrink-0">
               <button
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setSelectedSpecialties(tempSelectedSpecialties);
                   setIsSpecialtiesModalOpen(false);
                   setIsFindProviderModalOpen(true);
@@ -631,7 +650,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Search */}
-            <div className="px-4 pt-4 pb-3 shrink-0">
+            <div className="px-6 pt-4 pb-3 shrink-0">
               <div className="relative">
                 <MagnifyingGlassIcon className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
@@ -652,7 +671,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   <li key={spec}>
                     <label
                       className={cn(
-                        "flex items-center gap-3 cursor-pointer px-4 py-4 force-cursor-pointer",
+                        "flex items-center gap-3 cursor-pointer px-6 py-4 force-cursor-pointer",
                         tempSelectedSpecialties.includes(spec) ? "bg-indigo-50" : ""
                       )}
                     >
@@ -667,7 +686,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </ul>
 
             {/* Footer with action buttons - Fixed at bottom */}
-            <div className="mt-auto border-t bg-white px-4 pb-6 pt-4 space-y-3 shrink-0">
+            <div className="mt-auto border-t bg-white px-6 pb-6 pt-4 space-y-3 shrink-0">
               <Button
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full"
                 onClick={() => {
