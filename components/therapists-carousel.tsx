@@ -180,7 +180,14 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
 
   return (
     <div className="w-full overflow-hidden" ref={emblaRef}>
-      <div className="flex touch-pan-y -ml-4">
+      <div
+        className="flex touch-pan-y -ml-4"
+        style={{
+          backfaceVisibility: 'hidden',
+          transform: 'translateZ(0)',
+          willChange: 'transform'
+        }}
+      >
         {therapists.map((therapist, index) => {
           const sizeClasses = getSizeClasses(therapist.size, therapist.imageOffset);
 
@@ -188,11 +195,21 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
             <div
               key={`${therapist.id}-${index}`}
               className={sizeClasses.item}
-              style={{ transform: 'translate3d(0, 0, 0)' }}
+              style={{
+                transform: 'translate3d(0, 0, 0)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                perspective: 1000,
+                WebkitPerspective: 1000
+              }}
             >
               <div className="pl-4">
                 <div
                   className={`group relative overflow-hidden rounded-xl bg-gray-900 ${sizeClasses.container}`}
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
+                  }}
                 >
                   <Image
                     src={therapist.image}
@@ -200,6 +217,10 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
                     width={therapist.width}
                     height={therapist.height}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
