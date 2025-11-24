@@ -164,13 +164,16 @@ export function TherapistsCarousel({ therapists = DEFAULT_THERAPISTS }: Therapis
       loop: true,
       align: "start",
       dragFree: true,
+      watchDrag: false,
+      watchSlides: false,
     },
     [
       AutoScroll({
         speed: 1,
         stopOnInteraction: false,
         stopOnMouseEnter: false,
-        stopOnFocusIn: false
+        stopOnFocusIn: false,
+        playOnInit: true,
       })
     ]
   );
