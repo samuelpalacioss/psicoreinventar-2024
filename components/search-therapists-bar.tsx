@@ -517,15 +517,16 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   <li
                     key={loc}
                     onClick={() => {
+                      setIsNavigatingBetweenModals(true);
                       setLocation(loc);
                       setIsLocationModalOpen(false);
                       setIsFindProviderModalOpen(true);
                       setLocationSearch("");
-                      setTimeout(() => setIsNavigatingBetweenModals(false), 100);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
+                        setIsNavigatingBetweenModals(true);
                         setLocation(loc);
                         setIsLocationModalOpen(false);
                         setIsFindProviderModalOpen(true);
@@ -589,6 +590,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   <li
                     key={method}
                     onClick={() => {
+                      setIsNavigatingBetweenModals(true);
                       setPaymentMethod(method);
                       setIsPaymentModalOpen(false);
                       setIsFindProviderModalOpen(true);
@@ -597,6 +599,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
+                        setIsNavigatingBetweenModals(true);
                         setPaymentMethod(method);
                         setIsPaymentModalOpen(false);
                         setIsFindProviderModalOpen(true);
@@ -690,6 +693,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               <Button
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 rounded-full"
                 onClick={() => {
+                  setIsNavigatingBetweenModals(true);
                   setSelectedSpecialties(tempSelectedSpecialties);
                   setIsSpecialtiesModalOpen(false);
                   setIsFindProviderModalOpen(true);
