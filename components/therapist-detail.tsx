@@ -14,6 +14,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import SimpleNav from "./simple-nav";
 import Container from "./container";
+import ReviewCard, { ReviewCardProps } from "./review-card";
 
 // Extended interface based on TherapistCardProps
 export interface TherapistDetailProps {
@@ -45,6 +46,7 @@ export interface TherapistDetailProps {
   availableSlots: { date: string; times: string[] }[];
   nextAvailable?: string;
   personalityTraits?: string[]; // e.g., "Intelligent", "Solution oriented", "Warm"
+  reviews?: ReviewCardProps[];
   className?: string;
 }
 
@@ -71,6 +73,7 @@ export default function TherapistDetail({
   availableSlots = [],
   nextAvailable,
   personalityTraits = [],
+  reviews = [],
   className,
 }: TherapistDetailProps) {
   const [selectedInsurance, setSelectedInsurance] = useState("cash");
@@ -450,12 +453,42 @@ export default function TherapistDetail({
                   </div>
                 </div>
 
-                {totalRatings === 0 && (
+                <a
+                  href="#"
+                  className="text-sm text-gray-600 underline hover:text-gray-800 inline-block mb-6"
+                >
+                  Learn how ratings and reviews work
+                </a>
+
+                {totalRatings === 0 ? (
                   <div className="mt-4 p-4 bg-gray-50 rounded-md">
                     <p className="text-sm text-gray-600">
                       This provider hasn&apos;t received any written reviews yet. We started
                       collecting written reviews January 1, 2025.
                     </p>
+                  </div>
+                ) : (
+                  <div className="space-y-0">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                      {totalRatings} rating{totalRatings !== 1 ? "s" : ""} with written reviews
+                    </h3>
+
+                    {reviews.length > 0 ? (
+                      <div>
+                        {reviews.map((review, index) => (
+                          <ReviewCard
+                            key={index}
+                            {...review}
+                            therapistName={name}
+                            showSeparator={index < reviews.length - 1}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-6">
+                        <p className="text-sm text-gray-600">No reviews available yet.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </section>
@@ -659,7 +692,7 @@ export const sampleTherapistDetail: TherapistDetailProps = {
   ],
   yearsInPractice: 25,
   averageRating: 5.0,
-  totalRatings: 7,
+  totalRatings: 3,
   isVirtual: true,
   sessionPrice: 100,
   nextAvailable: "Tue, Nov 25",
@@ -720,6 +753,35 @@ Throughout my career, I have had the opportunity to work with diverse population
     {
       date: "mie, nov. 26",
       times: ["8:00 a. m.", "9:00 a. m.", "10:00 a. m.", "11:00 a. m.", "3:00 p. m.", "4:00 p. m."],
+    },
+  ],
+  reviews: [
+    {
+      clientInfo: "Verified client, age 45-54",
+      sessionNumber: 26,
+      therapistName: "Laura Savage",
+      rating: 5,
+      date: "April 2, 2025",
+      content:
+        "Laura has been incredibly supportive and understanding. Her approach to therapy is warm and professional. I've made significant progress in just a few months. She really listens and helps me see things from different perspectives.",
+    },
+    {
+      clientInfo: "Verified client, age 35-44",
+      sessionNumber: 12,
+      therapistName: "Laura Savage",
+      rating: 5,
+      date: "March 18, 2025",
+      content:
+        "I appreciate how Laura creates a safe space for me to express myself. Her expertise in trauma work has been invaluable. She's patient, empathetic, and always well-prepared for our sessions.",
+    },
+    {
+      clientInfo: "Verified client, age 25-34",
+      sessionNumber: 8,
+      therapistName: "Laura Savage",
+      rating: 4,
+      date: "March 5, 2025",
+      content:
+        "Good experience overall. Laura is knowledgeable and caring. Sometimes I wish the sessions were a bit longer, but the quality of care is excellent.",
     },
   ],
 };
