@@ -480,7 +480,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
         <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-6 py-3">
+            <div className="flex items-center gap-3 border-b bg-white px-6 py-4">
               <button
                 onClick={() => {
                   setIsNavigatingBetweenModals(true);
@@ -553,7 +553,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
         <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-6 py-3">
+            <div className="flex items-center gap-3 border-b bg-white px-6 py-4">
               <button
                 onClick={() => {
                   setIsNavigatingBetweenModals(true);
@@ -635,7 +635,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
         <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col duration-0">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-3 border-b bg-white px-6 py-3 shrink-0">
+            <div className="flex items-center gap-3 border-b bg-white px-6 py-4 shrink-0">
               <button
                 onClick={() => {
                   setIsNavigatingBetweenModals(true);
