@@ -277,10 +277,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
       {/* Mobile More Filters Modal */}
       <Dialog open={isFiltersModalOpen} onOpenChange={setIsFiltersModalOpen}>
-        <DialogContent showCloseButton={false} className="h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col">
+        <DialogContent showCloseButton={false} className="fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col translate-x-0 translate-y-0 top-0 left-0">
           {/* Header */}
-          <div className="flex items-center justify-between border-b bg-white px-6 py-3 shrink-0">
-            <DialogTitle className="text-xl font-semibold">More filters</DialogTitle>
+          <div className="flex items-center justify-between border-b bg-white px-4 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+            <DialogTitle className="text-lg font-semibold">More filters</DialogTitle>
             <button
               onClick={() => setIsFiltersModalOpen(false)}
               className="rounded-md p-2 hover:bg-gray-100 transition-colors"
@@ -291,12 +291,12 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 px-6 py-6 min-h-0">
+          <div className="overflow-y-auto flex-1 px-4 py-4 min-h-0">
             {/* Session Type Section */}
-            <div className="mb-8">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Session type</h3>
+            <div className="mb-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Session type</h3>
               <RadioGroup value={selectedSessionType} onValueChange={setSelectedSessionType}>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
                     <label
                       key={type}
@@ -311,9 +311,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Therapy Type Section */}
-            <div className="mb-8">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Therapy type</h3>
-              <div className="space-y-3">
+            <div className="mb-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Therapy type</h3>
+              <div className="space-y-2">
                 {["Talk therapy", "Couples therapy", "Teen therapy"].map((type) => (
                   <label
                     key={type}
@@ -330,9 +330,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             </div>
 
             {/* Treatment Method Section */}
-            <div className="mb-8">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Treatment method</h3>
-              <div className="space-y-3">
+            <div className="mb-6 pb-4">
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Treatment method</h3>
+              <div className="space-y-2">
                 {["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"].map((method) => (
                   <label
                     key={method}
@@ -350,10 +350,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action buttons */}
-          <div className="border-t bg-white px-6 py-6 flex gap-3 shrink-0">
+          <div className="border-t bg-white px-4 py-4 flex gap-3 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
             <Button
               variant="outline"
-              className="flex-1 py-6"
+              className="flex-1 h-12 rounded-full"
               onClick={() => {
                 setSelectedSessionType("Virtual");
                 setSelectedTherapyTypes([]);
@@ -364,7 +364,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               Clear all
             </Button>
             <Button
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-6"
+              className="flex-1 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full"
               onClick={() => setIsFiltersModalOpen(false)}
             >
               Show results
