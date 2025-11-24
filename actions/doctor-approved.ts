@@ -20,7 +20,7 @@ export const approveDoctor = async (email: string) => {
   }
 
   // Get  name of doctor
-  const doctorName = existingUser?.name;
+  const doctorName = (existingUser as any)?.name;
 
   //* Rate limiter
   const { success, reset } = await ratelimit.limit(email);

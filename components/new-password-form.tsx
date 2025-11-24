@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { Icons } from '@/components/icons';
 import { useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { newPassword } from '@/actions/new-password';
+// import { newPassword } from '@/actions/new-password';
 import FormsuccessMsg from './form-success-msg';
 import FormErrorMessage from './form-error-msg';
 import { cn } from '@/lib/utils';
@@ -28,32 +28,32 @@ export default function NewPasswordForm() {
   const token = searchParams.get('token');
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<newPasswordType>({
-    resolver: zodResolver(newPasswordSchema),
-    defaultValues: {
-      password: '',
-      confirmPassword: '',
-    },
-  });
+  // const form = useForm<newPasswordType>({
+  //   resolver: zodResolver(newPasswordSchema),
+  //   defaultValues: {
+  //     password: '',
+  //     confirmPassword: '',
+  //   },
+  // });
 
-  const {
-    formState: { errors },
-    setError,
-  } = form;
+  // const {
+  //   formState: { errors },
+  //   setError,
+  // } = form;
 
   const [errorMsg, setErrorMsg] = useState<string | undefined>('');
   const [successMsg, setSuccessMsg] = useState<string | undefined>('');
 
-  const onSubmit = async (data: newPasswordType) => {
+  const onSubmit = async (data: any) => {
     setErrorMsg('');
     setSuccessMsg('');
 
-    startTransition(() => {
-      newPassword(data, token).then((data) => {
-        setErrorMsg(data?.error);
-        setSuccessMsg(data?.success);
-      });
-    });
+    // startTransition(() => {
+    //   newPassword(data, token).then((data) => {
+    //     setErrorMsg(data?.error);
+    //     setSuccessMsg(data?.success);
+    //   });
+    // });
   };
 
   return (
@@ -63,9 +63,9 @@ export default function NewPasswordForm() {
         <CardDescription>Enter a new password for your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            <FormField
+        {/* <Form {...form}> */}
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit({}); }} className='space-y-4'>
+            {/* <FormField
               control={form.control}
               name='password'
               render={({ field }) => (
@@ -86,10 +86,10 @@ export default function NewPasswordForm() {
                   <FormControl>
                     <Input type='password' placeholder='********' disabled={isPending} {...field} />
                   </FormControl>
-                  <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                  <FormMessage className='text-[0.8rem]' />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormErrorMessage message={errorMsg} />
             <FormsuccessMsg message={successMsg} />
@@ -103,7 +103,7 @@ export default function NewPasswordForm() {
               </Link>
             </div>
           </form>
-        </Form>
+        {/* </Form> */}
       </CardContent>
     </Card>
   );

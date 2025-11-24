@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { signUpSchema, signUpType } from "@/lib/validations/auth";
+// import { signUpSchema, signUpType } from "@/lib/validations/auth";
 import Link from "next/link";
 import { Icons } from "./icons";
 import { useRouter } from "next/navigation";
@@ -31,8 +31,8 @@ export default function SignupForm() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [successMsg, setSuccessMsg] = useState<string>("");
 
-  const form = useForm<signUpType>({
-    resolver: zodResolver(signUpSchema),
+  const form = useForm<any>({
+    // resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -47,7 +47,7 @@ export default function SignupForm() {
     setError,
   } = form;
 
-  const onSubmit = async (data: signUpType) => {
+  const onSubmit = async (data: any) => {
     // Clear any previous error messages
     setErrorMsg("");
 

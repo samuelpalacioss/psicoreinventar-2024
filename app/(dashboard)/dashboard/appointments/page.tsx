@@ -1,11 +1,11 @@
 // import getProducts from '@/utilities/get-products';
 // import { Product } from '@/lib/validations/product';
-import ButtonCheckout from '@/components/checkout-button';
-import DashboardContainer from '@/components/dashboard-container';
-import { DataTable } from '@/components/dashboard/data-table';
-import { columns } from '@/components/dashboard/columns';
+// import ButtonCheckout from '@/components/checkout-button';
+// import DashboardContainer from '@/components/dashboard-container';
+// import { DataTable } from '@/components/dashboard/data-table';
+// import { columns } from '@/components/dashboard/columns';
 // import { prisma } from '@/lib/db';
-import Container from '@/components/container';
+// import Container from '@/components/container';
 
 async function getPatients() {
   // TODO: Replace with your database solution

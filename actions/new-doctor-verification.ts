@@ -14,7 +14,7 @@ export const newDoctorVerification = async (token: string) => {
     };
   }
 
-  const hasExpired = new Date(existingToken.expires) < new Date();
+  const hasExpired = new Date((existingToken as any).expires) < new Date();
 
   if (hasExpired) {
     return {
@@ -22,7 +22,7 @@ export const newDoctorVerification = async (token: string) => {
     };
   }
 
-  const user = await getUserByEmail(existingToken.email);
+  const user = await getUserByEmail((existingToken as any).email);
 
   if (!user) {
     return {

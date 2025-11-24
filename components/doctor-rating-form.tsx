@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { DoctorRatingSchema, DoctorRatingType } from "@/lib/validations/doctor-rating";
-import { submitDoctorRating } from "@/actions/doctor-rating";
+// import { submitDoctorRating } from "@/actions/doctor-rating";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,24 +32,25 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
   //   },
   // });
 
-  const {
-    formState: { errors },
-    setError,
-  } = form;
+  // const {
+  //   formState: { errors },
+  //   setError,
+  // } = form;
 
-  async function onSubmit(data: DoctorRatingType) {
+  async function onSubmit(data: any) {
     setIsSubmitting(true);
     setErrorMsg("");
     setSuccessMsg("");
 
     try {
-      const result = await submitDoctorRating(data);
+      // const result = await submitDoctorRating(data);
+      const result: any = { error: "Not implemented" };
 
       if (result.error) {
         setErrorMsg(result.error);
       } else if (result.success) {
         setSuccessMsg(result.success);
-        form.reset();
+        // form.reset();
         setSelectedRating(null);
 
         if (onSuccess) {
@@ -57,23 +58,23 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
         }
       }
 
-      if (result.errors) {
-        const errors = result.errors as Record<string, string>;
+      // if (result.errors) {
+      //   const errors = result.errors as Record<string, string>;
 
-        if (errors.rating) {
-          setError("rating", {
-            type: "server",
-            message: errors.rating,
-          });
-        } else if (errors.comment) {
-          setError("comment", {
-            type: "server",
-            message: errors.comment,
-          });
-        } else {
-          setErrorMsg("Something went wrong with your rating submission");
-        }
-      }
+      //   if (errors.rating) {
+      //     setError("rating", {
+      //       type: "server",
+      //       message: errors.rating,
+      //     });
+      //   } else if (errors.comment) {
+      //     setError("comment", {
+      //       type: "server",
+      //       message: errors.comment,
+      //     });
+      //   } else {
+      //     setErrorMsg("Something went wrong with your rating submission");
+      //   }
+      // }
     } catch (error) {
       setErrorMsg("Something went wrong. Please try again.");
     } finally {
@@ -83,12 +84,12 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
 
   const handleRatingClick = (rating: number) => {
     setSelectedRating(rating);
-    form.setValue("rating", rating);
+    // form.setValue("rating", rating);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    // <Form {...form}>
+      <form onSubmit={(e) => { e.preventDefault(); onSubmit({ rating: selectedRating, comment: "" }); }} className="space-y-4">
         <div className="space-y-2">
           <FormLabel>Your Rating</FormLabel>
           <div className="flex items-center space-x-1">
@@ -109,12 +110,12 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
               </button>
             ))}
           </div>
-          {form.formState.errors.rating && (
+          {/* {form.formState.errors.rating && (
             <p className="text-sm text-red-500">{form.formState.errors.rating.message}</p>
-          )}
+          )} */}
         </div>
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="comment"
           render={({ field }) => (
@@ -130,7 +131,7 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormErrorMessage message={errorMsg} />
         <FormSuccessMessage message={successMsg} />
@@ -139,6 +140,6 @@ export function DoctorRatingForm({ doctorProfileId, onSuccess }: DoctorRatingFor
           {isSubmitting ? "Submitting..." : "Submit Rating"}
         </Button>
       </form>
-    </Form>
+    // </Form>
   );
 }

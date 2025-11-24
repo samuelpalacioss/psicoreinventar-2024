@@ -516,3 +516,7 @@
 //     </div>
 //   );
 // }
+
+export default function RegisterDoctorForm({ specialties }: { specialties: any[] }) {
+  return <div>Register doctor form - to be implemented</div>;
+}

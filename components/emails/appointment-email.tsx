@@ -1,4 +1,4 @@
-import { Product } from '@/lib/validations/product';
+// import { Product } from '@/lib/validations/product';
 import {
   Body,
   Container,
@@ -22,7 +22,7 @@ interface ReceiptEmailProps {
   date: Date;
   appointmentId: string;
   patient: string;
-  product: Product;
+  product: any; // Product type to be redefined
 }
 
 export const ReceiptEmail = ({

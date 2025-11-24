@@ -1,7 +1,7 @@
 // import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   // TODO: Replace with your database solution
   const body = await req.json();
 

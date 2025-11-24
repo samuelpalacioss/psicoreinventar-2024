@@ -13,11 +13,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { resetPasswordSchema, resetPasswordType } from '@/lib/validations/auth';
+// import { resetPasswordSchema, resetPasswordType } from '@/lib/validations/auth';
 import Link from 'next/link';
 import { Icons } from '@/components/icons';
 import { useState, useTransition } from 'react';
-import { resetPassword } from '@/actions/reset-password';
+// import { resetPassword } from '@/actions/reset-password';
 import FormsuccessMsg from './form-success-msg';
 import FormErrorMessage from './form-error-msg';
 import { cn } from '@/lib/utils';
@@ -25,31 +25,31 @@ import { cn } from '@/lib/utils';
 export default function ResetPasswordForm() {
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<resetPasswordType>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: {
-      email: '',
-    },
-  });
+  // const form = useForm<resetPasswordType>({
+  //   resolver: zodResolver(resetPasswordSchema),
+  //   defaultValues: {
+  //     email: '',
+  //   },
+  // });
 
-  const {
-    formState: { errors },
-    setError,
-  } = form;
+  // const {
+  //   formState: { errors },
+  //   setError,
+  // } = form;
 
   const [errorMsg, setErrorMsg] = useState<string | undefined>('');
   const [successMsg, setSuccessMsg] = useState<string | undefined>('');
 
-  const onSubmit = async (data: resetPasswordType) => {
+  const onSubmit = async (data: any) => {
     setErrorMsg('');
     setSuccessMsg('');
 
-    startTransition(() => {
-      resetPassword(data).then((data) => {
-        setErrorMsg(data?.error);
-        setSuccessMsg(data?.success);
-      });
-    });
+    // startTransition(() => {
+    //   resetPassword(data).then((data) => {
+    //     setErrorMsg(data?.error);
+    //     setSuccessMsg(data?.success);
+    //   });
+    // });
   };
 
   return (
@@ -58,9 +58,9 @@ export default function ResetPasswordForm() {
         <CardTitle>Forgot your password?</CardTitle>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            <FormField
+        {/* <Form {...form}> */}
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit({}); }} className='space-y-4'>
+            {/* <FormField
               control={form.control}
               name='email'
               render={({ field }) => (
@@ -74,10 +74,10 @@ export default function ResetPasswordForm() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className='text-[0.8rem]' /> {/* Form error */}
+                  <FormMessage className='text-[0.8rem]' />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormErrorMessage message={errorMsg} />
             <FormsuccessMsg message={successMsg} />
@@ -91,7 +91,7 @@ export default function ResetPasswordForm() {
               </Link>
             </div>
           </form>
-        </Form>
+        {/* </Form> */}
       </CardContent>
     </Card>
   );

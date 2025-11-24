@@ -13,7 +13,7 @@ async function getSpecialties() {
 export default async function RegisterDoctorPage() {
   const specialties = await getSpecialties();
 
-  const options: Option[] = specialties.map((specialty) => ({
+  const options: Option[] = specialties.map((specialty: any) => ({
     label: specialty.name,
     value: specialty.name,
   }));
