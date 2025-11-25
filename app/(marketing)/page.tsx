@@ -236,7 +236,11 @@ export default function MarketingPage() {
       {/* FAQ - Standalone reference material (large top spacing already provided by CTA) */}
       <section id="faq" className="py-16 sm:py-24">
         <div className="max-w-4xl mx-auto">
-          <FAQHomepage />
+          <FAQHomepage
+            title="Frequently asked questions"
+            subtitle="Getting started with therapy is easier than you think."
+            faqItems={marketingConfig.homepageFAQ}
+          />
         </div>
       </section>
     </>

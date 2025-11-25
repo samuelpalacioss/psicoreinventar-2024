@@ -35,11 +35,28 @@ export type TestimonialItem = {
   body: string;
 };
 
+export type TherapistBenefitItem = {
+  title: string;
+  description: string;
+  icon: string;
+};
+
+export type FAQItem = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
 export type MarketingConfig = {
   mainNav: MainNavItem[];
   steps: StepItem[];
   stats: StatItem[];
   testimonials: TestimonialItem[];
+  therapistSteps: StepItem[];
+  therapistStats: StatItem[];
+  therapistBenefits: TherapistBenefitItem[];
+  therapistFAQ: FAQItem[];
+  homepageFAQ: FAQItem[];
 };
 
 export type SidebarNavItem = {

@@ -100,4 +100,116 @@ export const marketingConfig: MarketingConfig = {
       body: 'The service was very efficient. I schedule an appointment easily and the session was very helpful.',
     },
   ],
+  therapistSteps: [
+    {
+      title: "Create your profile",
+      description: "Share your expertise, credentials, and approach. Build a profile that showcases what makes you unique and helps clients feel confident choosing you.",
+      cta: "Get started"
+    },
+    {
+      title: "Set your availability",
+      description: "Control your schedule completely. Set your hours, manage appointments, and maintain the work-life balance that works for you.",
+      cta: "Learn more"
+    },
+    {
+      title: "Get matched with clients",
+      description: "Our algorithm connects you with clients who match your specialties and approach. No more marketing stress—we handle client acquisition.",
+      cta: "See how it works"
+    },
+    {
+      title: "Start sessions & get paid",
+      description: "Focus on what matters: helping your clients. We handle scheduling, payments, insurance, and all administrative tasks automatically.",
+      cta: "Join now"
+    }
+  ],
+  therapistStats: [
+    {
+      description: 'Save 10+ hours per month on administrative tasks',
+      value: '95%',
+    },
+    {
+      description: 'New clients in first 30 days',
+      value: '8',
+    },
+    {
+      description: 'Platform satisfaction rating',
+      value: '4.8/5',
+    },
+  ],
+  therapistBenefits: [
+    {
+      title: "Automated Scheduling",
+      description: "Calendar sync, instant booking, and automatic reminders. Clients book directly into your available slots, no back and forth needed.",
+      icon: "calendar"
+    },
+    {
+      title: "Payment Processing",
+      description: "Weekly direct deposits, automated invoicing, and insurance verification. Get paid on time, every time, with zero payment chase.",
+      icon: "creditCard"
+    },
+    {
+      title: "Client Management",
+      description: "Secure notes, session history, and progress tracking all in one centralized dashboard. Everything organized, nothing lost.",
+      icon: "users"
+    },
+    {
+      title: "Save Time",
+      description: "We can help you with progress tracking, making the process more visible and efficient.",
+      icon: "trendingUp"
+    }
+  ],
+  therapistFAQ: [
+    {
+      id: "item-1",
+      question: "How do I get paid?",
+      answer: "Payments are processed weekly via direct deposit. We handle all billing, insurance claims, and payment collection. You receive your earnings every Friday for sessions completed the previous week."
+    },
+    {
+      id: "item-2",
+      question: "What's the commission structure?",
+      answer: "We charge a competitive 10% platform fee. This covers payment processing, insurance verification, marketing, client matching, scheduling infrastructure, and ongoing support. No hidden fees."
+    },
+    {
+      id: "item-3",
+      question: "Can I set my own rates?",
+      answer: "Yes. You have complete control over your session rates. We provide guidance based on your credentials and location, but the final decision is always yours."
+    },
+    {
+      id: "item-4",
+      question: "How are clients matched to me?",
+      answer: "Our algorithm considers client needs, your specialties, availability, approach, and preferences."
+    },
+    {
+      id: "item-5",
+      question: "What support do you provide?",
+      answer: "We provide comprehensive onboarding, ongoing technical support and a dedicated therapist success team. You'll never feel alone on this platform."
+    }
+  ],
+  homepageFAQ: [
+    {
+      id: "item-1",
+      question: "What is Psicoreinventar?",
+      answer: "Psicoreinventar connects clients with professional therapists. We want to make therapy accessible to everyone and make it easier to find the right therapist.",
+    },
+    {
+      id: "item-2",
+      question: "How do I find the right therapist for me?",
+      answer: "The right therapist is one who ensures you feel safe and comfortable. We make it easy to find the right therapist. You can browse and filter our therapists based on your specific needs and preferences.",
+    },
+    {
+      id: "item-3",
+      question: "How are therapists verified?",
+      answer: "We conduct an intensive interview process to ensure our therapists have the skills, training, and experience to help you grow.",
+    },
+    {
+      id: "item-4",
+      question: "How much will it cost?",
+      answer: "Rates are equal for all therapists, the type of session varies the price.",
+    },
+    {
+      id: "item-5",
+      question: "How do I schedule an appointment?",
+      answer: "To schedule an appointment: Select your preferred session type, Choose a therapist that matches your needs, Pick an available time slot from their calendar and Complete the booking process. Once your payment is confirmed, you'll receive all the session details via email.",
+    },
+  ],
 };
