@@ -21,7 +21,7 @@ export const marketingConfig: MarketingConfig = {
         },
       ],
     },
-    { label: 'About', href: '/about' },
+    { label: 'About us', href: '/about-us' },
     { label: 'Resources', href: '/resources' },
     { label: 'For Therapists', href: '/for-therapists' },
   ],

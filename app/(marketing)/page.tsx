@@ -53,7 +53,7 @@ export default function MarketingPage() {
                       Get started
                     </Link>
                     <Link
-                      href="/#about"
+                      href="/#about-us"
                       className={cn(
                         buttonVariants({ variant: "outline", size: "lg" }),
                         "text-sm font-semibold group"
