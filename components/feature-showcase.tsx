@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Heart, Calendar, MessageCircle } from "lucide-react";
 
 // Feature data structure
@@ -83,9 +83,13 @@ export default function FeatureShowcase() {
   }, []);
 
   // Start auto-rotation on mount, stop on unmount
-  if (typeof window !== 'undefined' && !intervalRef.current) {
+  useEffect(() => {
     startAutoRotation();
-  }
+
+    return () => {
+      stopAutoRotation();
+    };
+  }, [startAutoRotation, stopAutoRotation]);
 
   return (
     <section id="feature-showcase" className="pt-16 sm:pt-24 pb-16 sm:pb-24">
