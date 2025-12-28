@@ -28,7 +28,7 @@ const faqs = [
     id: "item-4",
     question: "How do I know if therapy is working?",
     answer:
-      "You might notice small shifts first—feeling lighter after sessions, handling situations differently, or gaining new perspectives. Your therapist will regularly check in with you about progress and adjust the approach as needed.",
+      "You might notice small shifts first, feeling lighter after sessions, handling situations differently, or gaining new perspectives. Your therapist will regularly check in with you about progress and adjust the approach as needed.",
   },
   {
     id: "item-5",
@@ -123,7 +123,7 @@ export default function IndividualTherapyPage() {
                 <span className="absolute -bottom-1 left-0 w-24 h-0.5 bg-purple-300/60" />
               </h3>
               <p className="text-base sm:text-lg text-gray-600 leading-relaxed mt-4 font-light">
-                Career shifts, relationships, moves—navigate uncertainty with support.
+                Career shifts, relationships, moves, navigate uncertainty with support.
               </p>
             </div>
 
@@ -159,7 +159,7 @@ export default function IndividualTherapyPage() {
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed">
               Our therapists use evidence-based methods tailored to you. You don't need to know
-              which one is right—your therapist will help you figure that out together.
+              which one is right, your therapist will help you figure that out together.
             </p>
           </div>
 

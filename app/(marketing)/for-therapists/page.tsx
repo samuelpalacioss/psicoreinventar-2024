@@ -129,7 +129,7 @@ export default function ForTherapistsPage() {
                 Why therapists choose us
               </h2>
               <p className="text-base leading-relaxed text-gray-600">
-                We handle the business side so you can focus on what matters most—your clients.
+                We handle the business side so you can focus on what matters most, your clients.
               </p>
             </div>
 

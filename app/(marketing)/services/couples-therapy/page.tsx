@@ -10,13 +10,13 @@ const faqs = [
     id: "item-1",
     question: "Do both partners need to want therapy for it to work?",
     answer:
-      "Ideally, yes—but it's common for one partner to be more hesitant at first. Many couples find that once they start, both partners see the value. Your therapist can help create a safe space where both of you feel heard.",
+      "Ideally, yes, but it's common for one partner to be more hesitant at first. Many couples find that once they start, both partners see the value. Your therapist can help create a safe space where both of you feel heard.",
   },
   {
     id: "item-2",
     question: "What if we're not sure we want to stay together?",
     answer:
-      "That's okay. Couples therapy isn't just about staying together—it's about gaining clarity. Whether you decide to work on the relationship or part ways, therapy helps you do so with understanding and intention.",
+      "That's okay. Couples therapy isn't just about staying together, it's about gaining clarity. Whether you decide to work on the relationship or part ways, therapy helps you do so with understanding and intention.",
   },
   {
     id: "item-3",
@@ -55,7 +55,7 @@ export default function CouplesTherapyPage() {
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
               Couples therapy gives you both a space to be heard, understand each other more deeply,
-              and find new ways to connect—even when things feel stuck.
+              and find new ways to connect, even when things feel stuck.
             </p>
           </div>
         </Container>
@@ -122,7 +122,7 @@ export default function CouplesTherapyPage() {
                 <span className="absolute -bottom-1 left-0 w-24 h-0.5 bg-purple-300/60" />
               </h3>
               <p className="text-base sm:text-lg text-gray-600 leading-relaxed mt-4 font-light">
-                New baby, career changes, moving—navigate big shifts as a united team.
+                New baby, career changes, moving, navigate big shifts as a united team.
               </p>
             </div>
 
