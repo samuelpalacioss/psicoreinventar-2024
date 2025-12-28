@@ -65,8 +65,6 @@ export default function IndividualTherapyPage() {
 
       {/* Testimonial - Simple and elegant */}
       <section className="py-16 sm:py-24 relative">
-        <div className="absolute left-1/2 top-0 w-[400px] h-[300px] bg-gradient-to-b from-rose-50 to-transparent rounded-full blur-3xl opacity-50 -z-10 -translate-x-1/2" />
-
         <Container>
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 leading-relaxed mb-8">
@@ -86,9 +84,6 @@ export default function IndividualTherapyPage() {
 
       {/* What therapy helps with - Flowing, asymmetric layout */}
       <section className="py-16 sm:py-24 relative">
-        {/* Subtle background accent */}
-        <div className="absolute right-0 top-1/4 w-64 h-64 bg-gradient-to-l from-indigo-50 to-transparent rounded-full blur-2xl opacity-40" />
-
         <Container>
           <div className="max-w-3xl mb-16">
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light text-gray-900 mb-6 leading-tight">
