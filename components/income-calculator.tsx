@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "./ui/button";
 
 export default function IncomeCalculator() {
   const [sessionsPerWeek, setSessionsPerWeek] = useState([20]);
 
-  const averageRate = 75;
+  const averageRate = 40;
   const weeksPerMonth = 4;
 
   const calculateIncome = () => {
@@ -17,9 +18,7 @@ export default function IncomeCalculator() {
 
   return (
     <div className="bg-white rounded-xl p-8 lg:p-10 border border-gray-200 shadow-sm">
-      <h3 className="text-2xl font-normal text-gray-900 mb-8">
-        Earnings estimate
-      </h3>
+      <h3 className="text-2xl font-normal text-gray-900 mb-8">Earnings estimate</h3>
 
       <div className="space-y-8">
         <div>
@@ -42,25 +41,16 @@ export default function IncomeCalculator() {
         <div className="pt-6 border-t border-gray-200">
           <p className="text-sm text-gray-600 mb-3">Estimated annual earnings</p>
           <div className="mb-3">
-            <span className="text-5xl font-normal text-indigo-600">
-              ${calculateIncome()}
-            </span>
+            <span className="text-5xl font-normal text-indigo-600">${calculateIncome()}</span>
           </div>
           <p className="text-xs text-gray-500 leading-relaxed">
             Plus bonuses for engagement with new clients
           </p>
         </div>
 
-        <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+        <Button className="w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white p-6 rounded-lg font-medium transition-colors">
           Apply now
-        </button>
-
-        <button className="w-full text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center justify-center gap-1">
-          Learn how we estimate your earnings
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
+        </Button>
       </div>
     </div>
   );

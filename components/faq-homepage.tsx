@@ -1,4 +1,9 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { FAQItem } from "@/types";
 
 type FAQHomepageProps = {
@@ -11,14 +16,10 @@ export default function FAQHomepage({ title, subtitle, faqItems }: FAQHomepagePr
   return (
     <div className="px-6 lg:px-8">
       <div className="text-center mb-12">
-        <h2 className="text-3xl sm:text-4xl font-medium text-gray-800 mb-2">
+        <h2 className="text-4xl md:text-5xl text-gray-800 mb-2">
           {title || "Frequently asked questions"}
         </h2>
-        {subtitle && (
-          <p className="text-base sm:text-lg text-gray-600">
-            {subtitle}
-          </p>
-        )}
+        {subtitle && <p className="text-base sm:text-lg text-gray-600">{subtitle}</p>}
       </div>
       <Accordion type="multiple" className="w-full">
         {faqItems.map((item) => (
