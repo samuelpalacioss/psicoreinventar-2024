@@ -31,7 +31,7 @@ export default function MarketingPage() {
             <div className="lg:mx-0 sm:flex lg:max-w-none lg:items-center">
               {/* Content */}
               <div className="w-full max-w-xl lg:shrink-0 basis-4/6 xl:max-w-2xl">
-                <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+                <h1 className="text-4xl font-medium tracking-tight text-gray-900 sm:text-6xl">
                   Wellness starts with <span className="text-indigo-600">your mental health</span>
                 </h1>
 
