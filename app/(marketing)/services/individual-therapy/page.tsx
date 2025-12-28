@@ -44,8 +44,6 @@ export default function IndividualTherapyPage() {
       {/* Hero - Organic flowing design */}
       <section className="relative py-20 sm:py-32 mt-2">
         {/* Organic background blob */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-rose-50 via-pink-50 to-transparent rounded-full blur-3xl opacity-60 -z-10 animate-blob" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-indigo-50 via-purple-50 to-transparent rounded-full blur-3xl opacity-50 -z-10 animate-blob animation-delay-2000" />
 
         <Container>
           <div className="max-w-3xl">
@@ -57,7 +55,7 @@ export default function IndividualTherapyPage() {
               </span>{" "}
               alone
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl">
+            <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
               Individual therapy gives you a safe space to explore what's on your mind, work through
               challenges, and discover new ways forward.
             </p>
@@ -96,7 +94,7 @@ export default function IndividualTherapyPage() {
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light text-gray-900 mb-6 leading-tight">
               Whatever you're going through
             </h2>
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed font-light">
+            <p className="text-lg text-gray-600 leading-relaxed">
               Therapy isn't just for crisis moments. It's for anyone who wants to understand
               themselves better, work through something difficult, or grow in new directions.
             </p>
