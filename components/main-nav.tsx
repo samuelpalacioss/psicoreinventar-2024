@@ -101,7 +101,9 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                                   <div>
                                     <ul
                                       className={cn(
-                                        link.type === "description" ? "min-w-64 space-y-0.5" : "min-w-52 space-y-0.5"
+                                        link.type === "description"
+                                          ? "min-w-64 space-y-0.5"
+                                          : "min-w-52 space-y-0.5"
                                       )}
                                     >
                                       {link.items?.map((item, itemIndex) => (

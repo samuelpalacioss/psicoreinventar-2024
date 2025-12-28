@@ -9,7 +9,7 @@ export default function MarketingLayout({
 }>) {
   return (
     <div className={``}>
-      <header className="sticky top-0 bg-cream inset-x-0 z-10 ">
+      <header className="sticky top-0 bg-cream inset-x-0 z-50 ">
         <Navbar items={marketingConfig.mainNav} />
       </header>
 
