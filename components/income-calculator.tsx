@@ -17,7 +17,7 @@ export default function IncomeCalculator() {
   };
 
   return (
-    <div className="bg-white rounded-xl p-8 lg:p-10 border border-gray-200 shadow-sm">
+    <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-8 lg:p-10 border border-gray-200/50 shadow-sm">
       <h3 className="text-2xl font-normal text-gray-900 mb-8">Earnings estimate</h3>
 
       <div className="space-y-8">

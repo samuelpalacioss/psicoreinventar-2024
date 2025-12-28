@@ -101,11 +101,11 @@ export default function ForTherapistsPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
               {[
-                { value: "~500", label: "therapists in the network", color: "bg-emerald-100" },
-                { value: "15+", label: "specialties covered", color: "bg-blue-100" },
-                { value: "~75%", label: "work remotely", color: "bg-emerald-100" },
-                { value: "~40%", label: "bilingual therapists", color: "bg-blue-100" },
-                { value: "50", label: "states of licensure", color: "bg-emerald-100" },
+                { value: "~500", label: "therapists in the network", color: "bg-indigo-50" },
+                { value: "15+", label: "specialties covered", color: "bg-rose-50" },
+                { value: "~75%", label: "work remotely", color: "bg-purple-50" },
+                { value: "~40%", label: "bilingual therapists", color: "bg-pink-50" },
+                { value: "50", label: "states of licensure", color: "bg-indigo-50" },
               ].map((stat, index) => (
                 <div
                   key={index}
