@@ -55,7 +55,7 @@ export default function IndividualTherapyPage() {
               </span>{" "}
               alone
             </h1>
-            <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
               Individual therapy gives you a safe space to explore what's on your mind, work through
               challenges, and discover new ways forward.
             </p>
@@ -89,7 +89,7 @@ export default function IndividualTherapyPage() {
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light text-gray-900 mb-6 leading-tight">
               Whatever you're going through
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               Therapy isn't just for crisis moments. It's for anyone who wants to understand
               themselves better, work through something difficult, or grow in new directions.
             </p>
@@ -157,7 +157,7 @@ export default function IndividualTherapyPage() {
             <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-6">
               Different approaches, one goal
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               Our therapists use evidence-based methods tailored to you. You don't need to know
               which one is right, your therapist will help you figure that out together.
             </p>
@@ -210,7 +210,7 @@ export default function IndividualTherapyPage() {
             <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-4">
               Find someone who gets you
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               The right therapist makes all the difference. Browse our specialists and find someone
               whose approach and style feel right.
             </p>

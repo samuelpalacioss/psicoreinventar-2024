@@ -21,11 +21,11 @@ export default function MarketingPage() {
         {/* Hero - Standalone primary section with maximum impact */}
         <section id="hero" className="relative py-20 sm:py-32 overflow-hidden">
           {/* Subtle organic background elements */}
-          <div className="absolute inset-0 -z-10">
+          {/* <div className="absolute inset-0 -z-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
             <div className="absolute top-20 left-20 w-96 h-96 bg-purple-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
             <div className="absolute -bottom-8 left-1/2 w-96 h-96 bg-pink-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
-          </div>
+          </div> */}
 
           <Container>
             <div className="lg:mx-0 sm:flex lg:max-w-none lg:items-center">

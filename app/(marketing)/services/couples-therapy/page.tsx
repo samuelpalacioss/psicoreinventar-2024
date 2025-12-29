@@ -53,7 +53,7 @@ export default function CouplesTherapyPage() {
               </span>
               , you don't have to do it alone
             </h1>
-            <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
               Couples therapy gives you both a space to be heard, understand each other more deeply,
               and find new ways to connect, even when things feel stuck.
             </p>
@@ -87,7 +87,7 @@ export default function CouplesTherapyPage() {
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light text-gray-900 mb-6 leading-tight">
               Every relationship has its struggles
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               You don't need to be in crisis to benefit from couples therapy. It's for anyone who
               wants to strengthen their connection, work through challenges, or simply communicate
               better.
@@ -156,7 +156,7 @@ export default function CouplesTherapyPage() {
             <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-6">
               Approaches that bring you closer
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               Our therapists use proven methods designed specifically for couples. They'll help you
               find what works for your unique relationship.
             </p>
@@ -207,7 +207,7 @@ export default function CouplesTherapyPage() {
             <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-4">
               Find the right therapist for both of you
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               A couples therapist needs to connect with both partners. Browse our specialists and
               find someone you both feel comfortable with.
             </p>

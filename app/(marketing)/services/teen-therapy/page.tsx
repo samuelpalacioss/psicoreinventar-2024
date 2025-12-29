@@ -52,7 +52,7 @@ export default function TeenTherapyPage() {
                 <span className="absolute -bottom-2 left-0 pt-2 w-full h-2 bg-purple-300/40 -rotate-1 -z-10" />
               </span>
             </h1>
-            <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
               Teen therapy gives young people a safe space to talk about what's really going on,
               build coping skills, and navigate the challenges of growing up.
             </p>
@@ -84,7 +84,7 @@ export default function TeenTherapyPage() {
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light text-gray-900 mb-6 leading-tight">
               The teenage years bring unique challenges
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               Adolescence is a time of massive change, physically, emotionally, socially. Therapy
               helps teens make sense of it all and develop skills they'll carry into adulthood.
             </p>
@@ -155,7 +155,7 @@ export default function TeenTherapyPage() {
             <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-6">
               Therapy that meets teens where they are
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               Our therapists specialize in working with young people. They use approaches that
               resonate with teens and adapt to each individual's needs and communication style.
             </p>
@@ -208,7 +208,7 @@ export default function TeenTherapyPage() {
             <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-4">
               Find a therapist they'll connect with
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               The right fit matters, especially for teens. Browse our specialists who are
               experienced in working with young people and building trust.
             </p>
