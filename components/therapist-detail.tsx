@@ -134,7 +134,7 @@ export default function TherapistDetail({
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 relative">
               {/* Book Session CTA - Top Right */}
               <div className="absolute top-0 right-0 hidden lg:block">
-                <Button className="cursor-pointer bg-indigo-600! hover:bg-indigo-700! text-white! h-10 px-7 py-3">
+                <Button className="bg-indigo-600! hover:bg-indigo-700! text-white! h-10 px-7 py-3">
                   Book session
                 </Button>
               </div>
@@ -517,6 +517,7 @@ export default function TherapistDetail({
                           <SelectItem
                             key={insurance}
                             value={insurance.toLowerCase().replace(/\s+/g, "-")}
+                            className="cursor-pointer"
                           >
                             {insurance}
                           </SelectItem>
@@ -536,7 +537,7 @@ export default function TherapistDetail({
                         <div key={slot.date}>
                           <button
                             onClick={() => setSelectedDate(selectedDate === index ? -1 : index)}
-                            className="text-sm font-medium text-gray-700 mb-2 block w-full text-left hover:text-gray-900"
+                            className="cursor-pointer text-sm font-medium text-gray-700 mb-2 block w-full text-left hover:text-gray-900"
                           >
                             {slot.date}
                           </button>
@@ -560,13 +561,16 @@ export default function TherapistDetail({
                     </div>
                   </div>
 
-                  <Button className="cursor-pointer w-full bg-indigo-600! hover:bg-indigo-700! text-white! h-11 px-7 py-3">
+                  <Button className="w-full bg-indigo-600! hover:bg-indigo-700! text-white! h-11 px-7 py-3">
                     Book session
                   </Button>
 
-                  <button className="cursor-pointer w-full text-sm text-indigo-600 hover:text-indigo-700 font-medium text-center">
+                  <Button
+                    variant="link"
+                    className="w-full text-sm text-indigo-600 hover:text-indigo-700 font-medium text-center"
+                  >
                     See more availabilities
-                  </button>
+                  </Button>
                 </CardContent>
               </Card>
             </div>

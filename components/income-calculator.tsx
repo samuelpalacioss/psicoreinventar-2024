@@ -48,7 +48,7 @@ export default function IncomeCalculator() {
           </p>
         </div>
 
-        <Button className="w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white p-6 rounded-lg font-medium transition-colors">
+        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-lg font-medium transition-colors">
           Apply now
         </Button>
       </div>
