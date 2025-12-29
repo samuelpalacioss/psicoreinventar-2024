@@ -5,7 +5,7 @@ export default function AboutPage() {
     <>
       <main>
         {/* Hero Section */}
-        <section className="relative py-20 sm:py-32 overflow-hidden">
+        <section className="relative py-20 sm:py-32 mt-6 overflow-hidden">
           {/* Background blobs */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>

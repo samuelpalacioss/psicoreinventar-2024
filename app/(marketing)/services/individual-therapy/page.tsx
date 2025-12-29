@@ -42,7 +42,7 @@ export default function IndividualTherapyPage() {
   return (
     <main className="overflow-hidden">
       {/* Hero - Organic flowing design */}
-      <section className="relative py-20 sm:py-32 mt-2">
+      <section className="relative py-20 sm:py-32 mt-6">
         {/* Organic background blob */}
 
         <Container>
