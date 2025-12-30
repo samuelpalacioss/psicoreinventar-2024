@@ -14,7 +14,7 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
           <h1 className="text-2xl sm:text-3xl text-gray-900 mb-2 leading-tight">Welcome back!</h1>
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
               Sign up
             </Link>
           </p>
@@ -35,7 +35,7 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
                   </FieldLabel>
                   <Link
                     href="/reset-password"
-                    className="ml-auto text-sm text-gray-500 font-light hover:text-gray-700"
+                    className="ml-auto text-sm text-gray-500 font-medium hover:text-gray-700"
                   >
                     Forgot password?
                   </Link>
