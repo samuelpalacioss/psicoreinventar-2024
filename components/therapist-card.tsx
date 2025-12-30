@@ -1,10 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Calendar, CheckCircle2, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import TherapistCardActions from "./therapist-card-actions";
 import { Icons } from "./icons";
+import Link from "next/link";
 
 export interface TherapistCardProps {
   id: number;
@@ -44,6 +46,10 @@ export default function TherapistCard({
   const displayedSpecialties = specialties.slice(0, 3);
   const remainingCount = specialties.length - displayedSpecialties.length;
 
+  // Check if description is long enough to warrant a "Read more" link
+  // Using a character threshold as a proxy for content length
+  const shouldShowReadMore = description.length > 200;
+
   return (
     <Card className={cn("overflow-hidden", className)}>
       <CardContent className="p-6 space-y-6">
@@ -68,19 +74,31 @@ export default function TherapistCard({
 
           <div className="flex-1 space-y-5">
             <div className="text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-950 mb-3">
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">
                 {name}
                 {credentials && `, ${credentials}`}
               </h2>
-              <Badge className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
+              <Badge className="bg-indigo-200/40 text-indigo-600 hover:bg-indigo-200/40">
                 {category}
               </Badge>
             </div>
 
-            <p className="text-[15px] sm:text-base leading-relaxed text-gray-600 max-w-[780px]">{description}</p>
+            <div>
+              <p className={cn(
+                "text-[15px] sm:text-base leading-relaxed text-gray-600 max-w-[780px]",
+                shouldShowReadMore && "line-clamp-3"
+              )}>
+                {description}
+              </p>
+              {shouldShowReadMore && (
+                <Button variant="link" className="p-0 h-auto text-indigo-600 hover:text-indigo-700" asChild>
+                  <Link href="/therapist-demo">Read more</Link>
+                </Button>
+              )}
+            </div>
 
             <div>
-              <p className="text-gray-900 font-semibold text-base mb-3">Specialties</p>
+              <p className="text-gray-900 font-medium text-base mb-3">Specialties</p>
               <div className="flex flex-wrap gap-2">
                 {displayedSpecialties.map((specialty, index) => (
                   <Badge
