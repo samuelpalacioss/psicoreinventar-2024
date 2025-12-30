@@ -145,7 +145,7 @@ export default function MarketingPage() {
               </h2>
             </div>
             <div className="flex-1 max-w-xl flex flex-col md:items-start md:self-start">
-              <p className="text-lg leading-relaxed text-gray-600 mb-2">
+              <p className="text-base sm:text-lg leading-relaxed text-gray-600 mb-2">
                 Our therapists specialize in a wide range of specialties. Whatever you&apos;re
                 navigating, we&apos;re here to support you.
               </p>
