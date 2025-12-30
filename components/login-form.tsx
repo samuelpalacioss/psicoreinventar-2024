@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export default function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className={cn("flex flex-col w-full max-w-md", className)} {...props}>
+    <div className={cn("flex flex-col w-full max-w-sm sm:max-w-md", className)} {...props}>
       <Card className="w-full">
         <CardHeader>
           <h1 className="text-2xl sm:text-3xl text-gray-900 mb-2 leading-tight">Welcome back!</h1>
@@ -33,25 +33,25 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
                   <FieldLabel htmlFor="password" className="font-medium text-gray-900">
                     Password
                   </FieldLabel>
-                  <a
-                    href="#"
+                  <Link
+                    href="/reset-password"
                     className="ml-auto text-sm text-gray-500 font-light hover:text-gray-700"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <Input id="password" type="password" placeholder="********" required />
               </Field>
               <Field className="pt-2">
                 <Button type="submit" className="w-full">
-                  Login
+                  Sign in
                 </Button>
               </Field>
               <FieldSeparator>Or continue with</FieldSeparator>
               <Field>
                 <Button variant="outline" type="button" className="w-full">
                   <Icons.google className="h-5 w-5" />
-                  Login with Google
+                  Google
                 </Button>
               </Field>
             </FieldGroup>
