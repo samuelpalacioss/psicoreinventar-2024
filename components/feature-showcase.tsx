@@ -155,38 +155,30 @@ export default function FeatureShowcase() {
 
                     {/* Inline Mockup for Active Feature on Mobile */}
                     {isActive && (
-                      <div className="relative w-full mt-4">
-                        <div className="relative rounded-lg bg-gray-50/50 p-6 min-h-[388px]">
+                      <div className="relative w-full mt-6">
+                        <div className="relative p-4">
                           {/* Progress Tracking View */}
                           {activeFeature === 0 && (
-                            <div className="bg-white rounded-lg p-4">
-                              <div className="mb-3">
-                                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
-                                  How you&apos;re doing
+                            <div className="space-y-6">
+                              <div>
+                                <h3 className="relative inline-block text-xl sm:text-2xl font-light text-gray-900 mb-2">
+                                  How you&apos;re{" "}
+                                  <span className="relative inline-block">
+                                    <span className="relative z-10">doing</span>
+                                    <span className="absolute -bottom-0.5 left-0 w-full h-2 bg-rose-200/40 -rotate-1 -z-10" />
+                                  </span>
                                 </h3>
-                                <p className="text-xs text-gray-500">Small steps add up</p>
+                                <p className="text-sm text-gray-500 font-light">Small steps add up</p>
                               </div>
-                              <div className="space-y-2 pb-4">
+                              <div className="space-y-4">
                                 {mockupData[1].map((item, idx) => {
                                   return (
-                                    <div key={idx} className="relative pl-6">
-                                      {/* Simple connection line */}
-                                      {idx < mockupData[1].length - 1 && (
-                                        <div className="absolute left-2 top-5 w-px h-5 bg-gray-200" />
-                                      )}
-
-                                      {/* Simple dot */}
-                                      <div
-                                        className={`absolute left-0.5 top-1.5 w-3 h-3 rounded-full border-2 border-gray-300 ${
-                                          item.level === "managed" ? "bg-gray-700" : "bg-white"
-                                        }`}
-                                      />
-
-                                      <div className="pb-1">
-                                        <div className="flex items-baseline justify-between gap-2">
-                                          <p className="text-sm text-gray-700">{item.status}</p>
-                                          <p className="text-sm text-gray-400">{item.period}</p>
-                                        </div>
+                                    <div key={idx}>
+                                      <div className="flex items-baseline justify-between gap-3">
+                                        <p className={`text-base font-light ${item.level === "managed" ? "text-gray-900" : "text-gray-600"}`}>
+                                          {item.status}
+                                        </p>
+                                        <p className="text-sm text-gray-400 font-light">{item.period}</p>
                                       </div>
                                     </div>
                                   );
@@ -197,65 +189,80 @@ export default function FeatureShowcase() {
 
                           {/* Session Management View */}
                           {activeFeature === 1 && (
-                            <div>
-                              <div className="bg-white rounded-lg p-4">
-                                <h3 className="text-base sm:text-lg font-medium mb-3 text-gray-900">
-                                  Your Sessions
+                            <div className="space-y-6">
+                              <div>
+                                <h3 className="relative inline-block text-xl sm:text-2xl font-light text-gray-900 mb-2">
+                                  Your{" "}
+                                  <span className="relative inline-block">
+                                    <span className="relative z-10">sessions</span>
+                                    <span className="absolute -bottom-0.5 left-0 w-full h-2 bg-indigo-200/40 -rotate-1 -z-10" />
+                                  </span>
                                 </h3>
-                                <div className="space-y-2">
-                                  {mockupData[2].map((item, idx) => (
-                                    <div
-                                      key={idx}
-                                      className={`flex items-center justify-between p-3 rounded-lg ${item.status === "Upcoming" ? "bg-indigo-50/50" : "bg-gray-50/50"}`}
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-base sm:text-lg">{item.icon}</span>
+                                <p className="text-sm text-gray-500 font-light">All in one place</p>
+                              </div>
+                              <div className="space-y-4">
+                                {mockupData[2].map((item, idx) => {
+                                  return (
+                                    <div key={idx}>
+                                      <div className="flex items-baseline justify-between gap-3">
                                         <div>
-                                          <p className="font-medium text-gray-900 text-base sm:text-lg">
-                                            {item.therapist}
+                                          <p className={`text-base font-light ${item.status === "Upcoming" ? "text-gray-900" : "text-gray-600"}`}>
+                                            {item.status === "Upcoming" ? (
+                                              <span className="relative inline-block">{item.therapist}</span>
+                                            ) : (
+                                              item.therapist
+                                            )}
                                           </p>
-                                          <p className="text-xs text-gray-500">{item.time}</p>
+                                          <p className="text-sm text-gray-400 font-light mt-1">{item.time}</p>
                                         </div>
+                                        <span className={`text-sm font-light ${item.status === "Upcoming" ? "text-indigo-600" : "text-gray-400"}`}>
+                                          {item.status}
+                                        </span>
                                       </div>
-                                      <span
-                                        className={`text-xs px-2 py-1 rounded-full font-light ${item.status === "Upcoming" ? "bg-indigo-100/60 text-indigo-700" : "bg-gray-100/60 text-gray-600"}`}
-                                      >
-                                        {item.status}
-                                      </span>
                                     </div>
-                                  ))}
-                                </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
 
                           {/* Messaging View */}
                           {activeFeature === 2 && (
-                            <div>
-                              <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                <h3 className="text-base sm:text-lg font-medium mb-3 text-gray-900">
-                                  Messages
+                            <div className="space-y-6">
+                              <div>
+                                <h3 className="relative inline-block text-xl sm:text-2xl font-light text-gray-900 mb-2">
+                                  Stay{" "}
+                                  <span className="relative inline-block">
+                                    <span className="relative z-10">connected</span>
+                                    <span className="absolute -bottom-0.5 left-0 w-full h-2 bg-purple-200/40 -rotate-1 -z-10" />
+                                  </span>
                                 </h3>
-                                <div className="space-y-2 pb-2">
-                                  {mockupData[3].map((msg, idx) => (
+                                <p className="text-sm text-gray-500 font-light">Between sessions</p>
+                              </div>
+                              <div className="space-y-4">
+                                {mockupData[3].map((msg, idx) => {
+                                  const marginClasses = msg.sender === "You" ? "ml-8" : "ml-0";
+                                  return (
                                     <div
                                       key={idx}
-                                      className={`flex gap-2 ${msg.sender === "You" ? "justify-end" : "justify-start"}`}
+                                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                                        msg.sender === "You"
+                                          ? "bg-white text-gray-900 border border-gray-300"
+                                          : "bg-gray-100 text-gray-900"
+                                      } ${marginClasses}`}
                                     >
-                                      <div
-                                        className={`max-w-xs px-3 py-1.5 rounded-lg text-sm ${
-                                          msg.sender === "You"
-                                            ? "bg-purple-50/50 text-gray-900"
-                                            : "bg-gray-50/50 text-gray-900"
-                                        }`}
-                                      >
-                                        <p className="font-medium text-xs mb-1">{msg.sender}</p>
-                                        <p className="text-xs">{msg.message}</p>
-                                        <p className="text-xs opacity-70 mt-0.5">{msg.time}</p>
-                                      </div>
+                                      <p className="text-xs text-gray-600 font-medium mb-1">{msg.sender}</p>
+                                      <p className={`text-sm leading-relaxed font-light ${msg.sender === "You" ? "text-gray-600" : "text-gray-900"}`}>
+                                        {msg.sender === "Dr. Mitchell" && idx === 0 ? (
+                                          <>How are you feeling after our last session?</>
+                                        ) : (
+                                          msg.message
+                                        )}
+                                      </p>
+                                      <p className="text-xs text-gray-400 font-light mt-1">{msg.time}</p>
                                     </div>
-                                  ))}
-                                </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
