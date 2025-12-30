@@ -1,97 +1,73 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-// import { resetPasswordSchema, resetPasswordType } from '@/lib/validations/auth';
-import Link from 'next/link';
-import { Icons } from '@/components/icons';
-import { useState, useTransition } from 'react';
-// import { resetPassword } from '@/actions/reset-password';
-import FormsuccessMsg from './form-success-msg';
-import FormErrorMessage from './form-error-msg';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Icons } from "@/components/icons";
+import FormsuccessMsg from "./form-success-msg";
+import FormErrorMessage from "./form-error-msg";
+import { cn } from "@/lib/utils";
 
 export default function ResetPasswordForm() {
-  const [isPending, startTransition] = useTransition();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
-  // const form = useForm<resetPasswordType>({
-  //   resolver: zodResolver(resetPasswordSchema),
-  //   defaultValues: {
-  //     email: '',
-  //   },
-  // });
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+    setIsLoading(true);
 
-  // const {
-  //   formState: { errors },
-  //   setError,
-  // } = form;
-
-  const [errorMsg, setErrorMsg] = useState<string | undefined>('');
-  const [successMsg, setSuccessMsg] = useState<string | undefined>('');
-
-  const onSubmit = async (data: any) => {
-    setErrorMsg('');
-    setSuccessMsg('');
-
-    // startTransition(() => {
-    //   resetPassword(data).then((data) => {
-    //     setErrorMsg(data?.error);
-    //     setSuccessMsg(data?.success);
-    //   });
-    // });
+    try {
+      // TODO: Make POST request to API
+      console.log({ email });
+      setSuccessMsg("Reset email sent successfully");
+    } catch {
+      setErrorMsg("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Card className='w-[24rem]'>
+    <Card className="w-[24rem]">
       <CardHeader>
-        <CardTitle>Forgot your password?</CardTitle>
+        <CardTitle className="text-2xl text-gray-900 mb-2 font-medium leading-tight">
+          Forgot your password?
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {/* <Form {...form}> */}
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit({}); }} className='space-y-4'>
-            {/* <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='email'
-                      placeholder='jdoe@gmail.com'
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className='text-[0.8rem]' />
-                </FormItem>
-              )}
-            /> */}
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium text-gray-900">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+              required
+            />
+          </div>
 
-            <FormErrorMessage message={errorMsg} />
-            <FormsuccessMsg message={successMsg} />
-            <div className='flex flex-col gap-6'>
-              <Button disabled={isPending} type='submit' className='w-full'>
-                Send reset email
-              </Button>
-              <Link href='/login' className={cn(buttonVariants({ variant: 'link' }))}>
-                <Icons.chevronLeft className='mr-2 h-4 w-4' />
-                Back to login
-              </Link>
-            </div>
-          </form>
-        {/* </Form> */}
+          <FormErrorMessage message={errorMsg} />
+          <FormsuccessMsg message={successMsg} />
+          <div className="flex flex-col gap-6">
+            <Button disabled={isLoading} type="submit" className="w-full">
+              {isLoading ? "Sending..." : "Send reset email"}
+            </Button>
+            <Link href="/login" className={cn(buttonVariants({ variant: "link" }))}>
+              Back to login
+            </Link>
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
