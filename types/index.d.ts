@@ -1,5 +1,5 @@
-import { Icons } from '@/components/icons';
-import type { Icon } from '@/components/icons';
+import { Icons } from "@/components/icons";
+import type { Icon } from "@/components/icons";
 
 export type MainNavSubItem = {
   href: string;
@@ -64,7 +64,7 @@ export type SidebarNavItem = {
   disabled?: boolean;
   external?: boolean;
   href: string;
-  icon?: keyof typeof Icons;
+  icon?: Icon;
 };
 
 export type DashboardConfig = {

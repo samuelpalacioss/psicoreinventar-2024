@@ -1,32 +1,33 @@
-import { DashboardConfig } from '@/types';
+import { DashboardConfig } from "@/types";
+import { Icons } from "@/components/icons";
 
 export const dashboardConfig: DashboardConfig = {
   mainNav: [
     {
-      label: 'Overview',
-      href: '/dashboard',
+      label: "Overview",
+      href: "/dashboard",
     },
   ],
   sidebarNav: [
     {
-      title: 'Overview',
-      href: '/dashboard',
-      icon: 'command',
+      title: "Appointments",
+      href: "/dashboard/appointments",
+      icon: Icons.calendar,
     },
     {
-      title: 'Appointments',
-      href: '/dashboard/appointments',
-      icon: 'calendar',
+      title: "Payments",
+      href: "/dashboard/payments",
+      icon: Icons.creditCard,
     },
     {
-      title: 'Payments',
-      href: '/dashboard/payments',
-      icon: 'creditCard',
+      title: "Personal details",
+      href: "/dashboard/profile",
+      icon: Icons.user,
     },
     {
-      title: 'Settings',
-      href: '/dashboard/settings',
-      icon: 'settings',
+      title: "Progress",
+      href: "/dashboard/progress",
+      icon: Icons.heartHandshake,
     },
   ],
 };

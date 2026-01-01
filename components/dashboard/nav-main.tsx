@@ -1,9 +1,6 @@
 "use client";
 
-import { CirclePlus, Mail } from "lucide-react";
 import { Icon } from "@/components/icons";
-
-import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -17,7 +14,7 @@ export function NavMain({
 }: {
   items: {
     title: string;
-    url: string;
+    href: string;
     icon?: Icon;
   }[];
 }) {
@@ -27,7 +24,10 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} className="cursor-pointer">
+              <SidebarMenuButton
+                tooltip={item.title}
+                className="cursor-pointer [&>svg]:h-4.5! [&>svg]:w-4.5!"
+              >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
               </SidebarMenuButton>
