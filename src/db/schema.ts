@@ -59,6 +59,10 @@ export const dayOfWeekEnum = pgEnum("day_of_week", [
   "sunday",
 ]);
 
+export const conditionTypeEnum = pgEnum("condition_type", ["primary", "other"]);
+
+export const languageTypeEnum = pgEnum("language_type", ["native", "foreign"]);
+
 // ============================================================================
 // BASE TABLES
 // ============================================================================
@@ -147,6 +151,20 @@ export const phones = pgTable("Phone", {
   number: integer("number").notNull(),
 });
 
+// Condition
+export const conditions = pgTable("Condition", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: conditionTypeEnum("type").notNull(),
+});
+
+// Language
+export const languages = pgTable("Language", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: languageTypeEnum("type").notNull(),
+});
+
 // ============================================================================
 // SERVICE-RELATED TABLES
 // ============================================================================
@@ -198,6 +216,8 @@ export const progresses = pgTable("Progress", {
   personId: uuid("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
+  conditionId: uuid("condition_id")
+    .references(() => conditions.id, { onDelete: "set null" }),
   title: varchar("title", { length: 255 }).notNull(),
   level: varchar("level", { length: 100 }),
   notes: text("notes"),
@@ -246,6 +266,34 @@ export const doctorTreatmentMethods = pgTable(
       .references(() => treatmentMethods.id, { onDelete: "cascade" }),
   },
   (table) => [primaryKey({ columns: [table.doctorId, table.treatmentMethodId] })]
+);
+
+// Doctor - Condition (Many-to-Many)
+export const doctorConditions = pgTable(
+  "Doctor_Condition",
+  {
+    doctorId: uuid("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    conditionId: uuid("condition_id")
+      .notNull()
+      .references(() => conditions.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.doctorId, table.conditionId] })]
+);
+
+// Doctor - Language (Many-to-Many)
+export const doctorLanguages = pgTable(
+  "Doctor_Language",
+  {
+    doctorId: uuid("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    languageId: uuid("language_id")
+      .notNull()
+      .references(() => languages.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.doctorId, table.languageId] })]
 );
 
 
@@ -416,6 +464,8 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   schedules: many(schedules),
   doctorServices: many(doctorServices),
   doctorTreatmentMethods: many(doctorTreatmentMethods),
+  doctorConditions: many(doctorConditions),
+  doctorLanguages: many(doctorLanguages),
   ageGroups: many(ageGroups),
   appointments: many(appointments),
   payouts: many(payouts),
@@ -476,6 +526,10 @@ export const progressesRelations = relations(progresses, ({ one }) => ({
   person: one(persons, {
     fields: [progresses.personId],
     references: [persons.id],
+  }),
+  condition: one(conditions, {
+    fields: [progresses.conditionId],
+    references: [conditions.id],
   }),
 }));
 
@@ -570,5 +624,36 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   appointment: one(appointments, {
     fields: [reviews.appointmentId],
     references: [appointments.id],
+  }),
+}));
+
+export const conditionsRelations = relations(conditions, ({ many }) => ({
+  doctorConditions: many(doctorConditions),
+  progresses: many(progresses),
+}));
+
+export const languagesRelations = relations(languages, ({ many }) => ({
+  doctorLanguages: many(doctorLanguages),
+}));
+
+export const doctorConditionsRelations = relations(doctorConditions, ({ one }) => ({
+  doctor: one(doctors, {
+    fields: [doctorConditions.doctorId],
+    references: [doctors.id],
+  }),
+  condition: one(conditions, {
+    fields: [doctorConditions.conditionId],
+    references: [conditions.id],
+  }),
+}));
+
+export const doctorLanguagesRelations = relations(doctorLanguages, ({ one }) => ({
+  doctor: one(doctors, {
+    fields: [doctorLanguages.doctorId],
+    references: [doctors.id],
+  }),
+  language: one(languages, {
+    fields: [doctorLanguages.languageId],
+    references: [languages.id],
   }),
 }));
