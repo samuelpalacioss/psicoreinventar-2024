@@ -83,7 +83,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                     </Link>
                   )}
                 </div>
-                <div className="hidden md:ml-6 md:flex">
+                <div className="hidden lg:ml-6 lg:flex">
                   {/* Moving the dropdown menu further down to make it less intrusive */}
                   <NavigationMenu className="[&>div:last-child]:!mt-5">
                     <NavigationMenuList className="space-x-2">
@@ -144,7 +144,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                   </NavigationMenu>
                 </div>
               </div>
-              <div className="flex items-center gap-2 md:gap-4">
+              <div className="flex items-center gap-2 lg:gap-4">
                 {user ? (
                   <UserDropdown user={user} />
                 ) : (
@@ -159,7 +159,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                       href="/find"
                       className={cn(
                         buttonVariants({ variant: "default" }),
-                        "hidden md:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
+                        "hidden lg:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
                       )}
                     >
                       Find a therapist
@@ -168,7 +168,7 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                 )}
                 {/* Mobile menu button - only show if not on dashboard */}
                 {!isOnDashboard && (
-                  <div className="flex items-center md:hidden">
+                  <div className="flex items-center lg:hidden">
                     <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 -mr-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
@@ -184,10 +184,10 @@ export default function Navbar({ className, items, user, children }: NavbarProps
           </div>
           {/* Mobile menu */}
           {!isOnDashboard && (
-            <DisclosurePanel className="md:hidden" static>
+            <DisclosurePanel className="lg:hidden" static>
               <div
                 className={cn(
-                  "grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                  "grid transition-[grid-template-rows] duration-300 ease-in-out",
                   open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                 )}
               >
