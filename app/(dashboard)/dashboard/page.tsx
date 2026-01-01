@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/dashboard/data-table";
 import { SectionCards } from "@/components/dashboard/section-cards";
-import data from "@/app/dashboard/data.json";
+import data from "./data.json";
 
 export default function Page() {
   return (

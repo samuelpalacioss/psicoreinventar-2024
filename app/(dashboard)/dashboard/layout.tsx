@@ -3,8 +3,7 @@ import { cookies } from "next/headers";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { Separator } from "@/components/ui/separator";
-import "@/app/dashboard/theme.css";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import "./theme.css";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
