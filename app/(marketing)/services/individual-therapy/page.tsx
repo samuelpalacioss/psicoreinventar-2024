@@ -43,8 +43,6 @@ export default function IndividualTherapyPage() {
     <main className="overflow-hidden">
       {/* Hero - Organic flowing design */}
       <section className="relative py-20 sm:py-32 mt-6">
-        {/* Organic background blob */}
-
         <Container>
           <div className="max-w-3xl">
             <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-gray-900 mb-6">
