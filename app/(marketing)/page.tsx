@@ -112,7 +112,9 @@ export default function MarketingPage() {
               return (
                 <div
                   key={index}
-                  className={`space-y-4 ${index > 0 ? "md:border-l md:border-gray-300 md:pl-10 lg:pl-12" : ""}`}
+                  className={`space-y-4 ${
+                    index > 0 ? "md:border-l md:border-gray-300 md:pl-10 lg:pl-12" : ""
+                  }`}
                 >
                   <div className="text-6xl  font-normal text-gray-900 leading-none mb-2">
                     {stepNumber}
@@ -121,12 +123,6 @@ export default function MarketingPage() {
                     {step.title}
                   </h3>
                   <p className="text-base leading-relaxed text-gray-600">{step.description}</p>
-                  <Link
-                    href="/login"
-                    className="inline-block text-base font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors mt-2"
-                  >
-                    {step.cta}
-                  </Link>
                 </div>
               );
             })}

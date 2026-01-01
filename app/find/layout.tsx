@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/sonner";
 import Footer from "@/components/footer";
 
 export default function SpecialistsLayout({
@@ -10,7 +9,6 @@ export default function SpecialistsLayout({
     <div>
       {children}
       <Footer />
-      <Toaster />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { User } from 'next-auth';
+import { User } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 

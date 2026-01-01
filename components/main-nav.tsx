@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, buttonVariants } from "./ui/button";
-import { MainNavItem } from "@/types";
-import { User } from "next-auth";
+import { MainNavItem, User } from "@/types";
 import UserDropdown from "./user-dropdown";
 import {
   NavigationMenu,

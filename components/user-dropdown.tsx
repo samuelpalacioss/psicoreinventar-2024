@@ -7,12 +7,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User } from 'next-auth';
+import { User } from '@/types';
 import UserAvatar from './user-avatar';
 import Link from 'next/link';
 import { Icons } from './icons';
-import { signOut } from 'next-auth/react';
-import { MainNavItem } from '@/types';
 import { dashboardConfig } from '@/config/dashboard';
 
 interface UserDropdownProps {
@@ -54,9 +52,8 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
-            signOut({
-              callbackUrl: `${window.location.origin}/login`,
-            });
+            // TODO: Implement logout functionality
+            window.location.href = '/login';
           }}
           className='cursor-pointer'
         >

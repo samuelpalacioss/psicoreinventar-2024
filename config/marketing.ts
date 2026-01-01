@@ -30,19 +30,16 @@ export const marketingConfig: MarketingConfig = {
       title: "Tell us what you need",
       description:
         "Answer a few questions to help us understand your needs, preferences and goals, so you know exactly what to expect.",
-      cta: "Begin your journey",
     },
     {
       title: "Choose your therapist",
       description:
         "Filter therapists by specialty, availability, approach and identity. Find someone who truly fits you.",
-      cta: "Find your therapist",
     },
     {
       title: "Book and begin",
       description:
         "Book instantly online, schedule at a time that works for you. Begin your journey towards mental well-being.",
-      cta: "Get care this week",
     },
   ],
   stats: [
