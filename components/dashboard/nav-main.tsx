@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Icon } from "@/components/icons";
 import {
   SidebarGroup,
@@ -24,13 +25,15 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                className="cursor-pointer [&>svg]:h-4.5! [&>svg]:w-4.5!"
-              >
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
+              <Link href={item.href}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  className="cursor-pointer [&>svg]:h-4.5! [&>svg]:w-4.5!"
+                >
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
