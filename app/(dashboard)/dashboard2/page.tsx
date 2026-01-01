@@ -1,6 +1,6 @@
 // import getProducts from "@/utilities/get-products";
-import { DataTable } from "@/components/dashboard/data-table";
-import { columns } from "@/components/dashboard/columns";
+import { DataTable } from "@/components/dashboard2/data-table";
+import { columns } from "@/components/dashboard2/columns";
 // import { prisma } from "@/lib/db";
 // import { auth } from "@/auth";
 import ButtonRegisterDoctor from "@/components/button-register-doctor";
@@ -32,10 +32,8 @@ async function getPatients() {
 }
 
 export default async function DashboardPage() {
-  // const session = await auth();
   const clients = await getPatients();
-  // const products = await getProducts();
-  //console.log(session?.user);
+
   return (
     <div className="py-6 md:py-10 space-y-4">
       <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">Overview</h1>
