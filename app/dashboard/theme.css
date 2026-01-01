@@ -2,15 +2,15 @@ body {
     @apply overscroll-none bg-transparent;
   }
 
-  /* Fix sidebar overlay issue - make spacer always reserve space on desktop */
+  /* Allow sidebar to hide when collapsed on desktop */
   @media (min-width: 768px) {
-    /* Target the spacer div in sidebar to always reserve space */
-    .group.peer[data-side="left"] > div:first-child {
+    /* Only reserve space when sidebar is expanded */
+    .group.peer[data-side="left"][data-state="expanded"] > div:first-child {
       width: var(--sidebar-width) !important;
     }
 
-    /* Prevent sidebar from sliding off screen */
-    .group.peer[data-side="left"] > div:last-child {
+    /* Only keep sidebar visible when expanded */
+    .group.peer[data-side="left"][data-state="expanded"] > div:last-child {
       left: 0 !important;
     }
   }
