@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, buttonVariants } from "./ui/button";
@@ -184,93 +183,91 @@ export default function Navbar({ className, items, user, children }: NavbarProps
             </div>
           </div>
           {/* Mobile menu */}
-          {!isOnDashboard ? (
-            <AnimatePresence>
-              {open && (
-                <DisclosurePanel className="md:hidden overflow-hidden" static>
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: "auto" }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="pb-5 pt-2 px-2">
-                      <ul className="space-y-1">
-                        {items?.length &&
-                          items.map((item, index) => (
-                            <li key={index}>
-                              {item.submenu ? (
-                                <div className="mb-2">
-                                  {/* Submenu Category Label */}
-                                  <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                    {item.label}
-                                  </div>
-                                  {/* Submenu Items */}
-                                  <ul className="space-y-0.5 mt-1">
-                                    {item.items?.map((subItem, subIndex) => (
-                                      <li key={subIndex}>
-                                        <DisclosureButton
-                                          as={Link}
-                                          href={subItem.href}
-                                          className={cn(
-                                            "block px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                                            isActive(subItem.href)
-                                              ? "bg-indigo-50 text-indigo-700"
-                                              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                                          )}
-                                        >
-                                          {subItem.label}
-                                        </DisclosureButton>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ) : (
-                                <DisclosureButton
-                                  as={Link}
-                                  href={item.href || "#"}
-                                  className={cn(
-                                    "block px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
-                                    isActive(item.href || "")
-                                      ? "bg-indigo-50 text-indigo-700"
-                                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                                  )}
-                                >
+          {!isOnDashboard && (
+            <DisclosurePanel className="md:hidden" static>
+              <div
+                className={cn(
+                  "grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                  open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                )}
+              >
+                <div className="overflow-hidden">
+                  <div className="pb-5 pt-2 px-2">
+                    <ul className="space-y-1">
+                      {items?.length &&
+                        items.map((item, index) => (
+                          <li key={index}>
+                            {item.submenu ? (
+                              <div className="mb-2">
+                                {/* Submenu Category Label */}
+                                <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                                   {item.label}
-                                </DisclosureButton>
-                              )}
-                            </li>
-                          ))}
-                      </ul>
+                                </div>
+                                {/* Submenu Items */}
+                                <ul className="space-y-0.5 mt-1">
+                                  {item.items?.map((subItem, subIndex) => (
+                                    <li key={subIndex}>
+                                      <DisclosureButton
+                                        as={Link}
+                                        href={subItem.href}
+                                        className={cn(
+                                          "block px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                                          isActive(subItem.href)
+                                            ? "bg-indigo-50 text-indigo-700"
+                                            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                        )}
+                                      >
+                                        {subItem.label}
+                                      </DisclosureButton>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : (
+                              <DisclosureButton
+                                as={Link}
+                                href={item.href || "#"}
+                                className={cn(
+                                  "block px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
+                                  isActive(item.href || "")
+                                    ? "bg-indigo-50 text-indigo-700"
+                                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                )}
+                              >
+                                {item.label}
+                              </DisclosureButton>
+                            )}
+                          </li>
+                        ))}
+                    </ul>
 
-                      {/* Action Buttons Section */}
-                      {!user && (
-                        <div className="mt-4">
-                          <div className="space-y-2.5 px-1">
-                            {/* Log in button - Secondary style */}
-                            <Button
-                              asChild
-                              className="w-full h-10 text-sm font-medium bg-white hover:bg-gray-50 border border-gray-200 text-gray-900"
-                            >
-                              <Link href="/login">Log in</Link>
-                            </Button>
+                    {/* Action Buttons Section */}
+                    {!user && (
+                      <div className="mt-4">
+                        <div className="space-y-2.5 px-1">
+                          {/* Log in button - Secondary style */}
+                          <Button
+                            asChild
+                            className="w-full h-10 text-sm font-medium bg-white hover:bg-gray-50 border border-gray-200 text-gray-900"
+                          >
+                            <Link href="/login">Log in</Link>
+                          </Button>
 
-                            {/* Find a therapist button - Primary style */}
-                            <Button
-                              asChild
-                              className="w-full h-10 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white"
-                            >
-                              <Link href="/find">Find a therapist</Link>
-                            </Button>
-                          </div>
+                          {/* Find a therapist button - Primary style */}
+                          <Button
+                            asChild
+                            className="w-full h-10 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white"
+                          >
+                            <Link href="/find">Find a therapist</Link>
+                          </Button>
                         </div>
-                      )}
-                    </div>
-                  </motion.div>
-                </DisclosurePanel>
-              )}
-            </AnimatePresence>
-          ) : null}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </DisclosurePanel>
+          )}
         </>
       )}
     </Disclosure>
