@@ -12,18 +12,17 @@ import {
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import { dashboardConfig } from "@/config/dashboard";
+import { Role } from "@/types/enums";
 
 import Link from "next/link";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-};
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  userRole: Role;
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
+  const navItems = dashboardConfig.sidebarNav[userRole];
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -38,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={dashboardConfig.sidebarNav} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter></SidebarFooter>
     </Sidebar>

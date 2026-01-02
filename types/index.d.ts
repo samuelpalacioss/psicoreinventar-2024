@@ -1,5 +1,6 @@
 import { Icons } from "@/components/icons";
 import type { Icon } from "@/components/icons";
+import { Role } from "./enums";
 
 export type MainNavSubItem = {
   href: string;
@@ -69,7 +70,7 @@ export type SidebarNavItem = {
 
 export type DashboardConfig = {
   mainNav: MainNavItem[];
-  sidebarNav: SidebarNavItem[];
+  sidebarNav: Record<Role, SidebarNavItem[]>;
 };
 
 export type User = {

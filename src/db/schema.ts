@@ -19,7 +19,7 @@ import { relations } from "drizzle-orm";
 // ENUMS
 // ============================================================================
 
-export const userRoleEnum = pgEnum("user_role", ["patient", "therapist", "admin"]);
+export const userRoleEnum = pgEnum("user_role", ["patient", "doctor", "admin"]);
 
 export const appointmentStatusEnum = pgEnum("appointment_status", [
   "scheduled",
@@ -216,8 +216,7 @@ export const progresses = pgTable("Progress", {
   personId: uuid("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
-  conditionId: uuid("condition_id")
-    .references(() => conditions.id, { onDelete: "set null" }),
+  conditionId: uuid("condition_id").references(() => conditions.id, { onDelete: "set null" }),
   title: varchar("title", { length: 255 }).notNull(),
   level: varchar("level", { length: 100 }),
   notes: text("notes"),
@@ -295,7 +294,6 @@ export const doctorLanguages = pgTable(
   },
   (table) => [primaryKey({ columns: [table.doctorId, table.languageId] })]
 );
-
 
 // ============================================================================
 // PAYMENT METHOD - SUPERTYPE WITH SUBTYPES (Single Table Inheritance)

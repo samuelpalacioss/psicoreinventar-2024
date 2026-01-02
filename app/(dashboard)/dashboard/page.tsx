@@ -12,15 +12,15 @@ export default function Page() {
   const greeting = role === "doctor" ? `Hello doc ${name}` : `Hello my friend ${name}`;
 
   return (
-    <DashboardContainer>
-      <div className="max-w-3xl">
-        <h1 className="text-3xl sm:text-4xl font-light text-gray-900 leading-tight">{greeting}</h1>
-        <p className="mt-4 text-base sm:text-lg text-gray-600 font-light leading-relaxed">
-          {role === "doctor"
-            ? "Welcome back to your practice dashboard."
-            : "Welcome back to your wellness journey."}
-        </p>
-      </div>
+    <DashboardContainer
+      title={greeting}
+      description={
+        role === "doctor"
+          ? "Welcome back to your practice dashboard."
+          : "Welcome back to your wellness journey."
+      }
+    >
+      <span>holaaaa</span>
     </DashboardContainer>
   );
 }

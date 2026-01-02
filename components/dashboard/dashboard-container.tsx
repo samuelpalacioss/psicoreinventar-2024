@@ -26,7 +26,7 @@ export function DashboardContainer({ title, description, children }: DashboardCo
         )}
 
         {/* Content area */}
-        <div className="px-4 lg:px-6">{children}</div>
+        <div className="px-6 lg:px-12">{children}</div>
       </div>
     </div>
   );
