@@ -1,7 +1,7 @@
 import {
   pgTable,
   pgEnum,
-  uuid,
+  serial,
   varchar,
   text,
   integer,
@@ -12,8 +12,9 @@ import {
   decimal,
   smallint,
   primaryKey,
+  check,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 // ============================================================================
 // ENUMS
@@ -24,10 +25,8 @@ export const userRoleEnum = pgEnum("user_role", ["patient", "doctor", "admin"]);
 export const appointmentStatusEnum = pgEnum("appointment_status", [
   "scheduled",
   "confirmed",
-  "in_progress",
   "completed",
   "cancelled",
-  "no_show",
 ]);
 
 export const institutionTypeEnum = pgEnum("institution_type", [
@@ -69,7 +68,7 @@ export const languageTypeEnum = pgEnum("language_type", ["native", "foreign"]);
 
 // User
 export const users = pgTable("User", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(), // Encrypted
   role: userRoleEnum("role").notNull(),
@@ -79,17 +78,17 @@ export const users = pgTable("User", {
 
 // Place (Based on search API)
 export const places = pgTable("Place", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   type: varchar("type", { length: 100 }).notNull(), // city, state, country, etc.
 });
 
 // Institution
 export const institutions = pgTable("Institution", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   type: institutionTypeEnum("type").notNull(),
-  placeId: uuid("place_id")
+  placeId: integer("place_id")
     .notNull()
     .references(() => places.id),
   isVerified: boolean("is_verified").default(false),
@@ -97,8 +96,8 @@ export const institutions = pgTable("Institution", {
 
 // Person (Patient)
 export const persons = pgTable("Person", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -109,7 +108,7 @@ export const persons = pgTable("Person", {
   secondLastName: varchar("second_last_name", { length: 100 }),
   birthDate: date("birth_date").notNull(),
   address: varchar("address", { length: 500 }).notNull(),
-  placeId: uuid("place_id")
+  placeId: integer("place_id")
     .notNull()
     .references(() => places.id),
   isActive: boolean("is_active").default(true),
@@ -119,8 +118,8 @@ export const persons = pgTable("Person", {
 
 // Doctor (Therapist)
 export const doctors = pgTable("Doctor", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -131,7 +130,7 @@ export const doctors = pgTable("Doctor", {
   secondLastName: varchar("second_last_name", { length: 100 }),
   birthDate: date("birth_date").notNull(),
   address: varchar("address", { length: 500 }).notNull(),
-  placeId: uuid("place_id")
+  placeId: integer("place_id")
     .notNull()
     .references(() => places.id),
   biography: text("biography").notNull(),
@@ -143,26 +142,34 @@ export const doctors = pgTable("Doctor", {
 });
 
 // Phone
-export const phones = pgTable("Phone", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  personId: uuid("person_id").references(() => persons.id, { onDelete: "cascade" }),
-  doctorId: uuid("doctor_id").references(() => doctors.id, { onDelete: "cascade" }),
-  areaCode: integer("area_code").notNull(),
-  number: integer("number").notNull(),
-});
+export const phones = pgTable(
+  "Phone",
+  {
+    id: serial("id").primaryKey(),
+    personId: integer("person_id").references(() => persons.id, { onDelete: "cascade" }),
+    doctorId: integer("doctor_id").references(() => doctors.id, { onDelete: "cascade" }),
+    areaCode: integer("area_code").notNull(),
+    number: integer("number").notNull(),
+  },
+  (table) => [
+    // Ensure exactly one of personId or doctorId is set, not both
+    check(
+      "phone_owner_check",
+      sql`(${table.personId} IS NOT NULL AND ${table.doctorId} IS NULL) OR (${table.personId} IS NULL AND ${table.doctorId} IS NOT NULL)`
+    ),
+  ]
+);
 
 // Condition
 export const conditions = pgTable("Condition", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  type: conditionTypeEnum("type").notNull(),
 });
 
 // Language
 export const languages = pgTable("Language", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  type: languageTypeEnum("type").notNull(),
 });
 
 // ============================================================================
@@ -171,7 +178,7 @@ export const languages = pgTable("Language", {
 
 // Service
 export const services = pgTable("Service", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: varchar("description", { length: 500 }).notNull(),
   duration: integer("duration").default(45).notNull(), // In minutes
@@ -179,15 +186,15 @@ export const services = pgTable("Service", {
 
 // Treatment Method
 export const treatmentMethods = pgTable("Treatment_Method", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
 });
 
 // Age Group
 export const ageGroups = pgTable("Age_Group", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  doctorId: uuid("doctor_id")
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 50 }).notNull(), // Children, Teenagers, Adults
@@ -197,11 +204,11 @@ export const ageGroups = pgTable("Age_Group", {
 
 // Education
 export const educations = pgTable("Education", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  doctorId: uuid("doctor_id")
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
-  institutionId: uuid("institution_id")
+  institutionId: integer("institution_id")
     .notNull()
     .references(() => institutions.id),
   degree: varchar("degree", { length: 100 }).notNull(), // MSc, PhD, Diploma, etc.
@@ -212,11 +219,11 @@ export const educations = pgTable("Education", {
 
 // Progress
 export const progresses = pgTable("Progress", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  personId: uuid("person_id")
+  id: serial("id").primaryKey(),
+  personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
-  conditionId: uuid("condition_id").references(() => conditions.id, { onDelete: "set null" }),
+  conditionId: integer("condition_id").references(() => conditions.id, { onDelete: "set null" }),
   title: varchar("title", { length: 255 }).notNull(),
   level: varchar("level", { length: 100 }),
   notes: text("notes"),
@@ -225,8 +232,8 @@ export const progresses = pgTable("Progress", {
 
 // Schedule
 export const schedules = pgTable("Schedule", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  doctorId: uuid("doctor_id")
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
   day: dayOfWeekEnum("day").notNull(),
@@ -242,10 +249,10 @@ export const schedules = pgTable("Schedule", {
 export const doctorServices = pgTable(
   "Doctor_Service",
   {
-    doctorId: uuid("doctor_id")
+    doctorId: serial("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
-    serviceId: uuid("service_id")
+    serviceId: integer("service_id")
       .notNull()
       .references(() => services.id, { onDelete: "cascade" }),
     amount: integer("amount").notNull(), // Price for this service
@@ -257,10 +264,10 @@ export const doctorServices = pgTable(
 export const doctorTreatmentMethods = pgTable(
   "Doctor_Treatment_Method",
   {
-    doctorId: uuid("doctor_id")
+    doctorId: serial("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
-    treatmentMethodId: uuid("treatment_method_id")
+    treatmentMethodId: integer("treatment_method_id")
       .notNull()
       .references(() => treatmentMethods.id, { onDelete: "cascade" }),
   },
@@ -271,12 +278,13 @@ export const doctorTreatmentMethods = pgTable(
 export const doctorConditions = pgTable(
   "Doctor_Condition",
   {
-    doctorId: uuid("doctor_id")
+    doctorId: serial("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
-    conditionId: uuid("condition_id")
+    conditionId: integer("condition_id")
       .notNull()
       .references(() => conditions.id, { onDelete: "cascade" }),
+    type: conditionTypeEnum("type").notNull(),
   },
   (table) => [primaryKey({ columns: [table.doctorId, table.conditionId] })]
 );
@@ -285,12 +293,13 @@ export const doctorConditions = pgTable(
 export const doctorLanguages = pgTable(
   "Doctor_Language",
   {
-    doctorId: uuid("doctor_id")
+    doctorId: serial("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
-    languageId: uuid("language_id")
+    languageId: integer("language_id")
       .notNull()
       .references(() => languages.id, { onDelete: "cascade" }),
+    type: languageTypeEnum("type").notNull(),
   },
   (table) => [primaryKey({ columns: [table.doctorId, table.languageId] })]
 );
@@ -300,7 +309,7 @@ export const doctorLanguages = pgTable(
 // ============================================================================
 
 export const paymentMethods = pgTable("Payment_Method", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   type: paymentMethodTypeEnum("type").notNull(),
 
   // Card subtype fields (nullable for pago_movil)
@@ -321,11 +330,11 @@ export const paymentMethods = pgTable("Payment_Method", {
 
 // Payment Method - Person (Association with preferences)
 export const paymentMethodPersons = pgTable("Payment_Method_Person", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  personId: uuid("person_id")
+  id: serial("id").primaryKey(),
+  personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
-  paymentMethodId: uuid("payment_method_id")
+  paymentMethodId: integer("payment_method_id")
     .notNull()
     .references(() => paymentMethods.id, { onDelete: "cascade" }),
   isPreferred: boolean("is_preferred").default(false),
@@ -339,8 +348,8 @@ export const paymentMethodPersons = pgTable("Payment_Method_Person", {
 // ============================================================================
 
 export const payouts = pgTable("Payout", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  doctorId: uuid("doctor_id")
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
   type: payoutTypeEnum("type").notNull(),
@@ -368,16 +377,16 @@ export const payouts = pgTable("Payout", {
 
 // Appointment
 export const appointments = pgTable("Appointment", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  personId: uuid("person_id")
+  id: serial("id").primaryKey(),
+  personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
-  doctorId: uuid("doctor_id")
+  doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
-  doctorServiceDoctorId: uuid("doctor_service_doctor_id").notNull(),
-  doctorServiceServiceId: uuid("doctor_service_service_id").notNull(),
-  paymentId: uuid("payment_id")
+  doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(),
+  doctorServiceServiceId: integer("doctor_service_service_id").notNull(),
+  paymentId: integer("payment_id")
     .notNull()
     .unique()
     .references(() => payments.id),
@@ -392,11 +401,11 @@ export const appointments = pgTable("Appointment", {
 
 // Payment
 export const payments = pgTable("Payment", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  personId: uuid("person_id")
+  id: serial("id").primaryKey(),
+  personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
-  paymentMethodId: uuid("payment_method_id")
+  paymentMethodId: serial("payment_method_id")
     .notNull()
     .references(() => paymentMethods.id),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
@@ -407,8 +416,8 @@ export const payments = pgTable("Payment", {
 
 // Review
 export const reviews = pgTable("Review", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  appointmentId: uuid("appointment_id")
+  id: serial("id").primaryKey(),
+  appointmentId: integer("appointment_id")
     .notNull()
     .unique()
     .references(() => appointments.id, { onDelete: "cascade" }),

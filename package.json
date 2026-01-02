@@ -10,7 +10,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "email": "email dev --dir components/emails"
+    "email": "email dev --dir components/emails",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:delete": "tsx src/db/delete.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

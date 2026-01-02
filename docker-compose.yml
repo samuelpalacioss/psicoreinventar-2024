@@ -1,0 +1,32 @@
+services:
+  psicoreinventar_postgres:
+    image: postgres:alpine 
+    container_name: psicoreinventar_postgres
+    restart: always 
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    volumes:
+      - psicoreinventar_postgres_data:/var/lib/postgresql/data
+  
+  psicoreinventar_redis:
+    image: redis:alpine
+    container_name: psicoreinventar_redis
+    ports:
+      - 6379:6379
+    volumes:
+      - psicoreinventar_redis_data:/data
+
+
+networks:
+  default:
+    name: psicoreinventar
+
+volumes:
+  psicoreinventar_postgres_data:
+  psicoreinventar_redis_data:
