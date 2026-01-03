@@ -1,26 +1,32 @@
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
+import SignOutButton from "@/components/sign-out-button";
+import { getServerSession } from "@/lib/auth/session";
+import { Role } from "@/types/enums";
 
-// Boilerplate user for testing - toggle role to test different views
-const boilerplateUser = {
-  name: "Samuel Palacios",
-  role: "user" as "user" | "doctor", // Change to "doctor" to test doctor view
-};
+// const boilerplateUser = {
+//   name: "Samuel Palacios",
+//   role: Role.PATIENT, // Change to "doctor" to test doctor view
+// };
 
-export default function Page() {
-  const { name, role } = boilerplateUser;
+// const { name, role } = boilerplateUser;
+export default async function Page() {
+  const session = await getServerSession();
+  const { name: userName, role: userRole } = session?.user ?? {};
 
-  const greeting = role === "doctor" ? `Hello doc ${name}` : `Hello my friend ${name}`;
+  const greeting =
+    userRole === Role.DOCTOR ? `Hello doc ${userName}` : `Hello my friend ${userName}`;
 
   return (
     <DashboardContainer
       title={greeting}
       description={
-        role === "doctor"
+        userRole === Role.DOCTOR
           ? "Welcome back to your practice dashboard."
           : "Welcome back to your wellness journey."
       }
     >
       <span>holaaaa</span>
+      <SignOutButton />
     </DashboardContainer>
   );
 }

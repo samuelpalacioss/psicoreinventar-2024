@@ -31,6 +31,7 @@ import {
   progresses,
 } from "./schema";
 import { randomUUID } from "crypto";
+import { hashPassword } from "@/utils/bcrypt";
 
 async function seed() {
   console.log("🌱 Seeding database...");
@@ -278,13 +279,15 @@ async function seed() {
     // Create accounts for patient users (email/password authentication)
     console.log("🔐 Creating patient accounts...");
     await db.insert(accounts).values(
-      patientUsersData.map((user) => ({
-        id: randomUUID(),
-        accountId: user.email,
-        providerId: "credential",
-        userId: user.id,
-        password: "12345678", // In production, use bcrypt
-      }))
+      await Promise.all(
+        patientUsersData.map(async (user) => ({
+          id: randomUUID(),
+          accountId: user.email,
+          providerId: "credential",
+          userId: user.id,
+          password: await hashPassword("12345678"), // In production, use bcrypt
+        }))
+      )
     );
     console.log(`✅ Created ${patientUsersData.length} patient accounts`);
 
@@ -337,13 +340,15 @@ async function seed() {
     // Create accounts for doctor users (email/password authentication)
     console.log("🔐 Creating doctor accounts...");
     await db.insert(accounts).values(
-      doctorUsersData.map((user) => ({
-        id: randomUUID(),
-        accountId: user.email,
-        providerId: "credential",
-        userId: user.id,
-        password: "12345678", // In production, use bcrypt
-      }))
+      await Promise.all(
+        doctorUsersData.map(async (user) => ({
+          id: randomUUID(),
+          accountId: user.email,
+          providerId: "credential",
+          userId: user.id,
+          password: await hashPassword("12345678"), // In production, use bcrypt
+        }))
+      )
     );
     console.log(`✅ Created ${doctorUsersData.length} doctor accounts`);
 
@@ -373,7 +378,7 @@ async function seed() {
         accountId: adminUserData[0].email,
         providerId: "credential",
         userId: adminUserData[0].id,
-        password: "12345678", // In production, use bcrypt
+        password: await hashPassword("12345678"), // In production, use bcrypt
       },
     ]);
     console.log(`✅ Created admin account`);
@@ -1255,11 +1260,11 @@ async function seed() {
 
 // Run seed function
 seed()
+  .then(() => {
+    console.log("🏁 Seed script finished");
+    process.exit(0);
+  })
   .catch((error) => {
     console.error("Fatal error:", error);
     process.exit(1);
-  })
-  .finally(() => {
-    console.log("🏁 Seed script finished");
-    process.exit(0);
   });
