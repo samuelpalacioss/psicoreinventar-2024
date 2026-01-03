@@ -1,8 +1,4 @@
-"use client";
-
-import TherapistDetail, {
-  sampleTherapistDetail,
-} from "@/components/therapist-detail";
+import TherapistDetail, { sampleTherapistDetail } from "@/components/therapist-detail";
 
 export default function TherapistDemoPage() {
   console.log("Sample therapist data:", sampleTherapistDetail);

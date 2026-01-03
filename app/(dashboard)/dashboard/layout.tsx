@@ -1,21 +1,15 @@
-import { cookies } from "next/headers";
-
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Role } from "@/types/enums";
 import "./theme.css";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
-
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   // TODO: Get user role from session/auth
   const userRole = Role.DOCTOR;
 
   return (
     <SidebarProvider
-      defaultOpen={defaultOpen}
       style={
         {
           "--sidebar-width": "15rem",
