@@ -1,5 +1,3 @@
-"use client";
-
 interface DashboardContainerProps {
   title?: string;
   description?: string;
