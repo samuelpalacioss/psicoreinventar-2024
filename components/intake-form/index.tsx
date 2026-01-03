@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { intakeSchema, stepFields, type IntakeFormData } from "./schema";
 import {
@@ -49,14 +48,45 @@ export function IntakeForm() {
   const [showCrisis, setShowCrisis] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<IntakeFormData>({
-    resolver: zodResolver(intakeSchema),
-    mode: "onChange",
+  const form = useForm({
     defaultValues: {
-      concerns: [],
-      availability: [],
+      concerns: [] as string[],
+      availability: [] as string[],
       phq4: { interest: 0, depressed: 0, anxious: 0, worry: 0 },
       language: "english",
+    } as Partial<IntakeFormData>,
+    validators: {
+      onChange: intakeSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setIsSubmitting(true);
+      const data = value as IntakeFormData;
+
+      try {
+        // Calculate PHQ-4 score for the submission
+        const phq4Result = calculatePHQ4Score(data.phq4);
+
+        // Prepare submission data
+        const submissionData = {
+          ...data,
+          phq4Score: phq4Result.score,
+          phq4Severity: phq4Result.severity,
+          submittedAt: new Date().toISOString(),
+        };
+
+        // TODO: Send to API
+        console.log("Form submitted:", submissionData);
+
+        // Clear the draft
+        clearFormDraft();
+
+        // Redirect to results page with query params or store in session
+        router.push("/get-matched/results");
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
     },
   });
 
@@ -71,32 +101,41 @@ export function IntakeForm() {
 
   // Save draft on form changes
   useEffect(() => {
-    const subscription = form.watch((data) => {
-      saveFormDraft(data as Partial<IntakeFormData>, step);
+    const unsubscribe = form.store.subscribe(() => {
+      const values = form.state.values;
+      saveFormDraft(values as Partial<IntakeFormData>, step);
     });
-    return () => subscription.unsubscribe();
+    return unsubscribe;
   }, [form, step]);
 
   // Check for crisis indicators
   useEffect(() => {
-    const subscription = form.watch((data) => {
-      const concerns = data.concerns || [];
-      const phq4 = data.phq4;
+    const unsubscribe = form.store.subscribe(() => {
+      const values = form.state.values;
+      const concerns = values.concerns || [];
+      const phq4 = values.phq4;
 
       if (phq4) {
-        const { score } = calculatePHQ4Score(phq4 as IntakeFormData["phq4"]);
+        const { score } = calculatePHQ4Score(phq4);
         const crisis = detectCrisis(concerns as string[], score);
         setShowCrisis(crisis.isCrisis);
       }
     });
-    return () => subscription.unsubscribe();
+    return unsubscribe;
   }, [form]);
 
   const validateStep = async () => {
     const fields = stepFields[step];
     if (!fields || fields.length === 0) return true;
-    const result = await form.trigger(fields as any);
-    return result;
+
+    // Validate specific fields for current step
+    const fieldMeta = form.state.fieldMeta;
+    const hasErrors = fields.some((field) => {
+      const meta = fieldMeta[field];
+      return meta?.errors && meta.errors.length > 0;
+    });
+
+    return !hasErrors;
   };
 
   const next = async () => {
@@ -111,36 +150,6 @@ export function IntakeForm() {
     if (step > 0) {
       setStep(step - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  const onSubmit = async (data: IntakeFormData) => {
-    setIsSubmitting(true);
-
-    try {
-      // Calculate PHQ-4 score for the submission
-      const phq4Result = calculatePHQ4Score(data.phq4);
-
-      // Prepare submission data
-      const submissionData = {
-        ...data,
-        phq4Score: phq4Result.score,
-        phq4Severity: phq4Result.severity,
-        submittedAt: new Date().toISOString(),
-      };
-
-      // TODO: Send to API
-      console.log("Form submitted:", submissionData);
-
-      // Clear the draft
-      clearFormDraft();
-
-      // Redirect to results page with query params or store in session
-      router.push("/get-matched/results");
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -169,7 +178,12 @@ export function IntakeForm() {
       {showCrisis && <CrisisResourcesBanner />}
 
       {/* Form */}
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
         <CurrentStep form={form} />
 
         {/* Navigation */}

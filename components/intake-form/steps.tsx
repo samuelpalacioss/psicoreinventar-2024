@@ -1,6 +1,5 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
 import type { IntakeFormData } from "./schema";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,8 +15,9 @@ import {
 import SignupForm from "@/components/signup-form";
 import { cn } from "@/lib/utils";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface StepProps {
-  form: UseFormReturn<IntakeFormData>;
+  form: any;
 }
 
 // ============ STEP 1: Therapy Type ============
@@ -32,8 +32,6 @@ const THERAPY_TYPES = [
 ];
 
 export function StepTherapyType({ form }: StepProps) {
-  const selectedType = form.watch("therapyType");
-
   return (
     <div className="space-y-6">
       <div>
@@ -45,31 +43,42 @@ export function StepTherapyType({ form }: StepProps) {
         </p>
       </div>
 
-      <RadioGroup
-        value={selectedType}
-        onValueChange={(v) => form.setValue("therapyType", v as IntakeFormData["therapyType"])}
-        className="space-y-3"
-      >
-        {THERAPY_TYPES.map((type) => (
-          <label
-            key={type.value}
-            className={cn(
-              "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
-              "border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50",
-              selectedType === type.value && "border-indigo-300 bg-indigo-50/30"
-            )}
-          >
-            <RadioGroupItem value={type.value} className="mt-1" />
-            <div>
-              <span className="text-lg font-medium text-gray-900">{type.label}</span>
-              <p className="text-sm text-gray-500 mt-0.5">{type.desc}</p>
-            </div>
-          </label>
-        ))}
-      </RadioGroup>
-      {form.formState.errors.therapyType && (
-        <p className="text-sm text-red-600 mt-2">{form.formState.errors.therapyType.message}</p>
-      )}
+      <form.Field name="therapyType">
+        {(field: any) => {
+          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <>
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) => field.handleChange(v as IntakeFormData["therapyType"])}
+                className="space-y-3"
+              >
+                {THERAPY_TYPES.map((type) => (
+                  <label
+                    key={type.value}
+                    className={cn(
+                      "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
+                      "border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50",
+                      field.state.value === type.value && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={type.value} className="mt-1" />
+                    <div>
+                      <span className="text-lg font-medium text-gray-900">{type.label}</span>
+                      <p className="text-sm text-gray-500 mt-0.5">{type.desc}</p>
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
+              {isInvalid && (
+                <p className="text-sm text-red-600 mt-2">
+                  {field.state.meta.errors?.[0]?.message || "Please select a therapy type"}
+                </p>
+              )}
+            </>
+          );
+        }}
+      </form.Field>
     </div>
   );
 }
@@ -87,8 +96,6 @@ const CONCERNS = [
 ];
 
 export function StepConcerns({ form }: StepProps) {
-  const selectedConcerns = form.watch("concerns") || [];
-
   return (
     <div className="space-y-4">
       <div>
@@ -100,46 +107,64 @@ export function StepConcerns({ form }: StepProps) {
         </p>
       </div>
 
-      <div className="space-y-2">
-        {CONCERNS.map((concern) => {
-          const isChecked = selectedConcerns.includes(concern);
+      <form.Field name="concerns">
+        {(field: any) => {
+          const selectedConcerns: string[] = field.state.value || [];
+          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
           return (
-            <label
-              key={concern}
-              className={cn(
-                "flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors",
-                "border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50",
-                isChecked && "border-indigo-300 bg-indigo-50/30"
-              )}
-            >
-              <Checkbox
-                checked={isChecked}
-                onCheckedChange={(checked) => {
-                  const current = form.getValues("concerns") || [];
-                  form.setValue(
-                    "concerns",
-                    checked ? [...current, concern] : current.filter((c) => c !== concern),
-                    { shouldValidate: true }
+            <>
+              <div className="space-y-2">
+                {CONCERNS.map((concern) => {
+                  const isChecked = selectedConcerns.includes(concern);
+                  return (
+                    <label
+                      key={concern}
+                      className={cn(
+                        "flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors",
+                        "border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50",
+                        isChecked && "border-indigo-300 bg-indigo-50/30"
+                      )}
+                    >
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          const current: string[] = field.state.value || [];
+                          field.handleChange(
+                            checked
+                              ? [...current, concern]
+                              : current.filter((c: string) => c !== concern)
+                          );
+                        }}
+                      />
+                      <span className="text-gray-900">{concern}</span>
+                    </label>
                   );
-                }}
-              />
-              <span className="text-gray-900">{concern}</span>
-            </label>
+                })}
+              </div>
+              {isInvalid && (
+                <p className="text-sm text-red-600 mt-2">
+                  {field.state.meta.errors?.[0]?.message || "Please select at least one concern"}
+                </p>
+              )}
+            </>
           );
-        })}
-      </div>
+        }}
+      </form.Field>
 
       <div>
-        <Input
-          placeholder="Other (please specify)"
-          {...form.register("otherConcern")}
-          className="bg-white"
-        />
+        <form.Field name="otherConcern">
+          {(field: any) => (
+            <Input
+              placeholder="Other (please specify)"
+              value={field.state.value || ""}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={field.handleBlur}
+              className="bg-white"
+            />
+          )}
+        </form.Field>
       </div>
-
-      {form.formState.errors.concerns && (
-        <p className="text-sm text-red-600 mt-2">{form.formState.errors.concerns.message}</p>
-      )}
     </div>
   );
 }
@@ -150,7 +175,7 @@ const PHQ4_QUESTIONS = [
   { key: "depressed", text: "Feeling down, depressed, or hopeless" },
   { key: "anxious", text: "Feeling nervous, anxious, or on edge" },
   { key: "worry", text: "Not being able to stop or control worrying" },
-];
+] as const;
 
 const PHQ4_OPTIONS = [
   { value: 0, label: "Not at all" },
@@ -172,35 +197,37 @@ export function StepPHQ4({ form }: StepProps) {
       </div>
 
       <div className="space-y-6">
-        {PHQ4_QUESTIONS.map((q) => {
-          const value = form.watch(`phq4.${q.key as keyof IntakeFormData["phq4"]}`);
-          return (
-            <div key={q.key} className="space-y-3">
-              <p className="text-gray-900 font-medium">{q.text}</p>
-              <RadioGroup
-                value={value?.toString()}
-                onValueChange={(v) =>
-                  form.setValue(`phq4.${q.key as keyof IntakeFormData["phq4"]}`, parseInt(v))
-                }
-                className="flex flex-wrap gap-2"
-              >
-                {PHQ4_OPTIONS.map((opt) => (
-                  <label
-                    key={opt.value}
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm",
-                      "border border-gray-200 hover:border-gray-300",
-                      value === opt.value && "border-indigo-300 bg-indigo-50/30"
-                    )}
+        {PHQ4_QUESTIONS.map((q) => (
+          <form.Field key={q.key} name={`phq4.${q.key}`}>
+            {(field: any) => {
+              const value = field.state.value as number | undefined;
+              return (
+                <div className="space-y-3">
+                  <p className="text-gray-900 font-medium">{q.text}</p>
+                  <RadioGroup
+                    value={value?.toString() || ""}
+                    onValueChange={(v: string) => field.handleChange(parseInt(v))}
+                    className="flex flex-wrap gap-2"
                   >
-                    <RadioGroupItem value={opt.value.toString()} />
-                    <span>{opt.label}</span>
-                  </label>
-                ))}
-              </RadioGroup>
-            </div>
-          );
-        })}
+                    {PHQ4_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm",
+                          "border border-gray-200 hover:border-gray-300",
+                          value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                        )}
+                      >
+                        <RadioGroupItem value={opt.value.toString()} />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              );
+            }}
+          </form.Field>
+        ))}
       </div>
     </div>
   );
@@ -221,59 +248,67 @@ export function StepHealthSupport({ form }: StepProps) {
           <Label className="text-gray-900 font-medium">
             How would you rate your physical health?
           </Label>
-          <RadioGroup
-            value={form.watch("physicalHealth")}
-            onValueChange={(v) =>
-              form.setValue("physicalHealth", v as IntakeFormData["physicalHealth"])
-            }
-            className="flex flex-wrap gap-2 mt-3"
-          >
-            {["excellent", "good", "fair", "poor"].map((opt) => (
-              <label
-                key={opt}
-                className={cn(
-                  "px-4 py-2 rounded-lg cursor-pointer transition-colors capitalize",
-                  "border border-gray-200 hover:border-gray-300",
-                  form.watch("physicalHealth") === opt && "border-indigo-300 bg-indigo-50/30"
-                )}
+          <form.Field name="physicalHealth">
+            {(field: any) => (
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) =>
+                  field.handleChange(v as IntakeFormData["physicalHealth"])
+                }
+                className="flex flex-wrap gap-2 mt-3"
               >
-                <RadioGroupItem value={opt} className="sr-only" />
-                <span>{opt}</span>
-              </label>
-            ))}
-          </RadioGroup>
+                {["excellent", "good", "fair", "poor"].map((opt) => (
+                  <label
+                    key={opt}
+                    className={cn(
+                      "px-4 py-2 rounded-lg cursor-pointer transition-colors capitalize",
+                      "border border-gray-200 hover:border-gray-300",
+                      field.state.value === opt && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={opt} className="sr-only" />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            )}
+          </form.Field>
         </div>
 
         <div>
           <Label className="text-gray-900 font-medium">
             How would you describe your support system?
           </Label>
-          <RadioGroup
-            value={form.watch("supportSystem")}
-            onValueChange={(v) =>
-              form.setValue("supportSystem", v as IntakeFormData["supportSystem"])
-            }
-            className="flex flex-wrap gap-2 mt-3"
-          >
-            {[
-              { value: "strong", label: "Strong support" },
-              { value: "some", label: "Some support" },
-              { value: "limited", label: "Limited support" },
-              { value: "isolated", label: "Feeling isolated" },
-            ].map((opt) => (
-              <label
-                key={opt.value}
-                className={cn(
-                  "px-4 py-2 rounded-lg cursor-pointer transition-colors",
-                  "border border-gray-200 hover:border-gray-300",
-                  form.watch("supportSystem") === opt.value && "border-indigo-300 bg-indigo-50/30"
-                )}
+          <form.Field name="supportSystem">
+            {(field: any) => (
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) =>
+                  field.handleChange(v as IntakeFormData["supportSystem"])
+                }
+                className="flex flex-wrap gap-2 mt-3"
               >
-                <RadioGroupItem value={opt.value} className="sr-only" />
-                <span>{opt.label}</span>
-              </label>
-            ))}
-          </RadioGroup>
+                {[
+                  { value: "strong", label: "Strong support" },
+                  { value: "some", label: "Some support" },
+                  { value: "limited", label: "Limited support" },
+                  { value: "isolated", label: "Feeling isolated" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={cn(
+                      "px-4 py-2 rounded-lg cursor-pointer transition-colors",
+                      "border border-gray-200 hover:border-gray-300",
+                      field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.value} className="sr-only" />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            )}
+          </form.Field>
         </div>
       </div>
     </div>
@@ -293,42 +328,46 @@ export function StepPreviousTherapy({ form }: StepProps) {
         </p>
       </div>
 
-      <RadioGroup
-        value={form.watch("previousTherapy")}
-        onValueChange={(v) =>
-          form.setValue("previousTherapy", v as IntakeFormData["previousTherapy"])
-        }
-        className="space-y-3"
-      >
-        {[
-          {
-            value: "yes-helpful",
-            label: "Yes, and it was helpful",
-            desc: "I had a positive experience",
-          },
-          {
-            value: "yes-not-helpful",
-            label: "Yes, but it wasn't helpful",
-            desc: "It didn't work for me",
-          },
-          { value: "no", label: "No, this is my first time", desc: "I'm new to therapy" },
-        ].map((opt) => (
-          <label
-            key={opt.value}
-            className={cn(
-              "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
-              "border border-gray-200 hover:border-gray-300",
-              form.watch("previousTherapy") === opt.value && "border-indigo-300 bg-indigo-50/30"
-            )}
+      <form.Field name="previousTherapy">
+        {(field: any) => (
+          <RadioGroup
+            value={field.state.value || ""}
+            onValueChange={(v: string) =>
+              field.handleChange(v as IntakeFormData["previousTherapy"])
+            }
+            className="space-y-3"
           >
-            <RadioGroupItem value={opt.value} className="mt-1" />
-            <div>
-              <span className="text-lg font-medium text-gray-900">{opt.label}</span>
-              <p className="text-sm text-gray-500 mt-0.5">{opt.desc}</p>
-            </div>
-          </label>
-        ))}
-      </RadioGroup>
+            {[
+              {
+                value: "yes-helpful",
+                label: "Yes, and it was helpful",
+                desc: "I had a positive experience",
+              },
+              {
+                value: "yes-not-helpful",
+                label: "Yes, but it wasn't helpful",
+                desc: "It didn't work for me",
+              },
+              { value: "no", label: "No, this is my first time", desc: "I'm new to therapy" },
+            ].map((opt) => (
+              <label
+                key={opt.value}
+                className={cn(
+                  "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
+                  "border border-gray-200 hover:border-gray-300",
+                  field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                )}
+              >
+                <RadioGroupItem value={opt.value} className="mt-1" />
+                <div>
+                  <span className="text-lg font-medium text-gray-900">{opt.label}</span>
+                  <p className="text-sm text-gray-500 mt-0.5">{opt.desc}</p>
+                </div>
+              </label>
+            ))}
+          </RadioGroup>
+        )}
+      </form.Field>
     </div>
   );
 }
@@ -348,28 +387,39 @@ export function StepYourGender({ form }: StepProps) {
         <h3 className="text-2xl sm:text-3xl font-light text-gray-900 mb-2">What is your gender?</h3>
       </div>
 
-      <RadioGroup
-        value={form.watch("gender")}
-        onValueChange={(v) => form.setValue("gender", v, { shouldValidate: true })}
-        className="space-y-3"
-      >
-        {GENDERS.map((opt) => (
-          <label
-            key={opt.value}
-            className={cn(
-              "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors",
-              "border border-gray-200 hover:border-gray-300",
-              form.watch("gender") === opt.value && "border-indigo-300 bg-indigo-50/30"
-            )}
-          >
-            <RadioGroupItem value={opt.value} />
-            <span className="text-lg font-medium text-gray-900">{opt.label}</span>
-          </label>
-        ))}
-      </RadioGroup>
-      {form.formState.errors.gender && (
-        <p className="text-sm text-red-600 mt-2">{form.formState.errors.gender.message}</p>
-      )}
+      <form.Field name="gender">
+        {(field: any) => {
+          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <>
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) => field.handleChange(v)}
+                className="space-y-3"
+              >
+                {GENDERS.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors",
+                      "border border-gray-200 hover:border-gray-300",
+                      field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.value} />
+                    <span className="text-lg font-medium text-gray-900">{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+              {isInvalid && (
+                <p className="text-sm text-red-600 mt-2">
+                  {field.state.meta.errors?.[0]?.message || "Please select your gender"}
+                </p>
+              )}
+            </>
+          );
+        }}
+      </form.Field>
     </div>
   );
 }
@@ -390,57 +440,64 @@ export function StepTherapistPreferences({ form }: StepProps) {
       <div className="space-y-6">
         <div>
           <Label className="text-gray-900 font-medium">Therapist gender preference</Label>
-          <RadioGroup
-            value={form.watch("therapistGender") || ""}
-            onValueChange={(v) => form.setValue("therapistGender", v)}
-            className="flex flex-wrap gap-2 mt-3"
-          >
-            {[{ value: "no-preference", label: "No preference" }, ...GENDERS.slice(0, 3)].map(
-              (opt) => (
-                <label
-                  key={opt.value}
-                  className={cn(
-                    "px-4 py-2 rounded-lg cursor-pointer transition-colors",
-                    "border border-gray-200 hover:border-gray-300",
-                    form.watch("therapistGender") === opt.value &&
-                      "border-indigo-300 bg-indigo-50/30"
-                  )}
-                >
-                  <RadioGroupItem value={opt.value} className="sr-only" />
-                  <span>{opt.label}</span>
-                </label>
-              )
+          <form.Field name="therapistGender">
+            {(field: any) => (
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) => field.handleChange(v)}
+                className="flex flex-wrap gap-2 mt-3"
+              >
+                {[{ value: "no-preference", label: "No preference" }, ...GENDERS.slice(0, 3)].map(
+                  (opt) => (
+                    <label
+                      key={opt.value}
+                      className={cn(
+                        "px-4 py-2 rounded-lg cursor-pointer transition-colors",
+                        "border border-gray-200 hover:border-gray-300",
+                        field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                      )}
+                    >
+                      <RadioGroupItem value={opt.value} className="sr-only" />
+                      <span>{opt.label}</span>
+                    </label>
+                  )
+                )}
+              </RadioGroup>
             )}
-          </RadioGroup>
+          </form.Field>
         </div>
 
         <div>
           <Label className="text-gray-900 font-medium">LGBTQ+ affirming care</Label>
-          <RadioGroup
-            value={form.watch("lgbtqAffirming") || ""}
-            onValueChange={(v) =>
-              form.setValue("lgbtqAffirming", v as IntakeFormData["lgbtqAffirming"])
-            }
-            className="flex flex-wrap gap-2 mt-3"
-          >
-            {[
-              { value: "yes", label: "Yes, this is important" },
-              { value: "preferred", label: "Preferred" },
-              { value: "no-preference", label: "No preference" },
-            ].map((opt) => (
-              <label
-                key={opt.value}
-                className={cn(
-                  "px-4 py-2 rounded-lg cursor-pointer transition-colors",
-                  "border border-gray-200 hover:border-gray-300",
-                  form.watch("lgbtqAffirming") === opt.value && "border-indigo-300 bg-indigo-50/30"
-                )}
+          <form.Field name="lgbtqAffirming">
+            {(field: any) => (
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) =>
+                  field.handleChange(v as IntakeFormData["lgbtqAffirming"])
+                }
+                className="flex flex-wrap gap-2 mt-3"
               >
-                <RadioGroupItem value={opt.value} className="sr-only" />
-                <span>{opt.label}</span>
-              </label>
-            ))}
-          </RadioGroup>
+                {[
+                  { value: "yes", label: "Yes, this is important" },
+                  { value: "preferred", label: "Preferred" },
+                  { value: "no-preference", label: "No preference" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={cn(
+                      "px-4 py-2 rounded-lg cursor-pointer transition-colors",
+                      "border border-gray-200 hover:border-gray-300",
+                      field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.value} className="sr-only" />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            )}
+          </form.Field>
         </div>
       </div>
     </div>
@@ -461,8 +518,6 @@ const RELIGIONS = [
 ];
 
 export function StepCultural({ form }: StepProps) {
-  const religionValue = form.watch("religion.value");
-
   return (
     <div className="space-y-8">
       <div>
@@ -480,70 +535,78 @@ export function StepCultural({ form }: StepProps) {
           <p className="text-sm text-gray-500 mb-3">
             Is it important that your therapist understands your cultural background?
           </p>
-          <RadioGroup
-            value={form.watch("culturalImportance") || ""}
-            onValueChange={(v) =>
-              form.setValue("culturalImportance", v as IntakeFormData["culturalImportance"])
-            }
-            className="flex flex-wrap gap-2"
-          >
-            {[
-              { value: "yes", label: "Yes, very important" },
-              { value: "somewhat", label: "Somewhat important" },
-              { value: "not", label: "Not important" },
-            ].map((opt) => (
-              <label
-                key={opt.value}
-                className={cn(
-                  "px-4 py-2 rounded-lg cursor-pointer transition-colors",
-                  "border border-gray-200 hover:border-gray-300",
-                  form.watch("culturalImportance") === opt.value &&
-                    "border-indigo-300 bg-indigo-50/30"
-                )}
+          <form.Field name="culturalImportance">
+            {(field: any) => (
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) =>
+                  field.handleChange(v as IntakeFormData["culturalImportance"])
+                }
+                className="flex flex-wrap gap-2"
               >
-                <RadioGroupItem value={opt.value} className="sr-only" />
-                <span>{opt.label}</span>
-              </label>
-            ))}
-          </RadioGroup>
+                {[
+                  { value: "yes", label: "Yes, very important" },
+                  { value: "somewhat", label: "Somewhat important" },
+                  { value: "not", label: "Not important" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={cn(
+                      "px-4 py-2 rounded-lg cursor-pointer transition-colors",
+                      "border border-gray-200 hover:border-gray-300",
+                      field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.value} className="sr-only" />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            )}
+          </form.Field>
         </div>
 
         <div className="space-y-6">
           <div>
             <Label className="text-gray-900 font-medium">Religion or spirituality</Label>
-            <Select
-              value={religionValue || ""}
-              onValueChange={(v) => form.setValue("religion.value", v)}
-            >
-              <SelectTrigger className="mt-2 bg-white max-w-xs">
-                <SelectValue placeholder="Select if relevant..." />
-              </SelectTrigger>
-              <SelectContent>
-                {RELIGIONS.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <form.Field name="religion.value">
+              {(field: any) => (
+                <Select value={field.state.value || ""} onValueChange={(v) => field.handleChange(v)}>
+                  <SelectTrigger className="mt-2 bg-white max-w-xs">
+                    <SelectValue placeholder="Select if relevant..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {RELIGIONS.map((r) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </form.Field>
           </div>
         </div>
 
         <div>
           <Label className="text-gray-900 font-medium">Preferred language</Label>
-          <Select
-            value={form.watch("language") || "english"}
-            onValueChange={(v) => form.setValue("language", v)}
-          >
-            <SelectTrigger className="mt-2 bg-white max-w-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="english">English</SelectItem>
-              <SelectItem value="spanish">Spanish</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <form.Field name="language">
+            {(field: any) => (
+              <Select
+                value={field.state.value || "english"}
+                onValueChange={(v) => field.handleChange(v)}
+              >
+                <SelectTrigger className="mt-2 bg-white max-w-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="english">English</SelectItem>
+                  <SelectItem value="spanish">Spanish</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </form.Field>
         </div>
       </div>
     </div>
@@ -564,8 +627,6 @@ const INSURANCE_PROVIDERS = [
 ];
 
 export function StepPayment({ form }: StepProps) {
-  const paymentMethod = form.watch("paymentMethod");
-
   return (
     <div className="space-y-6">
       <div>
@@ -574,79 +635,94 @@ export function StepPayment({ form }: StepProps) {
         </h3>
       </div>
 
-      <RadioGroup
-        value={paymentMethod}
-        onValueChange={(v) =>
-          form.setValue("paymentMethod", v as IntakeFormData["paymentMethod"], {
-            shouldValidate: true,
-          })
-        }
-        className="space-y-3"
-      >
-        {[
-          {
-            value: "out-of-pocket",
-            label: "Out-of-pocket / Self-pay",
-            desc: "Pay directly for sessions",
-          },
-          {
-            value: "insurance",
-            label: "Insurance",
-            desc: "We'll help you find in-network therapists",
-          },
-        ].map((opt) => (
-          <label
-            key={opt.value}
-            className={cn(
-              "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
-              "border border-gray-200 hover:border-gray-300",
-              paymentMethod === opt.value && "border-indigo-300 bg-indigo-50/30"
-            )}
-          >
-            <RadioGroupItem value={opt.value} className="mt-1" />
-            <div>
-              <span className="text-lg font-medium text-gray-900">{opt.label}</span>
-              <p className="text-sm text-gray-500 mt-0.5">{opt.desc}</p>
-            </div>
-          </label>
-        ))}
-      </RadioGroup>
-      {form.formState.errors.paymentMethod && (
-        <p className="text-sm text-red-600 mt-2">{form.formState.errors.paymentMethod.message}</p>
-      )}
+      <form.Field name="paymentMethod">
+        {(field: any) => {
+          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <>
+              <RadioGroup
+                value={field.state.value || ""}
+                onValueChange={(v: string) =>
+                  field.handleChange(v as IntakeFormData["paymentMethod"])
+                }
+                className="space-y-3"
+              >
+                {[
+                  {
+                    value: "out-of-pocket",
+                    label: "Out-of-pocket / Self-pay",
+                    desc: "Pay directly for sessions",
+                  },
+                  {
+                    value: "insurance",
+                    label: "Insurance",
+                    desc: "We'll help you find in-network therapists",
+                  },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={cn(
+                      "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
+                      "border border-gray-200 hover:border-gray-300",
+                      field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.value} className="mt-1" />
+                    <div>
+                      <span className="text-lg font-medium text-gray-900">{opt.label}</span>
+                      <p className="text-sm text-gray-500 mt-0.5">{opt.desc}</p>
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
+              {isInvalid && (
+                <p className="text-sm text-red-600 mt-2">
+                  {field.state.meta.errors?.[0]?.message || "Please select a payment method"}
+                </p>
+              )}
+            </>
+          );
+        }}
+      </form.Field>
 
-      {paymentMethod === "insurance" && (
-        <div className="mt-4 ml-6">
-          <Label className="text-gray-700">Insurance provider</Label>
-          <Select
-            value={form.watch("insuranceProvider") || ""}
-            onValueChange={(v) => form.setValue("insuranceProvider", v)}
-          >
-            <SelectTrigger className="mt-2 bg-white max-w-xs cursor-pointer">
-              <SelectValue placeholder="Select your provider..." />
-            </SelectTrigger>
-            <SelectContent>
-              {INSURANCE_PROVIDERS.map((p) => (
-                <SelectItem
-                  key={p}
-                  className="cursor-pointer"
-                  value={p.toLowerCase().replace(/\s+/g, "-")}
-                >
-                  {p}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+      <form.Subscribe selector={(state: any) => state.values.paymentMethod}>
+        {(paymentMethod: string) =>
+          paymentMethod === "insurance" && (
+            <div className="mt-4 ml-6">
+              <Label className="text-gray-700">Insurance provider</Label>
+              <form.Field name="insuranceProvider">
+                {(field: any) => (
+                  <Select
+                    value={field.state.value || ""}
+                    onValueChange={(v) => field.handleChange(v)}
+                  >
+                    <SelectTrigger className="mt-2 bg-white max-w-xs cursor-pointer">
+                      <SelectValue placeholder="Select your provider..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INSURANCE_PROVIDERS.map((p) => (
+                        <SelectItem
+                          key={p}
+                          className="cursor-pointer"
+                          value={p.toLowerCase().replace(/\s+/g, "-")}
+                        >
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </form.Field>
+            </div>
+          )
+        }
+      </form.Subscribe>
     </div>
   );
 }
 
 // ============ STEP 10: Session Format ============
 export function StepSessionFormat({ form }: StepProps) {
-  const sessionFormat = form.watch("sessionFormat");
-
   return (
     <div className="space-y-6">
       <div>
@@ -655,55 +731,67 @@ export function StepSessionFormat({ form }: StepProps) {
         </h3>
       </div>
 
-      <RadioGroup
-        value={sessionFormat}
-        onValueChange={(v) =>
-          form.setValue("sessionFormat", v as IntakeFormData["sessionFormat"], {
-            shouldValidate: true,
-          })
-        }
-        className="space-y-3"
-      >
-        {[
-          {
-            value: "virtual",
-            label: "Virtual only",
-            desc: "Video or phone sessions from anywhere",
-          },
-          {
-            value: "in-person",
-            label: "In-person only",
-            desc: "Face-to-face at the therapist's office",
-          },
-          { value: "either", label: "Either works", desc: "Flexible with both options" },
-        ].map((opt) => (
-          <label
-            key={opt.value}
-            className={cn(
-              "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
-              "border border-gray-200 hover:border-gray-300",
-              sessionFormat === opt.value && "border-indigo-300 bg-indigo-50/30"
-            )}
+      <form.Field name="sessionFormat">
+        {(field: any) => (
+          <RadioGroup
+            value={field.state.value || ""}
+            onValueChange={(v: string) =>
+              field.handleChange(v as IntakeFormData["sessionFormat"])
+            }
+            className="space-y-3"
           >
-            <RadioGroupItem value={opt.value} className="mt-1" />
-            <div>
-              <span className="text-lg font-medium text-gray-900">{opt.label}</span>
-              <p className="text-sm text-gray-500 mt-0.5">{opt.desc}</p>
-            </div>
-          </label>
-        ))}
-      </RadioGroup>
+            {[
+              {
+                value: "virtual",
+                label: "Virtual only",
+                desc: "Video or phone sessions from anywhere",
+              },
+              {
+                value: "in-person",
+                label: "In-person only",
+                desc: "Face-to-face at the therapist's office",
+              },
+              { value: "either", label: "Either works", desc: "Flexible with both options" },
+            ].map((opt) => (
+              <label
+                key={opt.value}
+                className={cn(
+                  "flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors",
+                  "border border-gray-200 hover:border-gray-300",
+                  field.state.value === opt.value && "border-indigo-300 bg-indigo-50/30"
+                )}
+              >
+                <RadioGroupItem value={opt.value} className="mt-1" />
+                <div>
+                  <span className="text-lg font-medium text-gray-900">{opt.label}</span>
+                  <p className="text-sm text-gray-500 mt-0.5">{opt.desc}</p>
+                </div>
+              </label>
+            ))}
+          </RadioGroup>
+        )}
+      </form.Field>
 
-      {(sessionFormat === "in-person" || sessionFormat === "either") && (
-        <div className="mt-4">
-          <Label className="text-gray-700">Your ZIP code</Label>
-          <Input
-            placeholder="e.g., 90210"
-            {...form.register("zipCode")}
-            className="mt-2 bg-white max-w-[150px]"
-          />
-        </div>
-      )}
+      <form.Subscribe selector={(state: any) => state.values.sessionFormat}>
+        {(sessionFormat: string) =>
+          (sessionFormat === "in-person" || sessionFormat === "either") && (
+            <div className="mt-4">
+              <Label className="text-gray-700">Your ZIP code</Label>
+              <form.Field name="zipCode">
+                {(field: any) => (
+                  <Input
+                    placeholder="e.g., 90210"
+                    value={field.state.value || ""}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className="mt-2 bg-white max-w-[150px]"
+                  />
+                )}
+              </form.Field>
+            </div>
+          )
+        }
+      </form.Subscribe>
     </div>
   );
 }
@@ -711,10 +799,10 @@ export function StepSessionFormat({ form }: StepProps) {
 // ============ STEP 11: Create Account ============
 export function StepRegister({ form }: StepProps) {
   const handleGoogleAuth = () => {
-    console.log("Google OAuth clicked - questionnaire data in localStorage:", form.getValues());
+    console.log("Google OAuth clicked - questionnaire data:", form.state.values);
   };
 
-  return <SignupForm form={form} variant="inline" onGoogleAuth={handleGoogleAuth} />;
+  return <SignupForm variant="inline" onGoogleAuth={handleGoogleAuth} />;
 }
 
 // Crisis resources banner
