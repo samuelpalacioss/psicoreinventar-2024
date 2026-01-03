@@ -196,10 +196,10 @@ export default function SignupForm({
               selector={(state) => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (
                 <Button type="submit" className="w-full" disabled={!canSubmit}>
-                  {"Sign up"}
-                  {isSubmitting && (
-                    <Icons.spinner className="mx-auto h-5 w-5 animate-spin text-primary-foreground" />
-                  )}
+                  <span className="flex items-center gap-2">
+                    Sign up
+                    {isSubmitting && <Icons.spinner className="h-5 w-5 animate-spin" />}
+                  </span>
                 </Button>
               )}
             />
