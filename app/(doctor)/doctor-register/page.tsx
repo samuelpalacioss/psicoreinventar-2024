@@ -1,7 +1,7 @@
 // import { prisma } from '@/lib/db';
-import RegisterDoctorForm from '@/components/register-doctor-form';
-import { Option } from '@/components/ui/multiple-selector';
-import { Suspense } from 'react';
+// import RegisterDoctorForm from '@/components/register-doctor-form';
+import { Option } from "@/components/ui/multiple-selector";
+import { Suspense } from "react";
 
 async function getSpecialties() {
   // TODO: Replace with your database solution
@@ -19,7 +19,8 @@ export default async function RegisterDoctorPage() {
   }));
   return (
     <Suspense>
-      <RegisterDoctorForm specialties={options} />
+      {/* <RegisterDoctorForm specialties={options} /> */}
+      holaa
     </Suspense>
   );
 }

@@ -1,10 +1,11 @@
-import NewPasswordForm from '@/components/new-password-form';
-import { Suspense } from 'react';
+// import NewPasswordForm from '@/components/new-password-form';
+import { Suspense } from "react";
 
 export default function NewPasswordPage() {
   return (
     <Suspense>
-      <NewPasswordForm />
+      holaa
+      {/* <NewPasswordForm /> */}
     </Suspense>
   );
 }
