@@ -7,19 +7,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User } from '@/types';
+import { User } from '@/lib/auth/auth';
 import UserAvatar from './user-avatar';
 import Link from 'next/link';
 import { Icons } from './icons';
 import { dashboardConfig } from '@/config/dashboard';
+import { Role } from '@/types/enums';
 
 interface UserDropdownProps {
   children?: React.ReactNode;
-  user: Pick<User, 'name' | 'image' | 'email'>;
+  user: Pick<User, 'name' | 'image' | 'email' | 'role'>;
 }
 
 export default function UserDropdown({ user }: UserDropdownProps) {
-  const items = dashboardConfig.sidebarNav;
+  const items = user.role ? dashboardConfig.sidebarNav[user.role as Role] : [];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className='focus-visible:outline-0'>

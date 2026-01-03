@@ -5,7 +5,8 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, buttonVariants } from "./ui/button";
-import { MainNavItem, User } from "@/types";
+import { MainNavItem } from "@/types";
+import { User } from "@/lib/auth/auth";
 import UserDropdown from "./user-dropdown";
 import {
   NavigationMenu,
@@ -19,7 +20,7 @@ import {
 interface NavbarProps extends React.HTMLAttributes<HTMLDivElement> {
   items?: MainNavItem[];
   children?: React.ReactNode;
-  user?: Pick<User, "name" | "image" | "email">;
+  user?: Pick<User, "name" | "image" | "email" | "role">;
 }
 
 export default function Navbar({ className, items, user, children }: NavbarProps) {

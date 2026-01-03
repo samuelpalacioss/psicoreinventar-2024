@@ -3,7 +3,7 @@ import { z } from "zod";
 export const intakeSchema = z.object({
   // Step 1 - Getting Started
   therapyType: z.enum(["individual", "couples", "teen", "family"], {
-    required_error: "Please select a therapy type",
+    message: "Please select a therapy type",
   }),
   concerns: z.array(z.string()).min(1, "Select at least one concern"),
   otherConcern: z.string().optional(),
@@ -53,11 +53,11 @@ export const intakeSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8),
   consentResults: z.literal(true, {
-    errorMap: () => ({ message: "You must consent to receive results" }),
+    message: "You must consent to receive results",
   }),
   consentNewsletter: z.boolean().optional(),
   consentTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must agree to the terms" }),
+    message: "You must agree to the terms",
   }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
