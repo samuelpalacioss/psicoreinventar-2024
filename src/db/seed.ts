@@ -1,7 +1,11 @@
+import "dotenv/config";
 import db, { client } from "./index";
 import { sql } from "drizzle-orm";
 import {
   users,
+  sessions,
+  accounts,
+  verifications,
   places,
   institutions,
   persons,
@@ -26,6 +30,7 @@ import {
   reviews,
   progresses,
 } from "./schema";
+import { randomUUID } from "crypto";
 
 async function seed() {
   console.log("🌱 Seeding database...");
@@ -54,6 +59,9 @@ async function seed() {
     await db.delete(phones);
     await db.delete(doctors);
     await db.delete(persons);
+    await db.delete(sessions);
+    await db.delete(accounts);
+    await db.delete(verifications);
     await db.delete(users);
     await db.delete(institutions);
     await db.delete(treatmentMethods);
@@ -229,33 +237,56 @@ async function seed() {
       .insert(users)
       .values([
         {
+          id: randomUUID(),
+          name: "Lua Martelli",
           email: "luamartelli@email.com",
-          password: "$2a$10$example.hash.patient1", // In production, use bcrypt
+          emailVerified: true,
           role: "patient",
         },
         {
+          id: randomUUID(),
+          name: "Carlos Martínez",
           email: "carlosmartinez@email.com",
-          password: "$2a$10$example.hash.patient2",
+          emailVerified: true,
           role: "patient",
         },
         {
+          id: randomUUID(),
+          name: "Ana García",
           email: "anagarcia@email.com",
-          password: "$2a$10$example.hash.patient3",
+          emailVerified: true,
           role: "patient",
         },
         {
+          id: randomUUID(),
+          name: "José López",
           email: "joselopez@email.com",
-          password: "$2a$10$example.hash.patient4",
+          emailVerified: true,
           role: "patient",
         },
         {
+          id: randomUUID(),
+          name: "Sofia Fernández",
           email: "sofiafernandez@email.com",
-          password: "$2a$10$example.hash.patient5",
+          emailVerified: true,
           role: "patient",
         },
       ])
       .returning();
     console.log(`✅ Created ${patientUsersData.length} patient users`);
+
+    // Create accounts for patient users (email/password authentication)
+    console.log("🔐 Creating patient accounts...");
+    await db.insert(accounts).values(
+      patientUsersData.map((user) => ({
+        id: randomUUID(),
+        accountId: user.email,
+        providerId: "credential",
+        userId: user.id,
+        password: "12345678", // In production, use bcrypt
+      }))
+    );
+    console.log(`✅ Created ${patientUsersData.length} patient accounts`);
 
     // ============================================================================
     // 8. USERS (Doctors)
@@ -265,33 +296,56 @@ async function seed() {
       .insert(users)
       .values([
         {
+          id: randomUUID(),
+          name: "Dr. Roberto Sánchez",
           email: "drsanchez@psicoreinventar.com",
-          password: "12345678",
+          emailVerified: true,
           role: "doctor",
         },
         {
+          id: randomUUID(),
+          name: "Dra. Laura Pérez",
           email: "draperez@psicoreinventar.com",
-          password: "12345678",
+          emailVerified: true,
           role: "doctor",
         },
         {
+          id: randomUUID(),
+          name: "Dr. Miguel González",
           email: "drgonzalez@psicoreinventar.com",
-          password: "12345678",
+          emailVerified: true,
           role: "doctor",
         },
         {
+          id: randomUUID(),
+          name: "Dra. Carmen Ramírez",
           email: "draramirez@psicoreinventar.com",
-          password: "12345678",
+          emailVerified: true,
           role: "doctor",
         },
         {
+          id: randomUUID(),
+          name: "Dr. Fernando Torres",
           email: "drtorres@psicoreinventar.com",
-          password: "12345678",
+          emailVerified: true,
           role: "doctor",
         },
       ])
       .returning();
     console.log(`✅ Created ${doctorUsersData.length} doctor users`);
+
+    // Create accounts for doctor users (email/password authentication)
+    console.log("🔐 Creating doctor accounts...");
+    await db.insert(accounts).values(
+      doctorUsersData.map((user) => ({
+        id: randomUUID(),
+        accountId: user.email,
+        providerId: "credential",
+        userId: user.id,
+        password: "12345678", // In production, use bcrypt
+      }))
+    );
+    console.log(`✅ Created ${doctorUsersData.length} doctor accounts`);
 
     // ============================================================================
     // 9. USERS (Admin)
@@ -301,13 +355,28 @@ async function seed() {
       .insert(users)
       .values([
         {
+          id: randomUUID(),
+          name: "Admin",
           email: "admin@psicoreinventar.com",
-          password: "12345678",
+          emailVerified: true,
           role: "admin",
         },
       ])
       .returning();
     console.log(`✅ Created ${adminUserData.length} admin user`);
+
+    // Create account for admin user (email/password authentication)
+    console.log("🔐 Creating admin account...");
+    await db.insert(accounts).values([
+      {
+        id: randomUUID(),
+        accountId: adminUserData[0].email,
+        providerId: "credential",
+        userId: adminUserData[0].id,
+        password: "12345678", // In production, use bcrypt
+      },
+    ]);
+    console.log(`✅ Created admin account`);
 
     // ============================================================================
     // 10. PERSONS (Patients)

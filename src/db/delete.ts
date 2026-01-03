@@ -1,3 +1,4 @@
+import "dotenv/config";
 import db, { client } from "./index";
 import { sql } from "drizzle-orm";
 import {
@@ -25,6 +26,9 @@ import {
   payments,
   reviews,
   progresses,
+  accounts,
+  verifications,
+  sessions,
 } from "./schema";
 
 async function deleteAll() {
@@ -55,6 +59,9 @@ async function deleteAll() {
     await db.delete(doctors);
     await db.delete(persons);
     await db.delete(users);
+    await db.delete(accounts);
+    await db.delete(sessions);
+    await db.delete(verifications);
     await db.delete(institutions);
     await db.delete(treatmentMethods);
     await db.delete(services);

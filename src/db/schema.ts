@@ -13,6 +13,7 @@ import {
   smallint,
   primaryKey,
   check,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -66,15 +67,82 @@ export const languageTypeEnum = pgEnum("language_type", ["native", "foreign"]);
 // BASE TABLES
 // ============================================================================
 
-// User
+// User (better-auth schema + role field)
 export const users = pgTable("User", {
-  id: serial("id").primaryKey(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  password: varchar("password", { length: 255 }).notNull(), // Encrypted
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  image: text("image"),
   role: userRoleEnum("role").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
+
+// Session (better-auth)
+export const sessions = pgTable(
+  "Session",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at").notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .$onUpdate(() => new Date())
+      .notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("session_userId_idx").on(table.userId)]
+);
+
+// Account (better-auth)
+export const accounts = pgTable(
+  "Account",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("account_userId_idx").on(table.userId)]
+);
+
+// Verification (better-auth)
+export const verifications = pgTable(
+  "Verification",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("verification_identifier_idx").on(table.identifier)]
+);
 
 // Place (Based on search API)
 export const places = pgTable("Place", {
@@ -97,7 +165,7 @@ export const institutions = pgTable("Institution", {
 // Person (Patient)
 export const persons = pgTable("Person", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
+  userId: text("user_id")
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -119,7 +187,7 @@ export const persons = pgTable("Person", {
 // Doctor (Therapist)
 export const doctors = pgTable("Doctor", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
+  userId: text("user_id")
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -249,7 +317,7 @@ export const schedules = pgTable("Schedule", {
 export const doctorServices = pgTable(
   "Doctor_Service",
   {
-    doctorId: serial("doctor_id")
+    doctorId: integer("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
     serviceId: integer("service_id")
@@ -264,7 +332,7 @@ export const doctorServices = pgTable(
 export const doctorTreatmentMethods = pgTable(
   "Doctor_Treatment_Method",
   {
-    doctorId: serial("doctor_id")
+    doctorId: integer("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
     treatmentMethodId: integer("treatment_method_id")
@@ -278,7 +346,7 @@ export const doctorTreatmentMethods = pgTable(
 export const doctorConditions = pgTable(
   "Doctor_Condition",
   {
-    doctorId: serial("doctor_id")
+    doctorId: integer("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
     conditionId: integer("condition_id")
@@ -293,7 +361,7 @@ export const doctorConditions = pgTable(
 export const doctorLanguages = pgTable(
   "Doctor_Language",
   {
-    doctorId: serial("doctor_id")
+    doctorId: integer("doctor_id")
       .notNull()
       .references(() => doctors.id, { onDelete: "cascade" }),
     languageId: integer("language_id")
@@ -405,7 +473,7 @@ export const payments = pgTable("Payment", {
   personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
-  paymentMethodId: serial("payment_method_id")
+  paymentMethodId: integer("payment_method_id")
     .notNull()
     .references(() => paymentMethods.id),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
@@ -430,7 +498,7 @@ export const reviews = pgTable("Review", {
 // RELATIONS
 // ============================================================================
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   person: one(persons, {
     fields: [users.id],
     references: [persons.userId],
@@ -438,6 +506,22 @@ export const usersRelations = relations(users, ({ one }) => ({
   doctor: one(doctors, {
     fields: [users.id],
     references: [doctors.userId],
+  }),
+  sessions: many(sessions),
+  accounts: many(accounts),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
   }),
 }));
 
