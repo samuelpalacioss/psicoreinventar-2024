@@ -1,0 +1,192 @@
+import * as z from "zod";
+import {
+  numericIdSchema,
+  amountSchema,
+  dateStringSchema,
+  paymentMethodTypeSchema,
+  payoutTypeSchema,
+  payoutStatusSchema,
+  ciSchema,
+  paginationSchema,
+  optionalIdFilterSchema,
+  shortTextSchema,
+} from "./common.schemas";
+
+/**
+ * Validation schemas for Payment, PaymentMethod, and Payout entities
+ * PaymentMethod uses discriminated union for card vs pago_movil
+ */
+
+// ============================================================================
+// PAYMENT METHOD - DISCRIMINATED UNION
+// ============================================================================
+
+/**
+ * Base payment method schema
+ */
+const basePaymentMethodSchema = z.object({
+  type: paymentMethodTypeSchema,
+});
+
+/**
+ * Card payment method subtype
+ */
+const cardPaymentMethodSchema = basePaymentMethodSchema.extend({
+  type: z.literal("card"),
+  cardNumber: z.string().length(4, "Last 4 digits of card required"),
+  cardHolderName: z.string().min(1).max(255),
+  cardBrand: z.string().min(1).max(50), // Visa, Mastercard, Amex, etc.
+  expirationMonth: z.number().int().min(1).max(12),
+  expirationYear: z.number().int().min(new Date().getFullYear()).max(new Date().getFullYear() + 20),
+});
+
+/**
+ * Pago Móvil payment method subtype
+ */
+const pagoMovilPaymentMethodSchema = basePaymentMethodSchema.extend({
+  type: z.literal("pago_movil"),
+  pagoMovilPhone: z.string().min(10).max(20),
+  pagoMovilBankCode: z.string().min(1).max(10),
+  pagoMovilCi: ciSchema,
+});
+
+/**
+ * Schema for creating a payment method (discriminated union)
+ * Either card OR pago_movil fields must be provided based on type
+ */
+export const createPaymentMethodSchema = z.discriminatedUnion("type", [
+  cardPaymentMethodSchema,
+  pagoMovilPaymentMethodSchema,
+]);
+
+export type CreatePaymentMethodInput = z.infer<typeof createPaymentMethodSchema>;
+
+/**
+ * Schema for updating a payment method
+ */
+export const updatePaymentMethodSchema = z.discriminatedUnion("type", [
+  cardPaymentMethodSchema.partial().required({ type: true }),
+  pagoMovilPaymentMethodSchema.partial().required({ type: true }),
+]);
+
+export type UpdatePaymentMethodInput = z.infer<typeof updatePaymentMethodSchema>;
+
+// ============================================================================
+// PAYMENT METHOD - PERSON ASSOCIATION
+// ============================================================================
+
+/**
+ * Schema for associating a payment method with a person
+ */
+export const createPaymentMethodPersonSchema = z.object({
+  paymentMethodId: numericIdSchema,
+  nickname: z.string().min(1).max(100),
+  isPreferred: z.boolean().default(false),
+});
+
+export type CreatePaymentMethodPersonInput = z.infer<typeof createPaymentMethodPersonSchema>;
+
+/**
+ * Schema for updating payment method-person association
+ */
+export const updatePaymentMethodPersonSchema = createPaymentMethodPersonSchema.partial();
+
+export type UpdatePaymentMethodPersonInput = z.infer<typeof updatePaymentMethodPersonSchema>;
+
+// ============================================================================
+// PAYMENT (Transaction Records)
+// ============================================================================
+
+/**
+ * Schema for creating a payment
+ * Typically created automatically when booking appointment
+ * Manual creation is admin-only
+ */
+export const createPaymentSchema = z.object({
+  personId: numericIdSchema,
+  paymentMethodId: numericIdSchema,
+  amount: amountSchema,
+  date: dateStringSchema,
+});
+
+export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
+
+/**
+ * Schema for listing/filtering payments
+ */
+export const listPaymentsSchema = paginationSchema.extend({
+  personId: optionalIdFilterSchema,
+  startDate: dateStringSchema.optional(),
+  endDate: dateStringSchema.optional(),
+  minAmount: z.coerce.number().positive().optional(),
+  maxAmount: z.coerce.number().positive().optional(),
+});
+
+export type ListPaymentsInput = z.infer<typeof listPaymentsSchema>;
+
+// ============================================================================
+// PAYOUT - DISCRIMINATED UNION
+// ============================================================================
+
+/**
+ * Base payout schema
+ */
+const basePayoutSchema = z.object({
+  type: payoutTypeSchema,
+  amount: amountSchema,
+});
+
+/**
+ * Bank transfer payout subtype
+ */
+const bankTransferPayoutSchema = basePayoutSchema.extend({
+  type: z.literal("bank_transfer"),
+  bankName: shortTextSchema,
+  accountNumber: z.string().min(1).max(50),
+  accountType: z.enum(["checking", "savings"]),
+});
+
+/**
+ * Pago Móvil payout subtype
+ */
+const pagoMovilPayoutSchema = basePayoutSchema.extend({
+  type: z.literal("pago_movil"),
+  pagoMovilPhone: z.string().min(10).max(20),
+  pagoMovilBankCode: z.string().min(1).max(10),
+  pagoMovilCi: ciSchema,
+});
+
+/**
+ * Schema for creating a payout (admin only)
+ * Discriminated union for bank_transfer vs pago_movil
+ */
+export const createPayoutSchema = z.discriminatedUnion("type", [
+  bankTransferPayoutSchema,
+  pagoMovilPayoutSchema,
+]);
+
+export type CreatePayoutInput = z.infer<typeof createPayoutSchema>;
+
+/**
+ * Schema for updating payout status (admin only)
+ */
+export const updatePayoutSchema = z.object({
+  status: payoutStatusSchema,
+  processedAt: z.string().datetime().optional(),
+});
+
+export type UpdatePayoutInput = z.infer<typeof updatePayoutSchema>;
+
+/**
+ * Schema for listing/filtering payouts
+ */
+export const listPayoutsSchema = paginationSchema.extend({
+  doctorId: optionalIdFilterSchema,
+  status: payoutStatusSchema.optional(),
+  startDate: dateStringSchema.optional(),
+  endDate: dateStringSchema.optional(),
+  minAmount: z.coerce.number().positive().optional(),
+  maxAmount: z.coerce.number().positive().optional(),
+});
+
+export type ListPayoutsInput = z.infer<typeof listPayoutsSchema>;

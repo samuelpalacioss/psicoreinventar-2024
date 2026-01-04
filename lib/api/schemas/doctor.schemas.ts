@@ -1,0 +1,255 @@
+import * as z from "zod";
+import {
+  ciSchema,
+  nameSchema,
+  optionalNameSchema,
+  birthDateSchema,
+  addressSchema,
+  placeIdSchema,
+  longTextSchema,
+  paginationSchema,
+  searchQuerySchema,
+  booleanFilterSchema,
+  optionalIdFilterSchema,
+  numericIdSchema,
+  yearSchema,
+  shortTextSchema,
+  areaCodeSchema,
+  phoneNumberSchema,
+  dayOfWeekSchema,
+} from "./common.schemas";
+
+/**
+ * Validation schemas for Doctor (Therapist) entity and related resources
+ */
+
+// ============================================================================
+// CREATE DOCTOR
+// ============================================================================
+
+/**
+ * Schema for creating a new doctor profile
+ * userId is taken from session, not from request body
+ * isActive defaults to false (requires admin approval)
+ */
+export const createDoctorSchema = z.object({
+  ci: ciSchema,
+  firstName: nameSchema,
+  middleName: optionalNameSchema,
+  firstLastName: nameSchema,
+  secondLastName: optionalNameSchema,
+  birthDate: birthDateSchema,
+  address: addressSchema,
+  placeId: placeIdSchema,
+  biography: longTextSchema,
+  firstSessionExpectation: longTextSchema,
+  biggestStrengths: longTextSchema,
+});
+
+export type CreateDoctorInput = z.infer<typeof createDoctorSchema>;
+
+// ============================================================================
+// UPDATE DOCTOR
+// ============================================================================
+
+/**
+ * Schema for updating a doctor profile
+ * All fields are optional (partial update)
+ */
+export const updateDoctorSchema = createDoctorSchema.partial();
+
+export type UpdateDoctorInput = z.infer<typeof updateDoctorSchema>;
+
+// ============================================================================
+// LIST DOCTORS
+// ============================================================================
+
+/**
+ * Schema for listing/filtering doctors
+ * Includes pagination and various filter parameters
+ */
+export const listDoctorsSchema = paginationSchema.extend({
+  search: searchQuerySchema, // Search in name, biography
+  placeId: optionalIdFilterSchema,
+  serviceId: optionalIdFilterSchema,
+  conditionId: optionalIdFilterSchema,
+  languageId: optionalIdFilterSchema,
+  treatmentMethodId: optionalIdFilterSchema,
+  isActive: booleanFilterSchema,
+});
+
+export type ListDoctorsInput = z.infer<typeof listDoctorsSchema>;
+
+// ============================================================================
+// DOCTOR EDUCATION
+// ============================================================================
+
+/**
+ * Schema for adding doctor education records
+ */
+export const createEducationSchema = z.object({
+  institutionId: numericIdSchema,
+  degree: shortTextSchema,
+  specialization: shortTextSchema,
+  startYear: yearSchema,
+  endYear: yearSchema,
+}).refine(
+  (data) => data.endYear >= data.startYear,
+  { message: "End year must be greater than or equal to start year", path: ["endYear"] }
+);
+
+export type CreateEducationInput = z.infer<typeof createEducationSchema>;
+
+/**
+ * Schema for updating doctor education records
+ */
+export const updateEducationSchema = createEducationSchema.partial();
+
+export type UpdateEducationInput = z.infer<typeof updateEducationSchema>;
+
+// ============================================================================
+// DOCTOR SCHEDULE
+// ============================================================================
+
+/**
+ * Schema for creating doctor schedule (availability)
+ * Time format: HH:MM (24-hour format)
+ */
+export const createScheduleSchema = z.object({
+  day: dayOfWeekSchema,
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
+}).refine(
+  (data) => data.endTime > data.startTime,
+  { message: "End time must be after start time", path: ["endTime"] }
+);
+
+export type CreateScheduleInput = z.infer<typeof createScheduleSchema>;
+
+/**
+ * Schema for updating doctor schedule
+ */
+export const updateScheduleSchema = createScheduleSchema.partial();
+
+export type UpdateScheduleInput = z.infer<typeof updateScheduleSchema>;
+
+// ============================================================================
+// DOCTOR AGE GROUP
+// ============================================================================
+
+/**
+ * Schema for creating age group that doctor serves
+ */
+export const createAgeGroupSchema = z.object({
+  name: z.string().min(1).max(50),
+  minAge: z.number().int().min(0).max(120),
+  maxAge: z.number().int().min(0).max(120),
+}).refine(
+  (data) => data.maxAge >= data.minAge,
+  { message: "Max age must be greater than or equal to min age", path: ["maxAge"] }
+);
+
+export type CreateAgeGroupInput = z.infer<typeof createAgeGroupSchema>;
+
+/**
+ * Schema for updating age group
+ */
+export const updateAgeGroupSchema = createAgeGroupSchema.partial();
+
+export type UpdateAgeGroupInput = z.infer<typeof updateAgeGroupSchema>;
+
+// ============================================================================
+// DOCTOR PHONE
+// ============================================================================
+
+/**
+ * Schema for adding/updating doctor phone numbers
+ */
+export const doctorPhoneSchema = z.object({
+  areaCode: areaCodeSchema,
+  number: phoneNumberSchema,
+});
+
+export type DoctorPhoneInput = z.infer<typeof doctorPhoneSchema>;
+
+// ============================================================================
+// DOCTOR SERVICE (Junction Table with Pricing)
+// ============================================================================
+
+/**
+ * Schema for adding a service to a doctor with pricing
+ */
+export const addDoctorServiceSchema = z.object({
+  serviceId: numericIdSchema,
+  amount: z.number().int().positive({ message: "Amount must be a positive integer" }),
+});
+
+export type AddDoctorServiceInput = z.infer<typeof addDoctorServiceSchema>;
+
+/**
+ * Schema for updating doctor service pricing
+ */
+export const updateDoctorServiceSchema = z.object({
+  amount: z.number().int().positive({ message: "Amount must be a positive integer" }),
+});
+
+export type UpdateDoctorServiceInput = z.infer<typeof updateDoctorServiceSchema>;
+
+// ============================================================================
+// DOCTOR TREATMENT METHOD (Junction Table)
+// ============================================================================
+
+/**
+ * Schema for adding a treatment method to a doctor
+ */
+export const addDoctorTreatmentMethodSchema = z.object({
+  treatmentMethodId: numericIdSchema,
+});
+
+export type AddDoctorTreatmentMethodInput = z.infer<typeof addDoctorTreatmentMethodSchema>;
+
+// ============================================================================
+// DOCTOR CONDITION (Junction Table with Type)
+// ============================================================================
+
+/**
+ * Schema for adding a condition to a doctor with type
+ */
+export const addDoctorConditionSchema = z.object({
+  conditionId: numericIdSchema,
+  type: z.enum(["primary", "other"]),
+});
+
+export type AddDoctorConditionInput = z.infer<typeof addDoctorConditionSchema>;
+
+/**
+ * Schema for updating doctor condition type
+ */
+export const updateDoctorConditionSchema = z.object({
+  type: z.enum(["primary", "other"]),
+});
+
+export type UpdateDoctorConditionInput = z.infer<typeof updateDoctorConditionSchema>;
+
+// ============================================================================
+// DOCTOR LANGUAGE (Junction Table with Type)
+// ============================================================================
+
+/**
+ * Schema for adding a language to a doctor with type
+ */
+export const addDoctorLanguageSchema = z.object({
+  languageId: numericIdSchema,
+  type: z.enum(["native", "foreign"]),
+});
+
+export type AddDoctorLanguageInput = z.infer<typeof addDoctorLanguageSchema>;
+
+/**
+ * Schema for updating doctor language type
+ */
+export const updateDoctorLanguageSchema = z.object({
+  type: z.enum(["native", "foreign"]),
+});
+
+export type UpdateDoctorLanguageInput = z.infer<typeof updateDoctorLanguageSchema>;
