@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateSearchParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Authentication
-  const session = await getServerSession();
+  // Authentication (supports dev token in development mode)
+  const session = await getAuthSession(request);
   if (!session?.user) {
     return NextResponse.json(
       {

@@ -7,24 +7,24 @@ import { StatusCodes } from "http-status-codes";
  * Rate limit configurations for different endpoint types
  */
 
-// Default rate limit: 100 requests per 15 minutes
+// Default rate limit: 100 requests per 5 minutes
 export const defaultRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(100, "15 m"),
+  limiter: Ratelimit.slidingWindow(100, "5 m"),
   prefix: "@ratelimit/default",
 });
 
-// Strict rate limit: 10 requests per 15 minutes (for mutations)
+// Strict rate limit: 10 requests per minute (for mutations)
 export const strictRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, "15 m"),
+  limiter: Ratelimit.slidingWindow(10, "1 m"),
   prefix: "@ratelimit/strict",
 });
 
-// Auth rate limit: 5 requests per 15 minutes (for auth endpoints)
+// Auth rate limit: 5 requests per 10 minutes (for auth endpoints)
 export const authRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(5, "15 m"),
+  limiter: Ratelimit.slidingWindow(5, "10 m"),
   prefix: "@ratelimit/auth",
 });
 
@@ -72,7 +72,7 @@ export async function applyRateLimit(
         error: {
           message: "Too many requests. Please try again later.",
           code: "RATE_LIMIT_EXCEEDED",
-          retryAfter: new Date(reset).toISOString(),
+          retryAfter: new Date(reset).toLocaleTimeString(),
         },
       },
       {

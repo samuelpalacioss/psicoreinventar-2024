@@ -178,7 +178,7 @@ export type ListPlacesInput = z.infer<typeof listPlacesSchema>;
  */
 export const createInstitutionSchema = z.object({
   name: shortTextSchema,
-  type: institutionTypeSchema,
+  type: institutionTypeSchema, // university, hospital, clinic, research_center, other
   placeId: numericIdSchema,
   isVerified: z.boolean().default(false).optional(),
 });

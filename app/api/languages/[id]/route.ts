@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
@@ -49,7 +49,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const session = await getServerSession();
+  const session = await getAuthSession(request);
   if (!session?.user) {
     return NextResponse.json(
       { success: false, error: { message: "Unauthorized", code: "UNAUTHORIZED" } },
@@ -106,7 +106,7 @@ export async function DELETE(
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const session = await getServerSession();
+  const session = await getAuthSession(request);
   if (!session?.user) {
     return NextResponse.json(
       { success: false, error: { message: "Unauthorized", code: "UNAUTHORIZED" } },
