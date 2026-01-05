@@ -13,13 +13,11 @@ export const MAX_LIMIT = 50;
  */
 export interface PaginationMetadata {
   page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
   nextPage: number | null;
   previousPage: number | null;
-  limit: number;
-  offset: number;
-  totalCount: number;
-  perPageLimit: number;
-  totalPages: number;
 }
 
 /**
@@ -46,7 +44,7 @@ export function getPaginationParams(searchParams: URLSearchParams): {
   const pageParam = searchParams.get("page");
   const page = Math.max(1, pageParam ? parseInt(pageParam, 10) : DEFAULT_PAGE);
 
-  // Parse limit (default to 20, max 100)
+  // Parse limit (default to 20, max 50)
   const limitParam = searchParams.get("limit");
   let limit = limitParam ? parseInt(limitParam, 10) : DEFAULT_LIMIT;
   limit = Math.min(MAX_LIMIT, Math.max(1, limit));
@@ -62,27 +60,23 @@ export function getPaginationParams(searchParams: URLSearchParams): {
  *
  * @param page - Current page number
  * @param limit - Items per page
- * @param offset - Offset from start
  * @param totalCount - Total number of items
  * @returns Pagination metadata object
  */
 export function calculatePaginationMetadata(
   page: number,
   limit: number,
-  offset: number,
   totalCount: number
 ): PaginationMetadata {
   const totalPages = Math.ceil(totalCount / limit);
 
   return {
     page,
+    limit,
+    totalCount,
+    totalPages,
     nextPage: page < totalPages ? page + 1 : null,
     previousPage: page > 1 ? page - 1 : null,
-    limit,
-    offset,
-    totalCount,
-    perPageLimit: limit,
-    totalPages,
   };
 }
 
@@ -139,7 +133,7 @@ export async function paginateQuery(
   const data = await dataQuery;
 
   // Calculate pagination metadata
-  const pagination = calculatePaginationMetadata(page, limit, offset, totalCount);
+  const pagination = calculatePaginationMetadata(page, limit, totalCount);
 
   return {
     data,

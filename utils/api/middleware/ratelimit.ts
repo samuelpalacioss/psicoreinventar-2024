@@ -11,7 +11,6 @@ import { StatusCodes } from "http-status-codes";
 export const defaultRateLimit = new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(100, "15 m"),
-  analytics: true,
   prefix: "@ratelimit/default",
 });
 
@@ -19,7 +18,6 @@ export const defaultRateLimit = new Ratelimit({
 export const strictRateLimit = new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(10, "15 m"),
-  analytics: true,
   prefix: "@ratelimit/strict",
 });
 
@@ -27,7 +25,6 @@ export const strictRateLimit = new Ratelimit({
 export const authRateLimit = new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(5, "15 m"),
-  analytics: true,
   prefix: "@ratelimit/auth",
 });
 
@@ -52,6 +49,11 @@ export async function applyRateLimit(
   request: NextRequest,
   limiter: Ratelimit = defaultRateLimit
 ): Promise<NextResponse | null> {
+  // Skip rate limiting in development to avoid latency
+  // if (process.env.NODE_ENV === "development") {
+  //   return null;
+  // }
+
   const identifier = getClientIdentifier(request);
 
   const { success, limit, reset, remaining } = await limiter.limit(identifier);

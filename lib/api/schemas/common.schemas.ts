@@ -190,7 +190,13 @@ export const appointmentStatusSchema = z.enum(["scheduled", "confirmed", "comple
 /**
  * Institution type enum - matches institutionTypeEnum from schema
  */
-export const institutionTypeSchema = z.enum(["university", "hospital", "clinic", "research_center", "other"]);
+export const institutionTypeSchema = z.enum([
+  "university",
+  "hospital",
+  "clinic",
+  "research_center",
+  "other",
+]);
 
 /**
  * Payment method type enum - matches paymentMethodTypeEnum from schema
@@ -252,9 +258,13 @@ export const scoreSchema = z.number().int().min(1).max(5, {
 /**
  * Year validation (4 digits)
  */
-export const yearSchema = z.number().int().min(1900).max(new Date().getFullYear() + 10, {
-  message: `Year must be between 1900 and ${new Date().getFullYear() + 10}`,
-});
+export const yearSchema = z
+  .number()
+  .int()
+  .min(1900)
+  .max(new Date().getFullYear() + 10, {
+    message: `Year must be between 1900 and ${new Date().getFullYear() + 10}`,
+  });
 
 /**
  * Duration in minutes (positive integer)
@@ -269,11 +279,12 @@ export const durationSchema = z.number().int().positive({
 
 /**
  * Boolean filter (for query params that come as strings)
+ * Returns undefined if not provided, true/false if provided
  */
 export const booleanFilterSchema = z
   .string()
   .optional()
-  .transform((val) => val === "true");
+  .transform((val) => (val === undefined ? undefined : val === "true"));
 
 /**
  * Optional numeric ID filter
