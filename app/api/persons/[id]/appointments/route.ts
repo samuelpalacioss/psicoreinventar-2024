@@ -1,0 +1,145 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthSession } from "@/utils/api/middleware/auth";
+import { checkResourceAccess } from "@/utils/api/authorization/guards";
+import { validateParams, validateSearchParams } from "@/utils/api/middleware/validation";
+import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
+import { idParamSchema } from "@/lib/api/schemas/common.schemas";
+import { paginationSchema } from "@/lib/api/schemas/common.schemas";
+import { Role } from "@/types/enums";
+import db from "@/src/db";
+import { persons, appointments, doctors, users } from "@/src/db/schema";
+import { count, eq } from "drizzle-orm";
+import { StatusCodes } from "http-status-codes";
+import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+
+/**
+ * GET /api/persons/[id]/appointments
+ * List all appointments for a person (read-only)
+ * Access:
+ * - Patient: Own appointments only
+ * - Doctor: Assigned patients' appointments
+ * - Admin: No need to use this endpoint
+ */
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Rate limiting
+  const rateLimitResponse = await withRateLimit(request, defaultRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // Authentication
+  const session = await getAuthSession(request);
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Unauthorized",
+          code: "UNAUTHORIZED",
+        },
+      },
+      { status: StatusCodes.UNAUTHORIZED }
+    );
+  }
+
+  const { id: userId, role } = session.user;
+
+  const resolvedParams = await params;
+
+  // Validate ID parameter
+  const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
+  if (!paramsValidationResult.success) return paramsValidationResult.error;
+
+  const personId = parseInt(paramsValidationResult.data.id);
+
+  // Authorization - check access to parent person
+  const authzResult = await checkResourceAccess(userId, role as Role, "person", "read", personId);
+  if (!authzResult.allowed) return authzResult.error;
+
+  // Validate query parameters
+  const validationResult = validateSearchParams(request.nextUrl.searchParams, paginationSchema);
+  if (!validationResult.success) return validationResult.error;
+
+  // Get pagination params
+  const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
+
+  try {
+    // Verify person exists
+    const person = await db.query.persons.findFirst({
+      where: eq(persons.id, personId),
+    });
+
+    if (!person) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Person not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
+    // Get total count
+    const [{ count: totalCount }] = await db
+      .select({ count: count() })
+      .from(appointments)
+      .where(eq(appointments.personId, personId));
+
+    // Get paginated appointments with doctor info
+    const personAppointments = await db
+      .select({
+        id: appointments.id,
+        personId: appointments.personId,
+        doctorId: appointments.doctorId,
+        doctorServiceDoctorId: appointments.doctorServiceDoctorId,
+        doctorServiceServiceId: appointments.doctorServiceServiceId,
+        paymentId: appointments.paymentId,
+        startDateTime: appointments.startDateTime,
+        endDateTime: appointments.endDateTime,
+        status: appointments.status,
+        notes: appointments.notes,
+        cancellationReason: appointments.cancellationReason,
+        createdAt: appointments.createdAt,
+        updatedAt: appointments.updatedAt,
+        doctor: {
+          id: doctors.id,
+          firstName: doctors.firstName,
+          firstLastName: doctors.firstLastName,
+          userName: users.name,
+          userEmail: users.email,
+        },
+      })
+      .from(appointments)
+      .leftJoin(doctors, eq(appointments.doctorId, doctors.id))
+      .leftJoin(users, eq(doctors.userId, users.id))
+      .where(eq(appointments.personId, personId))
+      .orderBy(appointments.startDateTime)
+      .limit(limit)
+      .offset(offset);
+
+    // Calculate pagination metadata
+    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: personAppointments,
+        pagination,
+      },
+      { status: StatusCodes.OK }
+    );
+  } catch (error) {
+    console.error("Error fetching person appointments:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Internal server error",
+          code: "INTERNAL_ERROR",
+        },
+      },
+      { status: StatusCodes.INTERNAL_SERVER_ERROR }
+    );
+  }
+}

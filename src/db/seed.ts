@@ -910,6 +910,17 @@ async function seed() {
           pagoMovilBankCode: null,
           pagoMovilCi: null,
         },
+        {
+          type: "card",
+          cardNumber: "1234",
+          cardHolderName: "José López",
+          cardBrand: "Mastercard",
+          expirationMonth: 8,
+          expirationYear: 2026,
+          pagoMovilPhone: null,
+          pagoMovilBankCode: null,
+          pagoMovilCi: null,
+        },
       ])
       .returning();
     console.log(`✅ Created ${paymentMethodsData.length} payment methods`);
@@ -950,6 +961,12 @@ async function seed() {
           paymentMethodId: paymentMethodsData[4].id,
           isPreferred: true,
           nickname: "Amex",
+        },
+        {
+          personId: personsData[3].id,
+          paymentMethodId: paymentMethodsData[5].id, // José's Mastercard
+          isPreferred: true,
+          nickname: "Mastercard Personal",
         },
       ])
       .returning();
@@ -997,6 +1014,12 @@ async function seed() {
           paymentMethodId: paymentMethodsData[0].id,
           amount: "50.00",
           date: "2025-12-22",
+        },
+        {
+          personId: personsData[3].id,
+          paymentMethodId: paymentMethodsData[5].id, // José's Mastercard
+          amount: "80.00",
+          date: "2026-01-07",
         },
       ])
       .returning();
@@ -1074,6 +1097,17 @@ async function seed() {
           status: "cancelled",
           cancellationReason: "Hubo un problema a ultimo minuto",
         },
+        {
+          personId: personsData[3].id, // José López
+          doctorId: doctorsData[1].id, // Dra. Laura Pérez
+          doctorServiceDoctorId: doctorServicesData[3].doctorId, // Doctor 1
+          doctorServiceServiceId: doctorServicesData[3].serviceId, // Individual Therapy
+          paymentId: paymentsData[6].id,
+          startDateTime: new Date("2026-01-07T14:00:00Z"),
+          endDateTime: new Date("2026-01-07T14:45:00Z"),
+          status: "scheduled",
+          notes: "Primera sesión con nuevo paciente.",
+        },
       ])
       .returning();
     console.log(`✅ Created ${appointmentsData.length} appointments`);
@@ -1120,6 +1154,8 @@ async function seed() {
       .values([
         {
           personId: personsData[0].id,
+          doctorId: doctorsData[0].id, // Dr. Roberto Sánchez
+          appointmentId: appointmentsData[3].id, // Second session (2025-12-22) - "Buen progreso en manejo de ansiedad"
           conditionId: conditionsData[0].id,
           title: "Manejo de ansiedad",
           level: "Mejora significativa",
@@ -1128,6 +1164,8 @@ async function seed() {
         },
         {
           personId: personsData[1].id,
+          doctorId: doctorsData[1].id, // Dra. Laura Pérez
+          appointmentId: appointmentsData[1].id, // Completed session (2025-12-16)
           conditionId: conditionsData[1].id,
           title: "Estado de ánimo",
           level: "Estable",
@@ -1135,6 +1173,8 @@ async function seed() {
         },
         {
           personId: personsData[2].id,
+          doctorId: doctorsData[2].id, // Dr. Miguel González
+          appointmentId: appointmentsData[2].id, // Completed session (2025-12-17)
           conditionId: conditionsData[2].id,
           title: "Regulación emocional",
           level: "En progreso",
@@ -1142,6 +1182,8 @@ async function seed() {
         },
         {
           personId: personsData[0].id,
+          doctorId: doctorsData[0].id, // Dr. Roberto Sánchez
+          appointmentId: appointmentsData[0].id, // First session (2025-12-15)
           conditionId: conditionsData[0].id,
           title: "Exposición gradual",
           level: "Iniciando",
@@ -1149,6 +1191,8 @@ async function seed() {
         },
         {
           personId: personsData[3].id,
+          doctorId: doctorsData[3].id, // Dra. Carmen Ramírez (based on cancelled appointment)
+          appointmentId: null, // No matching completed appointment
           conditionId: conditionsData[3].id,
           title: "Atención y concentración",
           level: "Mejora moderada",

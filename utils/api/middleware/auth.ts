@@ -52,19 +52,41 @@ export async function getAuthSession(request: NextRequest): Promise<AuthSession>
       if (token === process.env.DEV_AUTH_TOKEN) {
         // Return mock admin session for development
         return {
+          // Admin testing
+          // user: {
+          //   id: "dev-admin-id",
+          //   email: "dev@admin.local",
+          //   name: "Dev Admin",
+          //   role: Role.ADMIN,
+          // },
+          // Doctor testing
           user: {
-            id: "dev-admin-id",
-            email: "dev@admin.local",
-            name: "Dev Admin",
-            role: Role.ADMIN,
+            id: "5269bfdd-dd59-4043-9726-74d6589ab57c", // User Id of doctor with id 1
+            email: "doc1@user.local",
+            name: "Doc 1",
+            role: Role.DOCTOR,
           },
+          // Patient testing
+          // user: {
+          //   id: "2af25529-fbe7-4400-b4c4-2d795346b348", // User id of person with id 4
+          //   email: "patient1@user.local",
+          //   name: "Patient 1 User",
+          //   role: Role.PATIENT,
+          // },
+          // user: {
+          //   id: "1afd2c75-7506-49db-9f76-4226bb1c3b07", // User id of person with id 4
+          //   email: "patient4@user.local",
+          //   name: "Patient 4 User",
+          //   role: Role.PATIENT,
+          // },
         };
       }
     }
   }
 
   // Production or no dev token: use regular session
-  return await getServerSession();
+  const session = await getServerSession();
+  return session as AuthSession;
 }
 
 /**

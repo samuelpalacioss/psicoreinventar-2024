@@ -16,7 +16,9 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed.ts",
-    "db:delete": "tsx src/db/delete.ts"
+    "db:seed:mini": "tsx src/db/seed-mini.ts",
+    "db:delete": "tsx src/db/delete.ts",
+    "db:reset": "pnpm db:delete && pnpm db:push && pnpm db:seed"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

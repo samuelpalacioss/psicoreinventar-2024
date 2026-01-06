@@ -20,6 +20,16 @@ export const idParamSchema = z.object({
 });
 
 /**
+ * Validate text-based user ID parameters from route params
+ * Example: /api/users/[id] where id is a text UUID from users table
+ */
+export const userIdParamSchema = z.object({
+  id: z.string().min(1, {
+    message: "User ID must be a non-empty string",
+  }),
+});
+
+/**
  * Validate numeric ID in request body
  */
 export const numericIdSchema = z.number().int().positive({

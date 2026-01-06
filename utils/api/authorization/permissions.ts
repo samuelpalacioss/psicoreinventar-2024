@@ -371,11 +371,12 @@ export const PERMISSIONS: PermissionMatrix = {
       list: "all",
     },
     progress: {
-      create: "all",
-      read: "all",
-      update: "all",
-      delete: "all",
-      list: "all",
+      // Sensitive data, only patients and doctors can see it
+      create: "none",
+      read: "none",
+      update: "none",
+      delete: "none",
+      list: "none",
     },
     phone: {
       create: "all",

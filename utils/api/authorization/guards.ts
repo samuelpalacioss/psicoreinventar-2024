@@ -440,6 +440,7 @@ async function checkAssignment(
 
       case "progress": {
         // Check if progress record is for a patient assigned to this doctor
+        // AND the progress was created by this doctor
         if (!id) {
           // For create, check context.personId
           if (context?.personId) {
@@ -457,6 +458,12 @@ async function checkAssignment(
 
         if (!progress) return createForbiddenResponse();
 
+        // Progress must be created by this doctor
+        if (progress.doctorId !== doctor.id) {
+          return createForbiddenResponse();
+        }
+
+        // Also verify doctor has appointment with this person (for additional security)
         const appointment = await db.query.appointments.findFirst({
           where: and(eq(appointments.doctorId, doctor.id), eq(appointments.personId, progress.personId)),
         });

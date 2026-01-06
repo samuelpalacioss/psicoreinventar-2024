@@ -291,6 +291,12 @@ export const progresses = pgTable("Progress", {
   personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctors.id, { onDelete: "cascade" }),
+  appointmentId: integer("appointment_id").references(() => appointments.id, {
+    onDelete: "set null",
+  }),
   conditionId: integer("condition_id").references(() => conditions.id, { onDelete: "set null" }),
   title: varchar("title", { length: 255 }).notNull(),
   level: varchar("level", { length: 100 }),
@@ -452,8 +458,8 @@ export const appointments = pgTable("Appointment", {
   doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
-  doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(),
-  doctorServiceServiceId: integer("doctor_service_service_id").notNull(),
+  doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(), // doctorService.doctorId
+  doctorServiceServiceId: integer("doctor_service_service_id").notNull(), // doctorService.serviceId
   paymentId: integer("payment_id")
     .notNull()
     .unique()
@@ -560,6 +566,7 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   ageGroups: many(ageGroups),
   appointments: many(appointments),
   payouts: many(payouts),
+  progresses: many(progresses),
 }));
 
 export const phonesRelations = relations(phones, ({ one }) => ({
@@ -617,6 +624,14 @@ export const progressesRelations = relations(progresses, ({ one }) => ({
   person: one(persons, {
     fields: [progresses.personId],
     references: [persons.id],
+  }),
+  doctor: one(doctors, {
+    fields: [progresses.doctorId],
+    references: [doctors.id],
+  }),
+  appointment: one(appointments, {
+    fields: [progresses.appointmentId],
+    references: [appointments.id],
   }),
   condition: one(conditions, {
     fields: [progresses.conditionId],
@@ -676,7 +691,7 @@ export const payoutsRelations = relations(payouts, ({ one }) => ({
   }),
 }));
 
-export const appointmentsRelations = relations(appointments, ({ one }) => ({
+export const appointmentsRelations = relations(appointments, ({ one, many }) => ({
   person: one(persons, {
     fields: [appointments.personId],
     references: [persons.id],
@@ -697,6 +712,7 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
     fields: [appointments.id],
     references: [reviews.appointmentId],
   }),
+  progresses: many(progresses),
 }));
 
 export const paymentsRelations = relations(payments, ({ one }) => ({

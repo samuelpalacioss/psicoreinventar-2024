@@ -211,9 +211,11 @@ export type ListInstitutionsInput = z.infer<typeof listInstitutionsSchema>;
 /**
  * Schema for creating a progress record
  * Doctors create progress records for their assigned patients
+ * appointmentId is optional - progress can be linked to an appointment or standalone
  */
 export const createProgressSchema = z.object({
   personId: numericIdSchema,
+  appointmentId: numericIdSchema.optional(),
   conditionId: numericIdSchema.optional(),
   title: shortTextSchema,
   level: z.string().max(100).optional(),
