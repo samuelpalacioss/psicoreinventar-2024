@@ -4,21 +4,21 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import { personPhoneSchema } from "@/lib/api/schemas/person.schemas";
+import { addDoctorLanguageSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { persons, phones } from "@/src/db/schema";
-import { eq, count } from "drizzle-orm";
+import { doctors, doctorLanguages, languages } from "@/src/db/schema";
+import { and, eq, count } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
 /**
- * GET /api/persons/[id]/phones
- * List all phone numbers for a person
+ * GET /api/doctors/[id]/languages
+ * List all languages spoken by a doctor with type (native/foreign)
  * Access:
- * - Patient: Own phones only
- * - Doctor: Assigned patients' phones
- * - Admin: All phones
+ * - Patient: All languages (public for active doctors)
+ * - Doctor: Own languages only
+ * - Admin: All languages
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Rate limiting
@@ -48,27 +48,27 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
-  const personId = parseInt(paramsValidationResult.data.id);
+  const doctorId = parseInt(paramsValidationResult.data.id);
 
-  // Authorization - check access to parent person
-  const authzResult = await checkResourceAccess(userId, role as Role, "person", "read", personId);
+  // Authorization - check access to parent doctor
+  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
+    // Verify doctor exists
+    const doctor = await db.query.doctors.findFirst({
+      where: eq(doctors.id, doctorId),
     });
 
-    if (!person) {
+    if (!doctor) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Person not found",
+            message: "Doctor not found",
             code: "NOT_FOUND",
           },
         },
@@ -76,19 +76,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(phones.personId, personId);
+    const whereClause = eq(doctorLanguages.doctorId, doctorId);
 
     // Get total count
     const [{ count: totalCount }] = await db
       .select({ count: count() })
-      .from(phones)
+      .from(doctorLanguages)
       .where(whereClause);
 
-    // Get paginated phones for this person
-    const personPhones = await db.query.phones.findMany({
+    // Get paginated languages for this doctor with type
+    const doctorLanguagesList = await db.query.doctorLanguages.findMany({
       where: whereClause,
       limit,
       offset,
+      with: {
+        language: true,
+      },
     });
 
     // Calculate pagination metadata
@@ -97,13 +100,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(
       {
         success: true,
-        data: personPhones,
+        data: doctorLanguagesList,
         pagination,
       },
       { status: StatusCodes.OK }
     );
   } catch (error) {
-    console.error("Error fetching person phones:", error);
+    console.error("Error fetching doctor languages:", error);
     return NextResponse.json(
       {
         success: false,
@@ -118,11 +121,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 /**
- * POST /api/persons/[id]/phones
- * Add a phone number to a person
+ * POST /api/doctors/[id]/languages
+ * Add a language to a doctor with type (native/foreign)
  * Access:
- * - Patient: Own phones only
- * - Admin: All phones
+ * - Doctor: Own languages only
+ * - Admin: All languages
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Rate limiting (strict for mutations)
@@ -152,37 +155,37 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
-  const personId = parseInt(paramsValidationResult.data.id);
+  const doctorId = parseInt(paramsValidationResult.data.id);
 
-  // Authorization - check access to parent person
+  // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
     role as Role,
-    "phone",
+    "doctor-language",
     "create",
     undefined,
-    { personId }
+    { doctorId }
   );
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
   const body = await request.json().catch(() => ({}));
-  const bodyValidationResult = validateBody(body, personPhoneSchema);
+  const bodyValidationResult = validateBody(body, addDoctorLanguageSchema);
   if (!bodyValidationResult.success) return bodyValidationResult.error;
   const validatedData = bodyValidationResult.data;
 
   try {
-    // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
+    // Verify doctor exists
+    const doctor = await db.query.doctors.findFirst({
+      where: eq(doctors.id, doctorId),
     });
 
-    if (!person) {
+    if (!doctor) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Person not found",
+            message: "Doctor not found",
             code: "NOT_FOUND",
           },
         },
@@ -190,25 +193,65 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // Create phone
-    const [phone] = await db
-      .insert(phones)
+    // Verify language exists
+    const language = await db.query.languages.findFirst({
+      where: eq(languages.id, validatedData.languageId),
+    });
+
+    if (!language) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Language not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
+    // Check if language is already associated with this doctor
+    const existingDoctorLanguage = await db.query.doctorLanguages.findFirst({
+      where: and(
+        eq(doctorLanguages.doctorId, doctorId),
+        eq(doctorLanguages.languageId, validatedData.languageId)
+      ),
+    });
+
+    if (existingDoctorLanguage) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Language already associated with this doctor",
+            code: "DUPLICATE_ENTRY",
+          },
+        },
+        { status: StatusCodes.CONFLICT }
+      );
+    }
+
+    // Create doctor-language association with type
+    const [doctorLanguage] = await db
+      .insert(doctorLanguages)
       .values({
-        ...validatedData,
-        personId,
+        doctorId,
+        languageId: validatedData.languageId,
+        type: validatedData.type,
       })
       .returning();
 
     return NextResponse.json(
       {
         success: true,
-        data: phone,
-        message: "Phone added successfully",
+        data: doctorLanguage,
+        message: "Language added successfully",
       },
       { status: StatusCodes.CREATED }
     );
   } catch (error) {
-    console.error("Error adding phone:", error);
+    console.error("Error adding language:", error);
     return NextResponse.json(
       {
         success: false,
@@ -221,5 +264,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
   }
 }
-
 

@@ -87,23 +87,44 @@ export type ListDoctorsInput = z.infer<typeof listDoctorsSchema>;
 /**
  * Schema for adding doctor education records
  */
-export const createEducationSchema = z.object({
-  institutionId: numericIdSchema,
-  degree: shortTextSchema,
-  specialization: shortTextSchema,
-  startYear: yearSchema,
-  endYear: yearSchema,
-}).refine(
-  (data) => data.endYear >= data.startYear,
-  { message: "End year must be greater than or equal to start year", path: ["endYear"] }
-);
+export const createEducationSchema = z
+  .object({
+    institutionId: numericIdSchema,
+    degree: shortTextSchema,
+    specialization: shortTextSchema,
+    startYear: yearSchema,
+    endYear: yearSchema,
+  })
+  .refine((data) => data.endYear >= data.startYear, {
+    message: "End year must be greater than or equal to start year",
+    path: ["endYear"],
+  });
 
 export type CreateEducationInput = z.infer<typeof createEducationSchema>;
 
 /**
  * Schema for updating doctor education records
+ * Refinement only applies when both startYear and endYear are provided
  */
-export const updateEducationSchema = createEducationSchema.partial();
+const baseUpdateEducationSchema = z
+  .object({
+    institutionId: numericIdSchema,
+    degree: shortTextSchema,
+    specialization: shortTextSchema,
+    startYear: yearSchema,
+    endYear: yearSchema,
+  })
+  .partial();
+
+export const updateEducationSchema = baseUpdateEducationSchema.refine(
+  (data) => {
+    if (data.startYear !== undefined && data.endYear !== undefined) {
+      return data.endYear >= data.startYear;
+    }
+    return true;
+  },
+  { message: "End year must be greater than or equal to start year", path: ["endYear"] }
+);
 
 export type UpdateEducationInput = z.infer<typeof updateEducationSchema>;
 
@@ -115,21 +136,44 @@ export type UpdateEducationInput = z.infer<typeof updateEducationSchema>;
  * Schema for creating doctor schedule (availability)
  * Time format: HH:MM (24-hour format)
  */
-export const createScheduleSchema = z.object({
-  day: dayOfWeekSchema,
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
-}).refine(
-  (data) => data.endTime > data.startTime,
-  { message: "End time must be after start time", path: ["endTime"] }
-);
+export const createScheduleSchema = z
+  .object({
+    day: dayOfWeekSchema,
+    startTime: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: "End time must be after start time",
+    path: ["endTime"],
+  });
 
 export type CreateScheduleInput = z.infer<typeof createScheduleSchema>;
 
 /**
  * Schema for updating doctor schedule
+ * Refinement only applies when both startTime and endTime are provided
  */
-export const updateScheduleSchema = createScheduleSchema.partial();
+const baseUpdateScheduleSchema = z
+  .object({
+    day: dayOfWeekSchema,
+    startTime: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format"),
+  })
+  .partial();
+
+export const updateScheduleSchema = baseUpdateScheduleSchema.refine(
+  (data) => {
+    if (data.startTime !== undefined && data.endTime !== undefined) {
+      return data.endTime > data.startTime;
+    }
+    return true;
+  },
+  { message: "End time must be after start time", path: ["endTime"] }
+);
 
 export type UpdateScheduleInput = z.infer<typeof updateScheduleSchema>;
 
@@ -140,21 +184,40 @@ export type UpdateScheduleInput = z.infer<typeof updateScheduleSchema>;
 /**
  * Schema for creating age group that doctor serves
  */
-export const createAgeGroupSchema = z.object({
-  name: z.string().min(1).max(50),
-  minAge: z.number().int().min(0).max(120),
-  maxAge: z.number().int().min(0).max(120),
-}).refine(
-  (data) => data.maxAge >= data.minAge,
-  { message: "Max age must be greater than or equal to min age", path: ["maxAge"] }
-);
+export const createAgeGroupSchema = z
+  .object({
+    name: z.string().min(1).max(50),
+    minAge: z.number().int().min(0).max(120),
+    maxAge: z.number().int().min(0).max(120),
+  })
+  .refine((data) => data.maxAge >= data.minAge, {
+    message: "Max age must be greater than or equal to min age",
+    path: ["maxAge"],
+  });
 
 export type CreateAgeGroupInput = z.infer<typeof createAgeGroupSchema>;
 
 /**
  * Schema for updating age group
+ * Refinement only applies when both minAge and maxAge are provided
  */
-export const updateAgeGroupSchema = createAgeGroupSchema.partial();
+const baseUpdateAgeGroupSchema = z
+  .object({
+    name: z.string().min(1).max(50),
+    minAge: z.number().int().min(0).max(120),
+    maxAge: z.number().int().min(0).max(120),
+  })
+  .partial();
+
+export const updateAgeGroupSchema = baseUpdateAgeGroupSchema.refine(
+  (data) => {
+    if (data.minAge !== undefined && data.maxAge !== undefined) {
+      return data.maxAge >= data.minAge;
+    }
+    return true;
+  },
+  { message: "Max age must be greater than or equal to min age", path: ["maxAge"] }
+);
 
 export type UpdateAgeGroupInput = z.infer<typeof updateAgeGroupSchema>;
 

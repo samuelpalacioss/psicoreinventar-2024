@@ -4,21 +4,21 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import { personPhoneSchema } from "@/lib/api/schemas/person.schemas";
+import { createEducationSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { persons, phones } from "@/src/db/schema";
+import { doctors, educations, institutions } from "@/src/db/schema";
 import { eq, count } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
 /**
- * GET /api/persons/[id]/phones
- * List all phone numbers for a person
+ * GET /api/doctors/[id]/educations
+ * List all education records for a doctor
  * Access:
- * - Patient: Own phones only
- * - Doctor: Assigned patients' phones
- * - Admin: All phones
+ * - Patient: All educations (public for active doctors)
+ * - Doctor: Own educations only
+ * - Admin: All educations
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Rate limiting
@@ -48,27 +48,27 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
-  const personId = parseInt(paramsValidationResult.data.id);
+  const doctorId = parseInt(paramsValidationResult.data.id);
 
-  // Authorization - check access to parent person
-  const authzResult = await checkResourceAccess(userId, role as Role, "person", "read", personId);
+  // Authorization - check access to parent doctor
+  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
+    // Verify doctor exists
+    const doctor = await db.query.doctors.findFirst({
+      where: eq(doctors.id, doctorId),
     });
 
-    if (!person) {
+    if (!doctor) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Person not found",
+            message: "Doctor not found",
             code: "NOT_FOUND",
           },
         },
@@ -76,19 +76,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(phones.personId, personId);
+    const whereClause = eq(educations.doctorId, doctorId);
 
     // Get total count
     const [{ count: totalCount }] = await db
       .select({ count: count() })
-      .from(phones)
+      .from(educations)
       .where(whereClause);
 
-    // Get paginated phones for this person
-    const personPhones = await db.query.phones.findMany({
+    // Get paginated educations for this doctor with institution details
+    const doctorEducations = await db.query.educations.findMany({
       where: whereClause,
       limit,
       offset,
+      with: {
+        institution: true,
+      },
     });
 
     // Calculate pagination metadata
@@ -97,13 +100,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(
       {
         success: true,
-        data: personPhones,
+        data: doctorEducations,
         pagination,
       },
       { status: StatusCodes.OK }
     );
   } catch (error) {
-    console.error("Error fetching person phones:", error);
+    console.error("Error fetching doctor educations:", error);
     return NextResponse.json(
       {
         success: false,
@@ -118,11 +121,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 /**
- * POST /api/persons/[id]/phones
- * Add a phone number to a person
+ * POST /api/doctors/[id]/educations
+ * Add an education record to a doctor
  * Access:
- * - Patient: Own phones only
- * - Admin: All phones
+ * - Doctor: Own educations only
+ * - Admin: All educations
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Rate limiting (strict for mutations)
@@ -152,37 +155,37 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
-  const personId = parseInt(paramsValidationResult.data.id);
+  const doctorId = parseInt(paramsValidationResult.data.id);
 
-  // Authorization - check access to parent person
+  // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
     role as Role,
-    "phone",
+    "education",
     "create",
     undefined,
-    { personId }
+    { doctorId }
   );
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
   const body = await request.json().catch(() => ({}));
-  const bodyValidationResult = validateBody(body, personPhoneSchema);
+  const bodyValidationResult = validateBody(body, createEducationSchema);
   if (!bodyValidationResult.success) return bodyValidationResult.error;
   const validatedData = bodyValidationResult.data;
 
   try {
-    // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
+    // Verify doctor exists
+    const doctor = await db.query.doctors.findFirst({
+      where: eq(doctors.id, doctorId),
     });
 
-    if (!person) {
+    if (!doctor) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Person not found",
+            message: "Doctor not found",
             code: "NOT_FOUND",
           },
         },
@@ -190,25 +193,43 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // Create phone
-    const [phone] = await db
-      .insert(phones)
+    // Verify institution exists
+    const institution = await db.query.institutions.findFirst({
+      where: eq(institutions.id, validatedData.institutionId),
+    });
+
+    if (!institution) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Institution not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
+    // Create education record
+    const [education] = await db
+      .insert(educations)
       .values({
         ...validatedData,
-        personId,
+        doctorId,
       })
       .returning();
 
     return NextResponse.json(
       {
         success: true,
-        data: phone,
-        message: "Phone added successfully",
+        data: education,
+        message: "Education record added successfully",
       },
       { status: StatusCodes.CREATED }
     );
   } catch (error) {
-    console.error("Error adding phone:", error);
+    console.error("Error adding education:", error);
     return NextResponse.json(
       {
         success: false,
@@ -221,5 +242,3 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
   }
 }
-
-
