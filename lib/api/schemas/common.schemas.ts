@@ -181,7 +181,7 @@ export const mediumTextSchema = z.string().min(1).max(500);
 /**
  * Long text (no max length)
  */
-export const longTextSchema = z.string().min(1);
+export const longTextSchema = z.string().min(1).max(500);
 
 // ============================================================================
 // ENUMS (matching src/db/schema.ts)

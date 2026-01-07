@@ -60,19 +60,25 @@ export async function getAuthSession(request: NextRequest): Promise<AuthSession>
           //   role: Role.ADMIN,
           // },
           // Doctor testing
-          user: {
-            id: "4624a8d7-c31d-4a8f-9984-814ac515ca94", // User Id of doctor with id 1
-            email: "doc1@user.local",
-            name: "Doc 1",
-            role: Role.DOCTOR,
-          },
-          // Patient testing
           // user: {
-          //   id: "4dcf834b-d380-47bb-9cb3-a26da3f85862", // User id of person with id 1
-          //   email: "patient1@user.local",
-          //   name: "Patient 1 User",
-          //   role: Role.PATIENT,
+          //   id: "4624a8d7-c31d-4a8f-9984-814ac515ca94", // User Id of doctor with id 1
+          //   email: "doc1@user.local",
+          //   name: "Doc 1",
+          //   role: Role.DOCTOR,
           // },
+          // user: {
+          //   id: "d8658ccc-8e4e-43f0-9666-341275afed54", // User Id of doctor with id 1
+          //   email: "doc4@user.local",
+          //   name: "Doc 4",
+          //   role: Role.DOCTOR,
+          // },
+          // Patient testing
+          user: {
+            id: "4dcf834b-d380-47bb-9cb3-a26da3f85862", // User id of person with id 1
+            email: "patient1@user.local",
+            name: "Patient 1 User",
+            role: Role.PATIENT,
+          },
         };
       }
     }

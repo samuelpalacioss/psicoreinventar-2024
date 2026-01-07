@@ -1,0 +1,216 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthSession } from "@/utils/api/middleware/auth";
+import { checkResourceAccess } from "@/utils/api/authorization/guards";
+import { validateBody } from "@/utils/api/middleware/validation";
+import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
+import { cancelAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
+import { Role } from "@/types/enums";
+import db from "@/src/db";
+import { appointments } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
+import { StatusCodes } from "http-status-codes";
+
+/**
+ * POST /api/appointments/[id]/cancel
+ * Cancel an appointment
+ * Access:
+ * - Patient: Cancel own appointments (must be at least 24 hours before)
+ * - Admin: Cancel any appointment (no time restriction)
+ *
+ * Business rules:
+ * - Patients can only cancel if appointment is at least 24 hours away
+ * - Admins can cancel anytime
+ * - Cannot cancel already completed or cancelled appointments
+ * - Cancellation reason is required
+ */
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Rate limiting (strict for mutations)
+  const rateLimitResponse = await withRateLimit(request, strictRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const resolvedParams = await params;
+
+  // Validate ID
+  const appointmentId = parseInt(resolvedParams.id);
+  if (isNaN(appointmentId)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Invalid appointment ID",
+          code: "VALIDATION_ERROR",
+        },
+      },
+      { status: StatusCodes.BAD_REQUEST }
+    );
+  }
+
+  // Authentication
+  const session = await getAuthSession(request);
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Unauthorized",
+          code: "UNAUTHORIZED",
+        },
+      },
+      { status: StatusCodes.UNAUTHORIZED }
+    );
+  }
+
+  const { id: userId, role } = session.user;
+
+  // Authorization - check update permission (canceling is a type of update)
+  const authzResult = await checkResourceAccess(
+    userId,
+    role as Role,
+    "appointment",
+    "update",
+    appointmentId
+  );
+  if (!authzResult.allowed) return authzResult.error;
+
+  // Parse and validate request body
+  const body = await request.json().catch(() => ({}));
+  const bodyValidationResult = validateBody(body, cancelAppointmentSchema);
+  if (!bodyValidationResult.success) return bodyValidationResult.error;
+  const validatedData = bodyValidationResult.data;
+
+  try {
+    // Check if appointment exists
+    const existingAppointment = await db.query.appointments.findFirst({
+      where: eq(appointments.id, appointmentId),
+      with: {
+        person: true,
+        doctor: true,
+      },
+    });
+
+    if (!existingAppointment) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Appointment not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
+    // Check if appointment can be cancelled
+    if (existingAppointment.status === "cancelled") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Appointment is already cancelled",
+            code: "BAD_REQUEST",
+          },
+        },
+        { status: StatusCodes.BAD_REQUEST }
+      );
+    }
+
+    if (existingAppointment.status === "completed") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Cannot cancel a completed appointment",
+            code: "BAD_REQUEST",
+          },
+        },
+        { status: StatusCodes.BAD_REQUEST }
+      );
+    }
+
+    // For patients, enforce 24-hour cancellation policy
+    if (role === Role.PATIENT) {
+      const now = new Date();
+      const appointmentTime = new Date(existingAppointment.startDateTime);
+      const hoursDiff = (appointmentTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+      if (hoursDiff < 24) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message:
+                "Appointments can only be cancelled at least 24 hours in advance. Please contact support for assistance.",
+              code: "BAD_REQUEST",
+            },
+          },
+          { status: StatusCodes.BAD_REQUEST }
+        );
+      }
+    }
+    // Admins can cancel anytime (no time restriction)
+
+    // Cancel the appointment
+    const [cancelledAppointment] = await db
+      .update(appointments)
+      .set({
+        status: "cancelled",
+        cancellationReason: validatedData.cancellationReason,
+        updatedAt: new Date(),
+      })
+      .where(eq(appointments.id, appointmentId))
+      .returning();
+
+    // Fetch complete appointment data with relations
+    const completeAppointment = await db.query.appointments.findFirst({
+      where: eq(appointments.id, appointmentId),
+      with: {
+        person: {
+          columns: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            firstLastName: true,
+            secondLastName: true,
+          },
+        },
+        doctor: {
+          columns: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            firstLastName: true,
+            secondLastName: true,
+          },
+        },
+        doctorService: {
+          with: {
+            service: true,
+          },
+        },
+        payment: true,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: completeAppointment,
+        message: "Appointment cancelled successfully",
+      },
+      { status: StatusCodes.OK }
+    );
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Internal server error",
+          code: "INTERNAL_ERROR",
+        },
+      },
+      { status: StatusCodes.INTERNAL_SERVER_ERROR }
+    );
+  }
+}
