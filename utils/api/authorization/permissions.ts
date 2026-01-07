@@ -11,7 +11,6 @@ export type Resource =
   | "appointment"
   | "payment"
   | "payment-method"
-  | "payout"
   | "payout-method"
   | "review"
   | "service"
@@ -94,10 +93,6 @@ export const PERMISSIONS: PermissionMatrix = {
       delete: "own",
       list: "own",
     },
-    payout: {
-      read: "none",
-      list: "none",
-    },
     "payout-method": {
       read: "none",
       list: "none",
@@ -166,10 +161,6 @@ export const PERMISSIONS: PermissionMatrix = {
     "payment-method": {
       read: "none",
       list: "none",
-    },
-    payout: {
-      read: "own",
-      list: "own",
     },
     "payout-method": {
       create: "own",
@@ -301,13 +292,6 @@ export const PERMISSIONS: PermissionMatrix = {
       list: "all",
     },
     "payment-method": {
-      create: "all",
-      read: "all",
-      update: "all",
-      delete: "all",
-      list: "all",
-    },
-    payout: {
       create: "all",
       read: "all",
       update: "all",

@@ -24,7 +24,7 @@ import {
   doctorLanguages,
   paymentMethods,
   paymentMethodPersons,
-  payouts,
+  payoutMethods,
   appointments,
   payments,
   reviews,
@@ -47,7 +47,7 @@ async function seed() {
     await db.delete(progresses);
     await db.delete(appointments);
     await db.delete(payments);
-    await db.delete(payouts);
+    await db.delete(payoutMethods);
     await db.delete(paymentMethodPersons);
     await db.delete(paymentMethods);
     await db.delete(doctorLanguages);
@@ -973,7 +973,95 @@ async function seed() {
     console.log(`✅ Created ${paymentMethodPersonsData.length} payment method persons`);
 
     // ============================================================================
-    // 23. PAYMENTS
+    // 23. PAYOUT METHODS (Doctor's saved payout accounts)
+    // ============================================================================
+    console.log("🏦 Seeding payout methods...");
+    const payoutMethodsData = await db
+      .insert(payoutMethods)
+      .values([
+        // Doctor 0 (Roberto) - Bank Transfer (preferred) + Pago Movil (backup)
+        {
+          doctorId: doctorsData[0].id,
+          type: "bank_transfer",
+          bankName: "Banesco",
+          accountNumber: "01340123456789012345",
+          accountType: "checking",
+          pagoMovilPhone: null,
+          pagoMovilBankCode: null,
+          pagoMovilCi: null,
+          isPreferred: true,
+          nickname: "Cuenta Principal Banesco",
+        },
+        {
+          doctorId: doctorsData[0].id,
+          type: "pago_movil",
+          bankName: null,
+          accountNumber: null,
+          accountType: null,
+          pagoMovilPhone: "04149871234",
+          pagoMovilBankCode: "0102",
+          pagoMovilCi: 15123456,
+          isPreferred: false,
+          nickname: "Pago Móvil Backup",
+        },
+        // Doctor 1 (Laura) - Pago Movil only
+        {
+          doctorId: doctorsData[1].id,
+          type: "pago_movil",
+          bankName: null,
+          accountNumber: null,
+          accountType: null,
+          pagoMovilPhone: "04129871234",
+          pagoMovilBankCode: "0102",
+          pagoMovilCi: 14987654,
+          isPreferred: true,
+          nickname: "Pago Móvil Principal",
+        },
+        // Doctor 2 (Miguel) - Bank Transfer only
+        {
+          doctorId: doctorsData[2].id,
+          type: "bank_transfer",
+          bankName: "Banesco",
+          accountNumber: "01340987654321098765",
+          accountType: "savings",
+          pagoMovilPhone: null,
+          pagoMovilBankCode: null,
+          pagoMovilCi: null,
+          isPreferred: true,
+          nickname: "Ahorro Banesco",
+        },
+        // Doctor 3 (Carmen) - Pago Movil only
+        {
+          doctorId: doctorsData[3].id,
+          type: "pago_movil",
+          bankName: null,
+          accountNumber: null,
+          accountType: null,
+          pagoMovilPhone: "04149873456",
+          pagoMovilBankCode: "0134",
+          pagoMovilCi: 17456789,
+          isPreferred: true,
+          nickname: "Pago Móvil Provincial",
+        },
+        // Doctor 4 (Fernando) - Bank Transfer only
+        {
+          doctorId: doctorsData[4].id,
+          type: "bank_transfer",
+          bankName: "Mercantil",
+          accountNumber: "01050123987654321098",
+          accountType: "checking",
+          pagoMovilPhone: null,
+          pagoMovilBankCode: null,
+          pagoMovilCi: null,
+          isPreferred: true,
+          nickname: "Cuenta Corriente Mercantil",
+        },
+      ])
+      .returning();
+    console.log(`✅ Created ${payoutMethodsData.length} payout methods`);
+
+    // ============================================================================
+    // 24. PAYMENTS
     // ============================================================================
     console.log("💰 Seeding payments...");
     const paymentsData = await db
@@ -982,42 +1070,49 @@ async function seed() {
         {
           personId: personsData[0].id,
           paymentMethodId: paymentMethodsData[0].id,
+          payoutMethodId: payoutMethodsData[0].id, // Dr. Roberto's preferred bank
           amount: "50.00",
           date: "2025-12-15",
         },
         {
           personId: personsData[1].id,
           paymentMethodId: paymentMethodsData[2].id,
+          payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's pago movil
           amount: "80.00",
           date: "2025-12-16",
         },
         {
           personId: personsData[2].id,
           paymentMethodId: paymentMethodsData[4].id,
+          payoutMethodId: payoutMethodsData[3].id, // Dr. Miguel's bank
           amount: "100.00",
           date: "2025-12-17",
         },
         {
           personId: personsData[0].id,
           paymentMethodId: paymentMethodsData[1].id,
+          payoutMethodId: payoutMethodsData[0].id, // Dr. Roberto's preferred bank
           amount: "50.00",
           date: "2025-12-20",
         },
         {
           personId: personsData[3].id,
           paymentMethodId: paymentMethodsData[3].id,
+          payoutMethodId: payoutMethodsData[4].id, // Dra. Carmen's pago movil
           amount: "60.00",
           date: "2025-12-22",
         },
         {
           personId: personsData[0].id,
           paymentMethodId: paymentMethodsData[0].id,
+          payoutMethodId: payoutMethodsData[0].id, // Dr. Roberto's preferred bank
           amount: "50.00",
           date: "2025-12-22",
         },
         {
           personId: personsData[3].id,
           paymentMethodId: paymentMethodsData[5].id, // José's Mastercard
+          payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's pago movil
           amount: "80.00",
           date: "2026-01-07",
         },
@@ -1026,7 +1121,7 @@ async function seed() {
     console.log(`✅ Created ${paymentsData.length} payments`);
 
     // ============================================================================
-    // 24. APPOINTMENTS
+    // 25. APPOINTMENTS
     // ============================================================================
     console.log("📅 Seeding appointments...");
     const appointmentsData = await db
@@ -1113,7 +1208,7 @@ async function seed() {
     console.log(`✅ Created ${appointmentsData.length} appointments`);
 
     // ============================================================================
-    // 25. REVIEWS
+    // 26. REVIEWS
     // ============================================================================
     console.log("⭐ Seeding reviews...");
     const reviewsData = await db
@@ -1146,7 +1241,7 @@ async function seed() {
     console.log(`✅ Created ${reviewsData.length} reviews`);
 
     // ============================================================================
-    // 26. PROGRESSES
+    // 27. PROGRESSES
     // ============================================================================
     console.log("📈 Seeding progresses...");
     const progressesData = await db
@@ -1202,75 +1297,6 @@ async function seed() {
       .returning();
     console.log(`✅ Created ${progressesData.length} progresses`);
 
-    // ============================================================================
-    // 27. PAYOUTS
-    // ============================================================================
-    console.log("💸 Seeding payouts...");
-    const payoutsData = await db
-      .insert(payouts)
-      .values([
-        {
-          doctorId: doctorsData[0].id,
-          type: "bank_transfer",
-          amount: "450.00",
-          status: "completed",
-          bankName: "Banco de Venezuela",
-          accountNumber: "01020123456789012345",
-          accountType: "checking",
-          processedAt: new Date("2025-12-31T10:00:00Z"),
-        },
-        {
-          doctorId: doctorsData[0].id,
-          type: "pago_movil",
-          amount: "350.00",
-          status: "completed",
-          pagoMovilPhone: "04149871234",
-          pagoMovilBankCode: "0102",
-          pagoMovilCi: 15123456,
-          processedAt: new Date("2025-11-30T10:00:00Z"),
-        },
-        {
-          doctorId: doctorsData[1].id,
-          type: "pago_movil",
-          amount: "720.00",
-          status: "completed",
-          pagoMovilPhone: "04129871234",
-          pagoMovilBankCode: "0102",
-          pagoMovilCi: 14987654,
-          processedAt: new Date("2025-12-31T11:00:00Z"),
-        },
-        {
-          doctorId: doctorsData[2].id,
-          type: "bank_transfer",
-          amount: "900.00",
-          status: "processing",
-          bankName: "Banesco",
-          accountNumber: "01340987654321098765",
-          accountType: "savings",
-        },
-        {
-          doctorId: doctorsData[3].id,
-          type: "pago_movil",
-          amount: "540.00",
-          status: "pending",
-          pagoMovilPhone: "04149873456",
-          pagoMovilBankCode: "0108",
-          pagoMovilCi: 17456789,
-        },
-        {
-          doctorId: doctorsData[4].id,
-          type: "bank_transfer",
-          amount: "630.00",
-          status: "completed",
-          bankName: "Mercantil",
-          accountNumber: "01050123987654321098",
-          accountType: "checking",
-          processedAt: new Date("2025-12-30T15:00:00Z"),
-        },
-      ])
-      .returning();
-    console.log(`✅ Created ${payoutsData.length} payouts`);
-
     console.log("\n✨ Database seeding completed successfully!");
     console.log("\n📊 Summary:");
     console.log(`   Places: ${placesData.length}`);
@@ -1295,7 +1321,7 @@ async function seed() {
     console.log(`   Appointments: ${appointmentsData.length}`);
     console.log(`   Reviews: ${reviewsData.length}`);
     console.log(`   Progresses: ${progressesData.length}`);
-    console.log(`   Payouts: ${payoutsData.length}`);
+    console.log(`   Payout Methods: ${payoutMethodsData.length}`);
   } catch (error) {
     console.error("❌ Error seeding database:", error);
     throw error;

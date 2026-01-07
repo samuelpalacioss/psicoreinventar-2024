@@ -316,3 +316,15 @@ export const updateDoctorLanguageSchema = z.object({
 });
 
 export type UpdateDoctorLanguageInput = z.infer<typeof updateDoctorLanguageSchema>;
+
+// ============================================================================
+// DOCTOR PAYOUT METHOD
+// ============================================================================
+
+export const listDoctorPayoutsSchema = z.object({
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
+  type: z.enum(["bank_transfer", "pago_movil"]).optional(),
+});
+
+export type ListDoctorPayoutsInput = z.infer<typeof listDoctorPayoutsSchema>;

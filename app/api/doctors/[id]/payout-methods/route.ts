@@ -7,23 +7,16 @@ import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { doctors, payouts } from "@/src/db/schema";
+import { doctors, payoutMethods } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
-import * as z from "zod";
-
-const listDoctorPayoutsSchema = z.object({
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().max(100).optional(),
-  status: z.enum(["pending", "processing", "completed", "failed"]).optional(),
-});
-
+import { listDoctorPayoutsSchema } from "@/lib/api/schemas/doctor.schemas";
 /**
  * GET /api/doctors/[id]/payouts
- * List all payouts for a doctor (read-only view)
+ * List all payout methods for a doctor (saved bank accounts/pago movil)
  * Access:
- * - Doctor: Own payouts only
- * - Admin: All payouts
+ * - Doctor: Own payout methods only
+ * - Admin: All payout methods
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Rate limiting
@@ -60,7 +53,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
-  const queryValidationResult = validateSearchParams(request.nextUrl.searchParams, listDoctorPayoutsSchema);
+  const queryValidationResult = validateSearchParams(
+    request.nextUrl.searchParams,
+    listDoctorPayoutsSchema
+  );
   if (!queryValidationResult.success) return queryValidationResult.error;
   const queryParams = queryValidationResult.data;
 
@@ -87,28 +83,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Build WHERE clause
-    const conditions = [eq(payouts.doctorId, doctorId)];
+    const conditions = [eq(payoutMethods.doctorId, doctorId)];
 
-    // Filter by status if provided
-    if (queryParams.status) {
-      conditions.push(eq(payouts.status, queryParams.status));
+    // Filter by type if provided
+    if (queryParams.type) {
+      conditions.push(eq(payoutMethods.type, queryParams.type));
     }
 
     const whereClause = and(...conditions);
 
     // Get total count
-    const countQuery = db.select({ count: count() }).from(payouts);
+    const countQuery = db.select({ count: count() }).from(payoutMethods);
     if (whereClause) {
       countQuery.where(whereClause);
     }
     const [{ count: totalCount }] = await countQuery;
 
-    // Get paginated payouts
-    const doctorPayouts = await db.query.payouts.findMany({
+    // Get paginated payout methods
+    const doctorPayoutMethods = await db.query.payoutMethods.findMany({
       where: whereClause,
       limit,
       offset,
-      orderBy: (payouts, { desc }) => [desc(payouts.createdAt)],
+      orderBy: (payoutMethods, { desc }) => [desc(payoutMethods.createdAt)],
     });
 
     // Calculate pagination metadata
@@ -117,13 +113,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(
       {
         success: true,
-        data: doctorPayouts,
+        data: doctorPayoutMethods,
         pagination,
       },
       { status: StatusCodes.OK }
     );
   } catch (error) {
-    console.error("Error fetching doctor payouts:", error);
+    console.error("Error fetching doctor payout methods:", error);
     return NextResponse.json(
       {
         success: false,
@@ -136,4 +132,3 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 }
-

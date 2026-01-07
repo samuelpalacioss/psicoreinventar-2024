@@ -21,7 +21,7 @@ import {
   doctorLanguages,
   paymentMethods,
   paymentMethodPersons,
-  payouts,
+  payoutMethods,
   appointments,
   payments,
   reviews,
@@ -45,7 +45,7 @@ async function deleteAll() {
     await db.delete(progresses);
     await db.delete(appointments);
     await db.delete(payments);
-    await db.delete(payouts);
+    await db.delete(payoutMethods);
     await db.delete(paymentMethodPersons);
     await db.delete(paymentMethods);
     await db.delete(doctorLanguages);

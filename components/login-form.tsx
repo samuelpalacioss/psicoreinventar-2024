@@ -82,7 +82,6 @@ export default function LoginForm({ className, onGoogleAuth, ...props }: LoginFo
         <form.Field
           name="email"
           children={(field) => {
-            console.log(field);
             const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field data-invalid={isInvalid}>

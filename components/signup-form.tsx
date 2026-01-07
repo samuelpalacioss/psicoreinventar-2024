@@ -85,7 +85,6 @@ export default function SignupForm({
       <FieldGroup className="gap-4">
         <form.Field name="name">
           {(field) => {
-            console.log(field);
             const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field data-invalid={isInvalid}>
@@ -112,7 +111,6 @@ export default function SignupForm({
         <form.Field
           name="email"
           children={(field) => {
-            console.log(field);
             const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field data-invalid={isInvalid}>

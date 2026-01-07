@@ -42,13 +42,6 @@ export const paymentMethodTypeEnum = pgEnum("payment_method_type", ["card", "pag
 
 export const payoutTypeEnum = pgEnum("payout_type", ["bank_transfer", "pago_movil"]);
 
-export const payoutStatusEnum = pgEnum("payout_status", [
-  "pending",
-  "processing",
-  "completed",
-  "failed",
-]);
-
 export const dayOfWeekEnum = pgEnum("day_of_week", [
   "monday",
   "tuesday",
@@ -418,17 +411,15 @@ export const paymentMethodPersons = pgTable("Payment_Method_Person", {
 });
 
 // ============================================================================
-// PAYOUT - SUPERTYPE (Single Table Inheritance)
+// PAYOUT METHOD - SUPERTYPE (Single Table Inheritance)
 // ============================================================================
 
-export const payouts = pgTable("Payout", {
+export const payoutMethods = pgTable("Payout_Method", {
   id: serial("id").primaryKey(),
   doctorId: integer("doctor_id")
     .notNull()
     .references(() => doctors.id, { onDelete: "cascade" }),
   type: payoutTypeEnum("type").notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  status: payoutStatusEnum("status").default("pending").notNull(),
 
   // Bank Transfer subtype fields
   bankName: varchar("bank_name", { length: 255 }),
@@ -440,7 +431,8 @@ export const payouts = pgTable("Payout", {
   pagoMovilBankCode: varchar("pago_movil_bank_code", { length: 10 }),
   pagoMovilCi: integer("pago_movil_ci"),
 
-  processedAt: timestamp("processed_at"),
+  isPreferred: boolean("is_preferred").default(false),
+  nickname: varchar("nickname", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -482,6 +474,9 @@ export const payments = pgTable("Payment", {
   paymentMethodId: integer("payment_method_id")
     .notNull()
     .references(() => paymentMethods.id),
+  payoutMethodId: integer("payout_method_id")
+    .notNull()
+    .references(() => payoutMethods.id),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   date: date("date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -565,7 +560,7 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   doctorLanguages: many(doctorLanguages),
   ageGroups: many(ageGroups),
   appointments: many(appointments),
-  payouts: many(payouts),
+  payoutMethods: many(payoutMethods),
   progresses: many(progresses),
 }));
 
@@ -684,11 +679,12 @@ export const paymentMethodPersonsRelations = relations(paymentMethodPersons, ({ 
   }),
 }));
 
-export const payoutsRelations = relations(payouts, ({ one }) => ({
+export const payoutMethodsRelations = relations(payoutMethods, ({ one, many }) => ({
   doctor: one(doctors, {
-    fields: [payouts.doctorId],
+    fields: [payoutMethods.doctorId],
     references: [doctors.id],
   }),
+  payments: many(payments),
 }));
 
 export const appointmentsRelations = relations(appointments, ({ one, many }) => ({
@@ -724,6 +720,10 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
   paymentMethod: one(paymentMethods, {
     fields: [payments.paymentMethodId],
     references: [paymentMethods.id],
+  }),
+  payoutMethod: one(payoutMethods, {
+    fields: [payments.payoutMethodId],
+    references: [payoutMethods.id],
   }),
 }));
 

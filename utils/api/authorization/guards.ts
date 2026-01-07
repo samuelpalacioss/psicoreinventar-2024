@@ -8,7 +8,7 @@ import {
   appointments,
   payments,
   paymentMethodPersons,
-  payouts,
+  payoutMethods,
   reviews,
   progresses,
   phones,
@@ -210,24 +210,13 @@ async function checkOwnership(
         return createForbiddenResponse();
       }
 
-      case "payout": {
-        const payout = await db.query.payouts.findFirst({
-          where: eq(payouts.id, id),
-          with: { doctor: true },
-        });
-        if (payout?.doctor.userId === userId) {
-          return { allowed: true };
-        }
-        return createForbiddenResponse();
-      }
-
       case "payout-method": {
         // Payout methods belong to doctors
-        const payout = await db.query.payouts.findFirst({
-          where: eq(payouts.id, id),
+        const payoutMethod = await db.query.payoutMethods.findFirst({
+          where: eq(payoutMethods.id, id),
           with: { doctor: true },
         });
-        if (payout?.doctor.userId === userId) {
+        if (payoutMethod?.doctor.userId === userId) {
           return { allowed: true };
         }
         return createForbiddenResponse();
@@ -314,8 +303,9 @@ async function checkOwnership(
       case "doctor-service":
       case "doctor-treatment-method":
       case "doctor-condition":
-      case "doctor-language": {
-        // For junction tables, check if the doctor belongs to the user
+      case "doctor-language":
+      case "payout-method": {
+        // For junction tables and doctor-owned resources, check if the doctor belongs to the user
         if (context?.doctorId) {
           const doctor = await db.query.doctors.findFirst({
             where: and(eq(doctors.id, context.doctorId), eq(doctors.userId, userId)),
