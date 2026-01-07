@@ -30,15 +30,18 @@ export const createAppointmentSchema = z.object({
   doctorId: numericIdSchema,
   serviceId: numericIdSchema,
   paymentMethodId: numericIdSchema,
-  startDateTime: z.string().datetime().refine(
-    (val) => {
-      const appointmentDate = new Date(val);
-      const now = new Date();
-      const hoursDiff = (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-      return hoursDiff >= 24;
-    },
-    { message: "Appointment must be booked at least 24 hours in advance" }
-  ),
+  startDateTime: z
+    .string()
+    .datetime()
+    .refine(
+      (val) => {
+        const appointmentDate = new Date(val);
+        const now = new Date();
+        const hoursDiff = (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        return hoursDiff >= 24;
+      },
+      { message: "Appointment must be booked at least 24 hours in advance" }
+    ),
   notes: longTextSchema.optional(),
 });
 
@@ -52,23 +55,25 @@ export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
  * Schema for updating an appointment
  * Can update status and notes
  */
-export const updateAppointmentSchema = z.object({
-  status: appointmentStatusSchema.optional(),
-  notes: longTextSchema.optional(),
-  cancellationReason: longTextSchema.optional(),
-}).refine(
-  (data) => {
-    // If status is cancelled, cancellationReason is required
-    if (data.status === "cancelled") {
-      return !!data.cancellationReason;
+export const updateAppointmentSchema = z
+  .object({
+    status: appointmentStatusSchema.optional(),
+    notes: longTextSchema.optional(),
+    cancellationReason: longTextSchema.optional(),
+  })
+  .refine(
+    (data) => {
+      // If status is cancelled, cancellationReason is required
+      if (data.status === "cancelled") {
+        return !!data.cancellationReason;
+      }
+      return true;
+    },
+    {
+      message: "Cancellation reason is required when status is cancelled",
+      path: ["cancellationReason"],
     }
-    return true;
-  },
-  {
-    message: "Cancellation reason is required when status is cancelled",
-    path: ["cancellationReason"],
-  }
-);
+  );
 
 export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>;
 
@@ -103,31 +108,6 @@ export const listAppointmentsSchema = paginationSchema.extend({
 });
 
 export type ListAppointmentsInput = z.infer<typeof listAppointmentsSchema>;
-
-// ============================================================================
-// APPOINTMENT REVIEW
-// ============================================================================
-
-/**
- * Schema for creating a review after appointment completion
- * Business rules:
- * - Appointment must be completed
- * - Only patient can create review
- * - One review per appointment
- */
-export const createReviewSchema = z.object({
-  score: z.number().int().min(1).max(5, { message: "Score must be between 1 and 5" }),
-  description: longTextSchema.optional(),
-});
-
-export type CreateReviewInput = z.infer<typeof createReviewSchema>;
-
-/**
- * Schema for updating a review (patient only)
- */
-export const updateReviewSchema = createReviewSchema.partial();
-
-export type UpdateReviewInput = z.infer<typeof updateReviewSchema>;
 
 // ============================================================================
 // LIST REVIEWS

@@ -1208,33 +1208,33 @@ async function seed() {
     console.log(`✅ Created ${appointmentsData.length} appointments`);
 
     // ============================================================================
-    // 26. REVIEWS
+    // 26. REVIEWS (One review per doctor per patient)
     // ============================================================================
     console.log("⭐ Seeding reviews...");
     const reviewsData = await db
       .insert(reviews)
       .values([
         {
-          appointmentId: appointmentsData[0].id,
+          doctorId: doctorsData[0].id, // Dr. Roberto Sánchez
+          personId: personsData[0].id, // Lua Martelli
+          appointmentId: appointmentsData[3].id, // Latest appointment (second session)
           score: 5,
           description:
-            "Excelente profesional. Me sentí escuchada y comprendida desde el primer momento.",
+            "Excelente profesional. Me sentí escuchada y comprendida desde el primer momento. El seguimiento ha sido notable y las técnicas que me enseñó me han ayudado mucho.",
         },
         {
+          doctorId: doctorsData[1].id, // Dra. Laura Pérez
+          personId: personsData[1].id, // Carlos Martínez
           appointmentId: appointmentsData[1].id,
           score: 5,
           description: "Muy profesional y empática. La evaluación fue exhaustiva y clara.",
         },
         {
+          doctorId: doctorsData[2].id, // Dr. Miguel González
+          personId: personsData[2].id, // Ana García
           appointmentId: appointmentsData[2].id,
           score: 4,
           description: "Buena sesión. Nos ayudó a identificar patrones que no veíamos antes.",
-        },
-        {
-          appointmentId: appointmentsData[3].id,
-          score: 5,
-          description:
-            "Seguimiento excelente. El progreso ha sido notable gracias a las técnicas que me enseñó.",
         },
       ])
       .returning();

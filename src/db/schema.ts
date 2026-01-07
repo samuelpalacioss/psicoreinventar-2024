@@ -14,6 +14,7 @@ import {
   primaryKey,
   check,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -483,17 +484,36 @@ export const payments = pgTable("Payment", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Review
-export const reviews = pgTable("Review", {
-  id: serial("id").primaryKey(),
-  appointmentId: integer("appointment_id")
-    .notNull()
-    .unique()
-    .references(() => appointments.id, { onDelete: "cascade" }),
-  score: smallint("score").notNull(), // 1-5
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+// Review - One review per doctor per patient
+export const reviews = pgTable(
+  "Review",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    personId: integer("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+    appointmentId: integer("appointment_id").references(() => appointments.id, {
+      onDelete: "set null",
+    }), // Optional: track which appointment triggered the review
+    score: smallint("score").notNull(), // 1-5
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    // Unique constraint: one review per doctor per patient
+    reviewDoctorPersonIdx: uniqueIndex("review_doctor_person_idx").on(
+      table.doctorId,
+      table.personId
+    ),
+  })
+);
 
 // ============================================================================
 // RELATIONS
@@ -540,6 +560,7 @@ export const personsRelations = relations(persons, ({ one, many }) => ({
   appointments: many(appointments),
   payments: many(payments),
   paymentMethodPersons: many(paymentMethodPersons),
+  reviews: many(reviews),
 }));
 
 export const doctorsRelations = relations(doctors, ({ one, many }) => ({
@@ -562,6 +583,7 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   appointments: many(appointments),
   payoutMethods: many(payoutMethods),
   progresses: many(progresses),
+  reviews: many(reviews),
 }));
 
 export const phonesRelations = relations(phones, ({ one }) => ({
@@ -728,6 +750,14 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
+  doctor: one(doctors, {
+    fields: [reviews.doctorId],
+    references: [doctors.id],
+  }),
+  person: one(persons, {
+    fields: [reviews.personId],
+    references: [persons.id],
+  }),
   appointment: one(appointments, {
     fields: [reviews.appointmentId],
     references: [appointments.id],

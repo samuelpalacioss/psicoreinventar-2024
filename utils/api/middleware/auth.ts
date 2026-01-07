@@ -61,7 +61,7 @@ export async function getAuthSession(request: NextRequest): Promise<AuthSession>
           // },
           // Doctor testing
           // user: {
-          //   id: "4624a8d7-c31d-4a8f-9984-814ac515ca94", // User Id of doctor with id 1
+          //   id: "3e36454d-f445-42fa-bb74-a6c73afc2c3a", // User Id of doctor with id 1
           //   email: "doc1@user.local",
           //   name: "Doc 1",
           //   role: Role.DOCTOR,
@@ -74,7 +74,7 @@ export async function getAuthSession(request: NextRequest): Promise<AuthSession>
           // },
           // Patient testing
           user: {
-            id: "4dcf834b-d380-47bb-9cb3-a26da3f85862", // User id of person with id 1
+            id: "1f65e61b-de4a-4c4e-9df2-de2504e26e19", // User id of person with id 1
             email: "patient1@user.local",
             name: "Patient 1 User",
             role: Role.PATIENT,
