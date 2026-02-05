@@ -1,8 +1,8 @@
 services:
   psicoreinventar_postgres:
-    image: postgres:alpine 
+    image: postgres:alpine
     container_name: psicoreinventar_postgres
-    restart: always 
+    restart: always
     env_file:
       - .env
     environment:
@@ -13,7 +13,7 @@ services:
       - 5432:5432
     volumes:
       - psicoreinventar_postgres_data:/var/lib/postgresql/data
-  
+
   psicoreinventar_redis:
     image: redis:alpine
     container_name: psicoreinventar_redis
@@ -21,7 +21,6 @@ services:
       - 6379:6379
     volumes:
       - psicoreinventar_redis_data:/data
-
 
 networks:
   default:
