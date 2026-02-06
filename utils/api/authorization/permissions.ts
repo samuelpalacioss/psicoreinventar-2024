@@ -292,10 +292,7 @@ export const PERMISSIONS: PermissionMatrix = {
       list: "all",
     },
     "payment-method": {
-      create: "all",
       read: "all",
-      update: "all",
-      delete: "all",
       list: "all",
     },
     "payout-method": {
