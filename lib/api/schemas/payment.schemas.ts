@@ -129,11 +129,11 @@ export type UpdatePaymentMethodPersonWithDetailsInput = z.infer<typeof updatePay
 /**
  * Schema for creating a payment
  * Typically created automatically when booking appointment
- * Manual creation is admin-only
  */
 export const createPaymentSchema = z.object({
   personId: numericIdSchema,
   paymentMethodId: numericIdSchema,
+  payoutMethodId: numericIdSchema,
   amount: amountSchema,
   date: dateStringSchema,
 });

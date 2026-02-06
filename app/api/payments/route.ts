@@ -7,7 +7,7 @@ import { listPaymentsSchema, createPaymentSchema } from "@/lib/api/schemas/payme
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { payments, persons, paymentMethods } from "@/src/db/schema";
+import { payments, persons, paymentMethods, payoutMethods } from "@/src/db/schema";
 import { and, count, eq, gte, lte, sql } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
@@ -298,13 +298,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify payout method exists
+    const payoutMethod = await db.query.payoutMethods.findFirst({
+      where: eq(payoutMethods.id, validatedData.payoutMethodId),
+    });
+
+    if (!payoutMethod) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Payout method not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
     // Create the payment
     const [newPayment] = await db
       .insert(payments)
       .values({
         personId: validatedData.personId,
         paymentMethodId: validatedData.paymentMethodId,
-        amount: validatedData.amount,
+        payoutMethodId: validatedData.payoutMethodId,
+        amount: validatedData.amount.toFixed(2), // Convert to string with 2 decimal places for decimal field
         date: validatedData.date,
       })
       .returning();
