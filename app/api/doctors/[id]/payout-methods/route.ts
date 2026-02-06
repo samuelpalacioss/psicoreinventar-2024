@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
-import { validateParams, validateSearchParams } from "@/utils/api/middleware/validation";
-import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
+import { validateBody, validateParams, validateSearchParams } from "@/utils/api/middleware/validation";
+import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
@@ -10,7 +10,7 @@ import db from "@/src/db";
 import { doctors, payoutMethods } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
-import { listDoctorPayoutsSchema } from "@/lib/api/schemas/doctor.schemas";
+import { listDoctorPayoutsSchema, createPayoutMethodSchema } from "@/lib/api/schemas/doctor.schemas";
 /**
  * GET /api/doctors/[id]/payout-methods
  * List all payout methods for a doctor (saved bank accounts/pago movil)
@@ -120,6 +120,126 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   } catch (error) {
     console.error("Error fetching doctor payout methods:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Internal server error",
+          code: "INTERNAL_ERROR",
+        },
+      },
+      { status: StatusCodes.INTERNAL_SERVER_ERROR }
+    );
+  }
+}
+
+/**
+ * POST /api/doctors/[id]/payout-methods
+ * Create a new payout method for a doctor (bank account or pago móvil)
+ * Access:
+ * - Doctor: Own payout methods only
+ * - Admin: All doctors
+ */
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Rate limiting (strict for mutations)
+  const rateLimitResponse = await withRateLimit(request, strictRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // Authentication
+  const session = await getAuthSession(request);
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Unauthorized",
+          code: "UNAUTHORIZED",
+        },
+      },
+      { status: StatusCodes.UNAUTHORIZED }
+    );
+  }
+
+  const { id: userId, role } = session.user;
+
+  const resolvedParams = await params;
+
+  // Validate ID parameter
+  const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
+  if (!paramsValidationResult.success) return paramsValidationResult.error;
+
+  const doctorId = parseInt(paramsValidationResult.data.id);
+
+  // Authorization - check access to create payout methods for this doctor
+  const authzResult = await checkResourceAccess(userId, role as Role, "payout-method", "create", doctorId);
+  if (!authzResult.allowed) return authzResult.error;
+
+  // Parse and validate request body
+  const body = await request.json().catch(() => ({}));
+  const bodyValidationResult = validateBody(body, createPayoutMethodSchema);
+  if (!bodyValidationResult.success) return bodyValidationResult.error;
+  const validatedData = bodyValidationResult.data;
+
+  try {
+    // Verify doctor exists
+    const doctor = await db.query.doctors.findFirst({
+      where: eq(doctors.id, doctorId),
+    });
+
+    if (!doctor) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Doctor not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
+    // If setting as preferred, unset other preferred methods for this doctor
+    if (validatedData.isPreferred) {
+      await db
+        .update(payoutMethods)
+        .set({ isPreferred: false, updatedAt: new Date() })
+        .where(and(eq(payoutMethods.doctorId, doctorId), eq(payoutMethods.isPreferred, true)));
+    }
+
+    // Create the payout method
+    const [newPayoutMethod] = await db
+      .insert(payoutMethods)
+      .values({
+        doctorId,
+        type: validatedData.type,
+        nickname: validatedData.nickname,
+        isPreferred: validatedData.isPreferred,
+        // Type-specific fields
+        ...(validatedData.type === "bank_transfer"
+          ? {
+              bankName: validatedData.bankName,
+              accountNumber: validatedData.accountNumber,
+              accountType: validatedData.accountType,
+            }
+          : {
+              pagoMovilPhone: validatedData.pagoMovilPhone,
+              pagoMovilBankCode: validatedData.pagoMovilBankCode,
+              pagoMovilCi: validatedData.pagoMovilCi,
+            }),
+      })
+      .returning();
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: newPayoutMethod,
+        message: "Payout method created successfully",
+      },
+      { status: StatusCodes.CREATED }
+    );
+  } catch (error) {
+    console.error("Error creating payout method:", error);
     return NextResponse.json(
       {
         success: false,

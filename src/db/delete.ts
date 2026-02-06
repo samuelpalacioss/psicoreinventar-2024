@@ -1,6 +1,7 @@
 import "dotenv/config";
 import db, { client } from "./index";
 import { sql } from "drizzle-orm";
+import type { PgTable } from "drizzle-orm/pg-core";
 import {
   users,
   places,
@@ -31,8 +32,24 @@ import {
   sessions,
 } from "./schema";
 
+const POSTGRES_RELATION_NOT_EXIST = "42P01";
+
+/** Safely delete from a table; skip if table doesn't exist (schema out of sync) */
+async function safeDelete(table: PgTable, name: string): Promise<void> {
+  try {
+    await db.delete(table);
+  } catch (err) {
+    const cause = err as { cause?: { code?: string } };
+    if (cause?.cause?.code === POSTGRES_RELATION_NOT_EXIST) {
+      console.log(`   ⏭️  Skipping "${name}" (table does not exist)`);
+      return;
+    }
+    throw err;
+  }
+}
+
 async function deleteAll() {
-  console.log("🌱 Seeding database...");
+  console.log("🗑️  Deleting all data...");
 
   try {
     // ============================================================================
@@ -40,34 +57,34 @@ async function deleteAll() {
     // ============================================================================
     console.log("🧹 Cleaning up existing data...");
 
-    // Delete in reverse order of dependencies
-    await db.delete(reviews);
-    await db.delete(progresses);
-    await db.delete(appointments);
-    await db.delete(payments);
-    await db.delete(payoutMethods);
-    await db.delete(paymentMethodPersons);
-    await db.delete(paymentMethods);
-    await db.delete(doctorLanguages);
-    await db.delete(doctorConditions);
-    await db.delete(doctorTreatmentMethods);
-    await db.delete(doctorServices);
-    await db.delete(schedules);
-    await db.delete(ageGroups);
-    await db.delete(educations);
-    await db.delete(phones);
-    await db.delete(doctors);
-    await db.delete(persons);
-    await db.delete(users);
-    await db.delete(accounts);
-    await db.delete(sessions);
-    await db.delete(verifications);
-    await db.delete(institutions);
-    await db.delete(treatmentMethods);
-    await db.delete(services);
-    await db.delete(languages);
-    await db.delete(conditions);
-    await db.delete(places);
+    // Delete in reverse order of dependencies; skip tables that don't exist
+    await safeDelete(reviews, "Review");
+    await safeDelete(progresses, "Progress");
+    await safeDelete(appointments, "Appointment");
+    await safeDelete(payments, "Payment");
+    await safeDelete(payoutMethods, "Payout_Method");
+    await safeDelete(paymentMethodPersons, "Payment_Method_Person");
+    await safeDelete(paymentMethods, "Payment_Method");
+    await safeDelete(doctorLanguages, "Doctor_Language");
+    await safeDelete(doctorConditions, "Doctor_Condition");
+    await safeDelete(doctorTreatmentMethods, "Doctor_Treatment_Method");
+    await safeDelete(doctorServices, "Doctor_Service");
+    await safeDelete(schedules, "Schedule");
+    await safeDelete(ageGroups, "Age_Group");
+    await safeDelete(educations, "Education");
+    await safeDelete(phones, "Phone");
+    await safeDelete(doctors, "Doctor");
+    await safeDelete(persons, "Person");
+    await safeDelete(users, "User");
+    await safeDelete(accounts, "Account");
+    await safeDelete(sessions, "Session");
+    await safeDelete(verifications, "Verification");
+    await safeDelete(institutions, "Institution");
+    await safeDelete(treatmentMethods, "Treatment_Method");
+    await safeDelete(services, "Service");
+    await safeDelete(languages, "Language");
+    await safeDelete(conditions, "Condition");
+    await safeDelete(places, "Place");
 
     console.log("✅ Cleanup complete");
 

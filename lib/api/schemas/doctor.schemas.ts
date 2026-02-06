@@ -328,3 +328,65 @@ export const listDoctorPayoutsSchema = z.object({
 });
 
 export type ListDoctorPayoutsInput = z.infer<typeof listDoctorPayoutsSchema>;
+
+/**
+ * Base payout method schema
+ */
+const basePayoutMethodSchema = z.object({
+  type: z.enum(["bank_transfer", "pago_movil"]),
+  nickname: z.string().min(1).max(100).optional(),
+  isPreferred: z.boolean().default(false),
+});
+
+/**
+ * Bank transfer payout method subtype
+ */
+const bankTransferPayoutMethodSchema = basePayoutMethodSchema.extend({
+  type: z.literal("bank_transfer"),
+  bankName: shortTextSchema,
+  accountNumber: z.string().min(1).max(50),
+  accountType: z.enum(["checking", "savings"]),
+});
+
+/**
+ * Pago Móvil payout method subtype
+ */
+const pagoMovilPayoutMethodSchema = basePayoutMethodSchema.extend({
+  type: z.literal("pago_movil"),
+  pagoMovilPhone: z.string().min(10).max(20),
+  pagoMovilBankCode: z.string().min(1).max(10),
+  pagoMovilCi: ciSchema,
+});
+
+/**
+ * Schema for creating a payout method (discriminated union)
+ * Either bank_transfer OR pago_movil fields must be provided based on type
+ */
+export const createPayoutMethodSchema = z.discriminatedUnion("type", [
+  bankTransferPayoutMethodSchema,
+  pagoMovilPayoutMethodSchema,
+]);
+
+export type CreatePayoutMethodInput = z.infer<typeof createPayoutMethodSchema>;
+
+/**
+ * Schema for updating a payout method
+ * Allows updating both the payout method details and preferences
+ */
+export const updatePayoutMethodSchema = z.object({
+  // Common fields
+  nickname: z.string().min(1).max(100).optional(),
+  isPreferred: z.boolean().optional(),
+
+  // Bank transfer fields - only valid when updating a bank_transfer payout method
+  bankName: shortTextSchema.optional(),
+  accountNumber: z.string().min(1).max(50).optional(),
+  accountType: z.enum(["checking", "savings"]).optional(),
+
+  // Pago Móvil fields - only valid when updating a pago_movil payout method
+  pagoMovilPhone: z.string().min(10).max(20).optional(),
+  pagoMovilBankCode: z.string().min(1).max(10).optional(),
+  pagoMovilCi: ciSchema.optional(),
+});
+
+export type UpdatePayoutMethodInput = z.infer<typeof updatePayoutMethodSchema>;
