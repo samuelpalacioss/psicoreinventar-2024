@@ -97,8 +97,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         paymentMethod: {
           id: paymentMethods.id,
           type: paymentMethods.type,
-          // Card fields
-          cardNumber: paymentMethods.cardNumber,
+          // Card fields (token should NOT be exposed to frontend for security)
+          cardLast4: paymentMethods.cardLast4,
           cardHolderName: paymentMethods.cardHolderName,
           cardBrand: paymentMethods.cardBrand,
           expirationMonth: paymentMethods.expirationMonth,

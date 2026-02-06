@@ -74,7 +74,7 @@ export async function getAuthSession(request: NextRequest): Promise<AuthSession>
           // },
           // Patient testing
           user: {
-            id: "1f65e61b-de4a-4c4e-9df2-de2504e26e19", // User id of person with id 1
+            id: "8f5eb504-c925-4c2a-8c93-b17b111eb41a", // User id of person with id 1
             email: "patient1@user.local",
             name: "Patient 1 User",
             role: Role.PATIENT,

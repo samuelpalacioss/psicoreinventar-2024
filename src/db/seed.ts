@@ -857,7 +857,8 @@ async function seed() {
       .values([
         {
           type: "card",
-          cardNumber: "4242",
+          cardToken: "pm_1234567890abcdef", // Mock Stripe payment method token
+          cardLast4: "4242",
           cardHolderName: "Lua Martelli",
           cardBrand: "Visa",
           expirationMonth: 12,
@@ -868,7 +869,8 @@ async function seed() {
         },
         {
           type: "pago_movil",
-          cardNumber: null,
+          cardToken: null,
+          cardLast4: null,
           cardHolderName: null,
           cardBrand: null,
           expirationMonth: null,
@@ -879,7 +881,8 @@ async function seed() {
         },
         {
           type: "card",
-          cardNumber: "5555",
+          cardToken: "pm_abcdef1234567890", // Mock Stripe payment method token
+          cardLast4: "5555",
           cardHolderName: "Carlos Martínez",
           cardBrand: "Mastercard",
           expirationMonth: 6,
@@ -890,7 +893,8 @@ async function seed() {
         },
         {
           type: "pago_movil",
-          cardNumber: null,
+          cardToken: null,
+          cardLast4: null,
           cardHolderName: null,
           cardBrand: null,
           expirationMonth: null,
@@ -901,7 +905,8 @@ async function seed() {
         },
         {
           type: "card",
-          cardNumber: "3782",
+          cardToken: "pm_fedcba0987654321", // Mock Stripe payment method token
+          cardLast4: "3782",
           cardHolderName: "Ana García",
           cardBrand: "American Express",
           expirationMonth: 9,
@@ -912,7 +917,8 @@ async function seed() {
         },
         {
           type: "card",
-          cardNumber: "1234",
+          cardToken: "pm_0123456789fedcba", // Mock Stripe payment method token
+          cardLast4: "1234",
           cardHolderName: "José López",
           cardBrand: "Mastercard",
           expirationMonth: 8,

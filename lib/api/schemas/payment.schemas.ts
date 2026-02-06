@@ -30,10 +30,13 @@ const basePaymentMethodSchema = z.object({
 
 /**
  * Card payment method subtype
+ * Uses payment gateway tokenization (Stripe, PayPal, etc.)
+ * Frontend should send card details directly to gateway and receive token
  */
 const cardPaymentMethodSchema = basePaymentMethodSchema.extend({
   type: z.literal("card"),
-  cardNumber: z.string().length(4, "Last 4 digits of card required"),
+  cardToken: z.string().min(1).max(255), // Payment gateway token (e.g., Stripe pm_xxx or tok_xxx)
+  cardLast4: z.string().length(4, "Last 4 digits of card required"),
   cardHolderName: z.string().min(1).max(255),
   cardBrand: z.string().min(1).max(50), // Visa, Mastercard, Amex, etc.
   expirationMonth: z.number().int().min(1).max(12),
@@ -92,6 +95,32 @@ export type CreatePaymentMethodPersonInput = z.infer<typeof createPaymentMethodP
 export const updatePaymentMethodPersonSchema = createPaymentMethodPersonSchema.partial();
 
 export type UpdatePaymentMethodPersonInput = z.infer<typeof updatePaymentMethodPersonSchema>;
+
+/**
+ * Schema for updating payment method-person association with payment method details
+ * Allows updating both the association (nickname, isPreferred) and the underlying payment method details
+ */
+export const updatePaymentMethodPersonWithDetailsSchema = z.object({
+  // Association fields (from paymentMethodPersons table)
+  nickname: z.string().min(1).max(100).optional(),
+  isPreferred: z.boolean().optional(),
+
+  // Payment method detail fields (from paymentMethods table)
+  // Card fields - only valid when updating a card payment method
+  cardToken: z.string().min(1).max(255).optional(),
+  cardLast4: z.string().length(4, "Last 4 digits of card required").optional(),
+  cardHolderName: z.string().min(1).max(255).optional(),
+  cardBrand: z.string().min(1).max(50).optional(),
+  expirationMonth: z.number().int().min(1).max(12).optional(),
+  expirationYear: z.number().int().min(new Date().getFullYear()).max(new Date().getFullYear() + 20).optional(),
+
+  // Pago Móvil fields - only valid when updating a pago_movil payment method
+  pagoMovilPhone: z.string().min(10).max(20).optional(),
+  pagoMovilBankCode: z.string().min(1).max(10).optional(),
+  pagoMovilCi: ciSchema.optional(),
+});
+
+export type UpdatePaymentMethodPersonWithDetailsInput = z.infer<typeof updatePaymentMethodPersonWithDetailsSchema>;
 
 // ============================================================================
 // PAYMENT (Transaction Records)

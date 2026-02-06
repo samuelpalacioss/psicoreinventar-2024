@@ -231,7 +231,7 @@ async function checkOwnership(
             },
           },
         });
-        if (review?.appointment.person.userId === userId) {
+        if (review?.appointment?.person.userId === userId) {
           return { allowed: true };
         }
         return createForbiddenResponse();
@@ -303,8 +303,7 @@ async function checkOwnership(
       case "doctor-service":
       case "doctor-treatment-method":
       case "doctor-condition":
-      case "doctor-language":
-      case "payout-method": {
+      case "doctor-language": {
         // For junction tables and doctor-owned resources, check if the doctor belongs to the user
         if (context?.doctorId) {
           const doctor = await db.query.doctors.findFirst({
@@ -426,7 +425,7 @@ async function checkAssignment(
           },
         });
 
-        if (review?.appointment.doctorId === doctor.id) {
+        if (review?.appointment?.doctorId === doctor.id) {
           return { allowed: true };
         }
         return createForbiddenResponse();
