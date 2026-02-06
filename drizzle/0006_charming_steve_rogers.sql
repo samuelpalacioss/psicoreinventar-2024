@@ -1,0 +1,1 @@
+ALTER TABLE "Appointment" ADD COLUMN "deleted_at" timestamp;

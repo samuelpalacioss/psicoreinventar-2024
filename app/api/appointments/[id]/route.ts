@@ -7,7 +7,7 @@ import { updateAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
 import { appointments } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -68,9 +68,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!authzResult.allowed) return authzResult.error;
 
   try {
-    // Fetch appointment with relations
+    // Fetch appointment with relations (exclude soft-deleted)
     const appointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, appointmentId),
+      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
       with: {
         person: {
           columns: {
@@ -228,9 +228,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validatedData = bodyValidationResult.data;
 
   try {
-    // Check if appointment exists
+    // Check if appointment exists and is not soft-deleted
     const existingAppointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, appointmentId),
+      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
     });
 
     if (!existingAppointment) {
@@ -297,7 +297,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // Fetch complete appointment data with relations
     const completeAppointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, appointmentId),
+      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
       with: {
         person: {
           columns: {
@@ -409,12 +409,12 @@ export async function DELETE(
   if (!authzResult.allowed) return authzResult.error;
 
   try {
-    // Check if appointment exists
+    // Check if appointment exists and is not already soft-deleted
     const existingAppointment = await db.query.appointments.findFirst({
       where: eq(appointments.id, appointmentId),
     });
 
-    if (!existingAppointment) {
+    if (!existingAppointment || existingAppointment.deletedAt) {
       return NextResponse.json(
         {
           success: false,
@@ -427,8 +427,14 @@ export async function DELETE(
       );
     }
 
-    // Hard delete (CASCADE will handle related records)
-    await db.delete(appointments).where(eq(appointments.id, appointmentId));
+    // Soft delete to preserve financial audit trail
+    await db
+      .update(appointments)
+      .set({
+        deletedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(appointments.id, appointmentId));
 
     return NextResponse.json(
       {

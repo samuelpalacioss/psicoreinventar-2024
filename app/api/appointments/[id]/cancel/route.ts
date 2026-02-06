@@ -7,7 +7,7 @@ import { cancelAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
 import { appointments } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -79,9 +79,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const validatedData = bodyValidationResult.data;
 
   try {
-    // Check if appointment exists
+    // Check if appointment exists and is not soft-deleted
     const existingAppointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, appointmentId),
+      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
       with: {
         person: true,
         doctor: true,
@@ -128,29 +128,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // For patients, enforce 24-hour cancellation policy
+    // Cancel the appointment with atomic 24-hour check for patients
+    let whereCondition;
     if (role === Role.PATIENT) {
-      const now = new Date();
-      const appointmentTime = new Date(existingAppointment.startDateTime);
-      const hoursDiff = (appointmentTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-      if (hoursDiff < 24) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              message:
-                "Appointments can only be cancelled at least 24 hours in advance. Please contact support for assistance.",
-              code: "BAD_REQUEST",
-            },
-          },
-          { status: StatusCodes.BAD_REQUEST }
-        );
-      }
+      // For patients, enforce 24-hour policy in the WHERE clause (atomic check)
+      whereCondition = and(
+        eq(appointments.id, appointmentId),
+        isNull(appointments.deletedAt),
+        gt(appointments.startDateTime, sql`NOW() + INTERVAL '24 hours'`)
+      );
+    } else {
+      // Admins can cancel anytime (no time restriction)
+      whereCondition = and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt));
     }
-    // Admins can cancel anytime (no time restriction)
 
-    // Cancel the appointment
     const [cancelledAppointment] = await db
       .update(appointments)
       .set({
@@ -158,12 +149,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         cancellationReason: validatedData.cancellationReason,
         updatedAt: new Date(),
       })
-      .where(eq(appointments.id, appointmentId))
+      .where(whereCondition)
       .returning();
+
+    // If no rows were updated for patients, it means the 24-hour check failed
+    if (!cancelledAppointment && role === Role.PATIENT) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message:
+              "Appointments can only be cancelled at least 24 hours in advance. Please contact support for assistance.",
+            code: "BAD_REQUEST",
+          },
+        },
+        { status: StatusCodes.BAD_REQUEST }
+      );
+    }
 
     // Fetch complete appointment data with relations
     const completeAppointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, appointmentId),
+      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
       with: {
         person: {
           columns: {

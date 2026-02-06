@@ -433,13 +433,15 @@ async function checkAssignment(
 
       case "progress": {
         // Check if progress record is for a patient assigned to this doctor
+        // Doctors can only create progress notes for completed appointments
         if (!id) {
           // For create, check context.personId
           if (context?.personId) {
             const appointment = await db.query.appointments.findFirst({
               where: and(
                 eq(appointments.doctorId, doctor.id),
-                eq(appointments.personId, context.personId)
+                eq(appointments.personId, context.personId),
+                eq(appointments.status, "completed")
               ),
             });
             return appointment ? { allowed: true } : createForbiddenResponse();
@@ -456,7 +458,8 @@ async function checkAssignment(
         const appointment = await db.query.appointments.findFirst({
           where: and(
             eq(appointments.doctorId, doctor.id),
-            eq(appointments.personId, progress.personId)
+            eq(appointments.personId, progress.personId),
+            eq(appointments.status, "completed")
           ),
         });
         return appointment ? { allowed: true } : createForbiddenResponse();

@@ -465,6 +465,7 @@ export const appointments = pgTable("Appointment", {
   status: appointmentStatusEnum("status").notNull(),
   cancellationReason: text("cancellation_reason"),
   notes: text("notes"),
+  deletedAt: timestamp("deleted_at"), // Soft-delete timestamp
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

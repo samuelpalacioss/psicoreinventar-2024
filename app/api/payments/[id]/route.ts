@@ -51,7 +51,32 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const paymentId = parseInt(paramsValidationResult.data.id);
 
   try {
-    // Fetch the payment with related data
+    // First, fetch only the personId to check authorization before accessing sensitive data
+    const [paymentMinimal] = await db
+      .select({
+        personId: payments.personId,
+      })
+      .from(payments)
+      .where(eq(payments.id, paymentId));
+
+    if (!paymentMinimal) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Payment not found",
+            code: "NOT_FOUND",
+          },
+        },
+        { status: StatusCodes.NOT_FOUND }
+      );
+    }
+
+    // Authorization check - verify user can read this payment BEFORE fetching sensitive data
+    const authzResult = await checkResourceAccess(userId, role as Role, "payment", "read", paymentMinimal.personId);
+    if (!authzResult.allowed) return authzResult.error;
+
+    // Now fetch the full payment data with related information
     const [payment] = await db
       .select({
         id: payments.id,
@@ -77,23 +102,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .from(payments)
       .leftJoin(paymentMethods, eq(payments.paymentMethodId, paymentMethods.id))
       .where(eq(payments.id, paymentId));
-
-    if (!payment) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Payment not found",
-            code: "NOT_FOUND",
-          },
-        },
-        { status: StatusCodes.NOT_FOUND }
-      );
-    }
-
-    // Authorization check - verify user can read this payment
-    const authzResult = await checkResourceAccess(userId, role as Role, "payment", "read", payment.personId);
-    if (!authzResult.allowed) return authzResult.error;
 
     return NextResponse.json(
       {

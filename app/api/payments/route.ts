@@ -7,8 +7,8 @@ import { listPaymentsSchema, createPaymentSchema } from "@/lib/api/schemas/payme
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { payments, persons, paymentMethods, payoutMethods } from "@/src/db/schema";
-import { and, count, eq, gte, lte, sql } from "drizzle-orm";
+import { payments, persons, paymentMethods, payoutMethods, appointments, doctors } from "@/src/db/schema";
+import { and, count, eq, gte, lte, sql, inArray } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -80,19 +80,33 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(payments.personId, person.id));
     } else if (role === "doctor") {
       // Doctors see payments for their assigned patients (patients with appointments)
-      // This requires a join with appointments table
-      // For now, we'll use a subquery approach
-      const assignedPersonIds = await db
-        .selectDistinct({ personId: sql<number>`${payments.personId}` })
-        .from(payments)
-        .innerJoin(
-          sql`"Appointment"`,
-          sql`"Payment"."id" = "Appointment"."payment_id" AND "Appointment"."doctor_id" IN (SELECT "id" FROM "Doctor" WHERE "user_id" = ${userId})`
+      // Get the doctor's ID from their user ID
+      const doctor = await db.query.doctors.findFirst({
+        where: eq(doctors.userId, userId),
+      });
+
+      if (!doctor) {
+        // User is a doctor but has no doctor profile - return empty result
+        return NextResponse.json(
+          {
+            success: true,
+            data: [],
+            pagination: calculatePaginationMetadata(page, limit, 0),
+          },
+          { status: StatusCodes.OK }
         );
+      }
+
+      // Get distinct person IDs from payments that have appointments with this doctor
+      const assignedPersonIds = await db
+        .selectDistinct({ personId: payments.personId })
+        .from(payments)
+        .innerJoin(appointments, eq(payments.id, appointments.paymentId))
+        .where(eq(appointments.doctorId, doctor.id));
 
       const personIds = assignedPersonIds.map((p) => p.personId);
       if (personIds.length > 0) {
-        conditions.push(sql`${payments.personId} IN (${sql.join(personIds, sql`, `)})`);
+        conditions.push(inArray(payments.personId, personIds));
       } else {
         // No assigned patients, return empty result
         return NextResponse.json(
