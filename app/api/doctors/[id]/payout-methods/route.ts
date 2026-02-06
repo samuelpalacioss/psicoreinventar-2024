@@ -12,7 +12,7 @@ import { and, count, eq } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 import { listDoctorPayoutsSchema } from "@/lib/api/schemas/doctor.schemas";
 /**
- * GET /api/doctors/[id]/payouts
+ * GET /api/doctors/[id]/payout-methods
  * List all payout methods for a doctor (saved bank accounts/pago movil)
  * Access:
  * - Doctor: Own payout methods only
