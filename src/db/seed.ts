@@ -1227,6 +1227,7 @@ async function seed() {
           score: 5,
           description:
             "Excelente profesional. Me sentí escuchada y comprendida desde el primer momento. El seguimiento ha sido notable y las técnicas que me enseñó me han ayudado mucho.",
+          afterSessions: 2, // Written after 2 completed sessions with Dr. Roberto
         },
         {
           doctorId: doctorsData[1].id, // Dra. Laura Pérez
@@ -1234,6 +1235,7 @@ async function seed() {
           appointmentId: appointmentsData[1].id,
           score: 5,
           description: "Muy profesional y empática. La evaluación fue exhaustiva y clara.",
+          afterSessions: 1, // Written after 1 completed session with Dra. Laura
         },
         {
           doctorId: doctorsData[2].id, // Dr. Miguel González
@@ -1241,6 +1243,7 @@ async function seed() {
           appointmentId: appointmentsData[2].id,
           score: 4,
           description: "Buena sesión. Nos ayudó a identificar patrones que no veíamos antes.",
+          afterSessions: 1, // Written after 1 completed session with Dr. Miguel
         },
       ])
       .returning();

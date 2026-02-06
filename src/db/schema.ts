@@ -503,6 +503,7 @@ export const reviews = pgTable(
     }), // Optional: track which appointment triggered the review
     score: smallint("score").notNull(), // 1-5
     description: text("description"),
+    afterSessions: integer("after_sessions").notNull(), // Number of completed appointments when review was written
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

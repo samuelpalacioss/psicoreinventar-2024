@@ -1,0 +1,1 @@
+ALTER TABLE "Review" ADD COLUMN "after_sessions" integer NOT NULL;

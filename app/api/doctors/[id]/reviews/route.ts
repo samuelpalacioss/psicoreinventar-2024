@@ -195,16 +195,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // Check if patient has at least one completed appointment with this doctor
-    const completedAppointment = await db.query.appointments.findFirst({
+    // Get all completed appointments between patient and doctor
+    const completedAppointments = await db.query.appointments.findMany({
       where: and(
         eq(appointments.personId, person.id),
         eq(appointments.doctorId, doctorId),
         eq(appointments.status, "completed")
       ),
+      orderBy: (appointments, { desc }) => [desc(appointments.endDateTime)],
     });
 
-    if (!completedAppointment) {
+    if (completedAppointments.length === 0) {
       return NextResponse.json(
         {
           success: false,
@@ -216,6 +217,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         { status: StatusCodes.FORBIDDEN }
       );
     }
+
+    const completedSessionsCount = completedAppointments.length;
+    const latestCompletedAppointment = completedAppointments[0];
 
     // Check if review already exists
     const existingReview = await db.query.reviews.findFirst({
@@ -231,7 +235,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         .set({
           score: validatedData.score,
           description: validatedData.description || null,
-          appointmentId: completedAppointment.id, // Update to latest appointment
+          appointmentId: latestCompletedAppointment.id, // Update to latest appointment
+          afterSessions: completedSessionsCount, // Update count to current number
           updatedAt: new Date(),
         })
         .where(eq(reviews.id, existingReview.id))
@@ -243,9 +248,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         .values({
           doctorId,
           personId: person.id,
-          appointmentId: completedAppointment.id,
+          appointmentId: latestCompletedAppointment.id,
           score: validatedData.score,
           description: validatedData.description || null,
+          afterSessions: completedSessionsCount,
         })
         .returning();
     }
