@@ -10,8 +10,8 @@ import {
 } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { appointments, persons, doctors, payments, paymentMethodPersons } from "@/src/db/schema";
-import { and, count, eq, gte, lte, sql } from "drizzle-orm";
+import { appointments, persons, doctors, payments, paymentMethodPersons, payoutMethods } from "@/src/db/schema";
+import { and, count, eq, gte, lte } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 import {
   validateDoctorService,
@@ -331,79 +331,115 @@ export async function POST(request: NextRequest) {
     const startDateTime = new Date(validatedData.startDateTime);
     const endDateTime = calculateEndDateTime(startDateTime, duration!);
 
-    // Validate appointment slot (schedule, overlaps, advance booking)
-    const slotValidation = await validateAppointmentSlot({
-      doctorId: validatedData.doctorId,
-      startDateTime,
-      endDateTime,
-    });
-
-    if (!slotValidation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: slotValidation.error,
-            code: "BAD_REQUEST",
-          },
-        },
-        { status: StatusCodes.BAD_REQUEST }
-      );
-    }
-
-    // Verify payment method belongs to patient
-    const paymentMethod = await db.query.paymentMethodPersons.findFirst({
-      where: and(
-        eq(paymentMethodPersons.id, validatedData.paymentMethodId),
-        eq(paymentMethodPersons.personId, person.id)
-      ),
-    });
-
-    if (!paymentMethod) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Payment method not found or does not belong to you",
-            code: "NOT_FOUND",
-          },
-        },
-        { status: StatusCodes.NOT_FOUND }
-      );
-    }
-
     // Create appointment and payment in a transaction
-    const result = await db.transaction(async (tx) => {
-      // Create payment record
-      const [payment] = await tx
-        .insert(payments)
-        .values({
-          personId: person.id,
-          paymentMethodId: validatedData.paymentMethodId,
-          payoutMethodId: 1, // TODO: Get doctor's payout method
-          amount: price!.toString(),
-          date: new Date().toISOString().split("T")[0], // Current date
-        })
-        .returning();
-
-      // Create appointment
-      const [appointment] = await tx
-        .insert(appointments)
-        .values({
-          personId: person.id,
+    // All validations are done inside the transaction to prevent race conditions
+    let result;
+    try {
+      result = await db.transaction(async (tx) => {
+        // Validate appointment slot (schedule, overlaps, advance booking)
+        // Done inside transaction to prevent double-booking
+        const slotValidation = await validateAppointmentSlot({
           doctorId: validatedData.doctorId,
-          doctorServiceDoctorId: validatedData.doctorId,
-          doctorServiceServiceId: validatedData.serviceId,
-          paymentId: payment.id,
           startDateTime,
           endDateTime,
-          status: "scheduled",
-          notes: validatedData.notes || null,
-        })
-        .returning();
+        });
 
-      return { appointment, payment };
-    });
+        if (!slotValidation.success) {
+          tx.rollback();
+          return { error: slotValidation.error, code: "BAD_REQUEST" };
+        }
+
+        // Verify payment method belongs to patient
+        const paymentMethod = await tx.query.paymentMethodPersons.findFirst({
+          where: and(
+            eq(paymentMethodPersons.id, validatedData.paymentMethodId),
+            eq(paymentMethodPersons.personId, person.id)
+          ),
+        });
+
+        if (!paymentMethod) {
+          tx.rollback();
+          return {
+            error: "Payment method not found or does not belong to you",
+            code: "NOT_FOUND",
+          };
+        }
+
+        // Get doctor's preferred payout method
+        const preferredPayoutMethod = await tx.query.payoutMethods.findFirst({
+          where: and(
+            eq(payoutMethods.doctorId, validatedData.doctorId),
+            eq(payoutMethods.isPreferred, true)
+          ),
+        });
+
+        if (!preferredPayoutMethod) {
+          tx.rollback();
+          return {
+            error: "Doctor does not have a preferred payout method configured",
+            code: "BAD_REQUEST",
+          };
+        }
+
+        // Create payment record
+        const [payment] = await tx
+          .insert(payments)
+          .values({
+            personId: person.id,
+            paymentMethodId: validatedData.paymentMethodId,
+            payoutMethodId: preferredPayoutMethod.id,
+            amount: price!.toString(),
+            date: new Date().toISOString().split("T")[0], // Current date
+          })
+          .returning();
+
+        // Create appointment
+        const [appointment] = await tx
+          .insert(appointments)
+          .values({
+            personId: person.id,
+            doctorId: validatedData.doctorId,
+            doctorServiceDoctorId: validatedData.doctorId,
+            doctorServiceServiceId: validatedData.serviceId,
+            paymentId: payment.id,
+            startDateTime,
+            endDateTime,
+            status: "scheduled",
+            notes: validatedData.notes || null,
+          })
+          .returning();
+
+        return { appointment, payment };
+      });
+    } catch (error) {
+      console.error("Error in appointment transaction:", error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Failed to create appointment",
+            code: "INTERNAL_ERROR",
+          },
+        },
+        { status: StatusCodes.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    // Check if transaction returned an error
+    if ("error" in result) {
+      const statusCode =
+        result.code === "NOT_FOUND" ? StatusCodes.NOT_FOUND : StatusCodes.BAD_REQUEST;
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: result.error,
+            code: result.code,
+          },
+        },
+        { status: statusCode }
+      );
+    }
 
     // Fetch complete appointment data with relations
     const completeAppointment = await db.query.appointments.findFirst({

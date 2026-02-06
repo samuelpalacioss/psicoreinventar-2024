@@ -4,7 +4,6 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updatePaymentMethodPersonWithDetailsSchema } from "@/lib/api/schemas/payment.schemas";
-import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
 import { persons, paymentMethodPersons, paymentMethods } from "@/src/db/schema";
@@ -288,45 +287,48 @@ export async function PATCH(
       }
     }
 
-    // If setting as preferred, unset other preferred methods for this person
-    if (validatedData.isPreferred) {
-      await db
-        .update(paymentMethodPersons)
-        .set({ isPreferred: false, updatedAt: new Date() })
-        .where(
-          and(
-            eq(paymentMethodPersons.personId, personId),
-            eq(paymentMethodPersons.isPreferred, true)
-          )
-        );
-    }
+    // Perform all updates in a transaction to ensure atomicity
+    await db.transaction(async (tx) => {
+      // If setting as preferred, unset other preferred methods for this person
+      if (validatedData.isPreferred) {
+        await tx
+          .update(paymentMethodPersons)
+          .set({ isPreferred: false, updatedAt: new Date() })
+          .where(
+            and(
+              eq(paymentMethodPersons.personId, personId),
+              eq(paymentMethodPersons.isPreferred, true)
+            )
+          );
+      }
 
-    // Update the association if there are association fields
-    if (Object.keys(associationFields).length > 0) {
-      await db
-        .update(paymentMethodPersons)
-        .set({
-          ...associationFields,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(paymentMethodPersons.id, methodId),
-            eq(paymentMethodPersons.personId, personId)
-          )
-        );
-    }
+      // Update the association if there are association fields
+      if (Object.keys(associationFields).length > 0) {
+        await tx
+          .update(paymentMethodPersons)
+          .set({
+            ...associationFields,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(paymentMethodPersons.id, methodId),
+              eq(paymentMethodPersons.personId, personId)
+            )
+          );
+      }
 
-    // Update the payment method details if there are payment method fields
-    if (Object.keys(paymentMethodFields).length > 0) {
-      await db
-        .update(paymentMethods)
-        .set({
-          ...paymentMethodFields,
-          updatedAt: new Date(),
-        })
-        .where(eq(paymentMethods.id, existing.paymentMethodId));
-    }
+      // Update the payment method details if there are payment method fields
+      if (Object.keys(paymentMethodFields).length > 0) {
+        await tx
+          .update(paymentMethods)
+          .set({
+            ...paymentMethodFields,
+            updatedAt: new Date(),
+          })
+          .where(eq(paymentMethods.id, existing.paymentMethodId));
+      }
+    });
 
     // Fetch complete data with payment method details
     const [completeData] = await db
