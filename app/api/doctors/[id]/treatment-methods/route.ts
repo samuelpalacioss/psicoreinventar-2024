@@ -3,13 +3,17 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { addDoctorTreatmentMethodSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, doctorTreatmentMethods, treatmentMethods } from "@/src/db/schema";
-import { and, eq, count } from "drizzle-orm";
+import {
+  findDoctorById,
+  findDoctorTreatmentMethods,
+  findDoctorTreatmentMethod,
+  createDoctorTreatmentMethod,
+  findTreatmentMethodById
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,26 +78,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(doctorTreatmentMethods.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(doctorTreatmentMethods)
-      .where(whereClause);
-
     // Get paginated treatment methods for this doctor
-    const doctorTreatmentMethodsList = await db.query.doctorTreatmentMethods.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      with: {
-        treatmentMethod: true,
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorTreatmentMethodsList, pagination } = await findDoctorTreatmentMethods(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -176,9 +160,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -194,9 +176,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify treatment method exists
-    const treatmentMethod = await db.query.treatmentMethods.findFirst({
-      where: eq(treatmentMethods.id, validatedData.treatmentMethodId),
-    });
+    const treatmentMethod = await findTreatmentMethodById(validatedData.treatmentMethodId);
 
     if (!treatmentMethod) {
       return NextResponse.json(
@@ -212,12 +192,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check if treatment method is already associated with this doctor
-    const existingDoctorTreatmentMethod = await db.query.doctorTreatmentMethods.findFirst({
-      where: and(
-        eq(doctorTreatmentMethods.doctorId, doctorId),
-        eq(doctorTreatmentMethods.treatmentMethodId, validatedData.treatmentMethodId)
-      ),
-    });
+    const existingDoctorTreatmentMethod = await findDoctorTreatmentMethod(doctorId, validatedData.treatmentMethodId);
 
     if (existingDoctorTreatmentMethod) {
       return NextResponse.json(
@@ -233,13 +208,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create doctor-treatment method association
-    const [doctorTreatmentMethod] = await db
-      .insert(doctorTreatmentMethods)
-      .values({
-        doctorId,
-        treatmentMethodId: validatedData.treatmentMethodId,
-      })
-      .returning();
+    const doctorTreatmentMethod = await createDoctorTreatmentMethod(doctorId, validatedData.treatmentMethodId);
 
     return NextResponse.json(
       {

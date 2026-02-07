@@ -3,13 +3,11 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createAgeGroupSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, ageGroups } from "@/src/db/schema";
-import { eq, count } from "drizzle-orm";
+import { findDoctorById, findDoctorAgeGroups, createDoctorAgeGroup } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +57,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,24 +72,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(ageGroups.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(ageGroups)
-      .where(whereClause);
-
     // Get paginated age groups for this doctor
-    const doctorAgeGroups = await db.query.ageGroups.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      orderBy: (ageGroups, { asc }) => [asc(ageGroups.minAge)],
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorAgeGroups, pagination } = await findDoctorAgeGroups(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -174,9 +154,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -192,13 +170,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create age group
-    const [ageGroup] = await db
-      .insert(ageGroups)
-      .values({
-        ...validatedData,
-        doctorId,
-      })
-      .returning();
+    const ageGroup = await createDoctorAgeGroup(doctorId, validatedData);
 
     return NextResponse.json(
       {

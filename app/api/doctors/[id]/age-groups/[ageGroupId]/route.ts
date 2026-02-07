@@ -5,9 +5,7 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateAgeGroupSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, ageGroups } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorAgeGroup, editDoctorAgeGroup, deleteDoctorAgeGroup } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +74,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +90,7 @@ export async function PATCH(
     }
 
     // Verify age group exists and belongs to this doctor
-    const existingAgeGroup = await db.query.ageGroups.findFirst({
-      where: and(eq(ageGroups.id, ageGroupId), eq(ageGroups.doctorId, doctorId)),
-    });
+    const existingAgeGroup = await findDoctorAgeGroup(doctorId, ageGroupId);
 
     if (!existingAgeGroup) {
       return NextResponse.json(
@@ -112,11 +106,7 @@ export async function PATCH(
     }
 
     // Update age group
-    const [updatedAgeGroup] = await db
-      .update(ageGroups)
-      .set(validatedData)
-      .where(eq(ageGroups.id, ageGroupId))
-      .returning();
+    const updatedAgeGroup = await editDoctorAgeGroup(ageGroupId, validatedData);
 
     return NextResponse.json(
       {
@@ -195,9 +185,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -213,9 +201,7 @@ export async function DELETE(
     }
 
     // Verify age group exists and belongs to this doctor
-    const existingAgeGroup = await db.query.ageGroups.findFirst({
-      where: and(eq(ageGroups.id, ageGroupId), eq(ageGroups.doctorId, doctorId)),
-    });
+    const existingAgeGroup = await findDoctorAgeGroup(doctorId, ageGroupId);
 
     if (!existingAgeGroup) {
       return NextResponse.json(
@@ -231,7 +217,7 @@ export async function DELETE(
     }
 
     // Delete age group
-    await db.delete(ageGroups).where(eq(ageGroups.id, ageGroupId));
+    await deleteDoctorAgeGroup(ageGroupId);
 
     return NextResponse.json(
       {

@@ -3,13 +3,17 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { addDoctorConditionSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, doctorConditions, conditions } from "@/src/db/schema";
-import { and, eq, count } from "drizzle-orm";
+import {
+  findDoctorById,
+  findDoctorConditions,
+  findDoctorCondition,
+  createDoctorCondition,
+  findConditionById
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,26 +78,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(doctorConditions.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(doctorConditions)
-      .where(whereClause);
-
     // Get paginated conditions for this doctor with type
-    const doctorConditionsList = await db.query.doctorConditions.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      with: {
-        condition: true,
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorConditionsList, pagination } = await findDoctorConditions(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -176,9 +160,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -194,9 +176,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify condition exists
-    const condition = await db.query.conditions.findFirst({
-      where: eq(conditions.id, validatedData.conditionId),
-    });
+    const condition = await findConditionById(validatedData.conditionId);
 
     if (!condition) {
       return NextResponse.json(
@@ -212,12 +192,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check if condition is already associated with this doctor
-    const existingDoctorCondition = await db.query.doctorConditions.findFirst({
-      where: and(
-        eq(doctorConditions.doctorId, doctorId),
-        eq(doctorConditions.conditionId, validatedData.conditionId)
-      ),
-    });
+    const existingDoctorCondition = await findDoctorCondition(doctorId, validatedData.conditionId);
 
     if (existingDoctorCondition) {
       return NextResponse.json(
@@ -233,14 +208,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create doctor-condition association with type
-    const [doctorCondition] = await db
-      .insert(doctorConditions)
-      .values({
-        doctorId,
-        conditionId: validatedData.conditionId,
-        type: validatedData.type,
-      })
-      .returning();
+    const doctorCondition = await createDoctorCondition(doctorId, validatedData.conditionId, validatedData.type);
 
     return NextResponse.json(
       {
@@ -264,4 +232,3 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
   }
 }
-

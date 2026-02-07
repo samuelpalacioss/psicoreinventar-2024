@@ -6,16 +6,13 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { createDoctorSchema, listDoctorsSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
 import {
-  doctors,
-  places,
-  doctorServices,
-  doctorConditions,
-  doctorLanguages,
-  doctorTreatmentMethods,
-} from "@/src/db/schema";
-import { and, count, eq, ilike, or, sql } from "drizzle-orm";
+  findAllDoctors,
+  findDoctorByUserId,
+  findDoctorByCi,
+  findPlaceById,
+  createDoctor,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -61,22 +58,28 @@ export async function GET(request: NextRequest) {
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Build WHERE clause with role-based filtering
-    const conditions = [];
+    // Build filters based on role and params
+    const filters: Record<string, any> = {
+      search: params.search,
+      placeId: params.placeId,
+      isActive: params.isActive,
+      serviceId: params.serviceId,
+      conditionId: params.conditionId,
+      languageId: params.languageId,
+      treatmentMethodId: params.treatmentMethodId,
+    };
+
+    let restrictToIds: number[] | undefined = undefined;
 
     // Role-based filtering
     if (role === Role.PATIENT) {
       // Patients see only active doctors (public browsing)
-      conditions.push(eq(doctors.isActive, true));
+      filters.isActive = true;
     } else if (role === Role.DOCTOR) {
       // Doctors see only their own profile
-      const doctor = await db.query.doctors.findFirst({
-        where: (docs, { eq }) => eq(docs.userId, userId),
-      });
+      const doctor = await findDoctorByUserId(userId);
 
-      if (doctor) {
-        conditions.push(eq(doctors.id, doctor.id));
-      } else {
+      if (!doctor) {
         // User is doctor role but has no doctor profile - return empty result
         return NextResponse.json(
           {
@@ -87,174 +90,22 @@ export async function GET(request: NextRequest) {
           { status: StatusCodes.OK }
         );
       }
+
+      restrictToIds = [doctor.id];
     }
     // Admin sees all (no additional filter)
 
-    // Additional filters from params
-    if (params.search) {
-      conditions.push(
-        or(
-          ilike(doctors.firstName, `%${params.search}%`),
-          ilike(doctors.firstLastName, `%${params.search}%`),
-          ilike(doctors.middleName, `%${params.search}%`),
-          ilike(doctors.secondLastName, `%${params.search}%`),
-          ilike(doctors.biography, `%${params.search}%`)
-        )
-      );
-    }
-
-    if (params.placeId) {
-      conditions.push(eq(doctors.placeId, params.placeId));
-    }
-
-    if (params.isActive !== undefined) {
-      conditions.push(eq(doctors.isActive, params.isActive));
-    }
-
-    // Filter by service
-    if (params.serviceId) {
-      const doctorIdsWithService = await db
-        .selectDistinct({ doctorId: doctorServices.doctorId })
-        .from(doctorServices)
-        .where(eq(doctorServices.serviceId, params.serviceId));
-
-      if (doctorIdsWithService.length > 0) {
-        const doctorIds = doctorIdsWithService.map((ds) => ds.doctorId);
-        conditions.push(sql`${doctors.id} IN (${sql.join(doctorIds, sql.raw(","))})`);
-      } else {
-        // No doctors with this service - return empty result
-        return NextResponse.json(
-          {
-            success: true,
-            data: [],
-            pagination: calculatePaginationMetadata(page, limit, 0),
-          },
-          { status: StatusCodes.OK }
-        );
-      }
-    }
-
-    // Filter by condition
-    if (params.conditionId) {
-      const doctorIdsWithCondition = await db
-        .selectDistinct({ doctorId: doctorConditions.doctorId })
-        .from(doctorConditions)
-        .where(eq(doctorConditions.conditionId, params.conditionId));
-
-      if (doctorIdsWithCondition.length > 0) {
-        const doctorIds = doctorIdsWithCondition.map((dc) => dc.doctorId);
-        conditions.push(sql`${doctors.id} IN (${sql.join(doctorIds, sql.raw(","))})`);
-      } else {
-        // No doctors with this condition - return empty result
-        return NextResponse.json(
-          {
-            success: true,
-            data: [],
-            pagination: calculatePaginationMetadata(page, limit, 0),
-          },
-          { status: StatusCodes.OK }
-        );
-      }
-    }
-
-    // Filter by language
-    if (params.languageId) {
-      const doctorIdsWithLanguage = await db
-        .selectDistinct({ doctorId: doctorLanguages.doctorId })
-        .from(doctorLanguages)
-        .where(eq(doctorLanguages.languageId, params.languageId));
-
-      if (doctorIdsWithLanguage.length > 0) {
-        const doctorIds = doctorIdsWithLanguage.map((dl) => dl.doctorId);
-        conditions.push(sql`${doctors.id} IN (${sql.join(doctorIds, sql.raw(","))})`);
-      } else {
-        // No doctors with this language - return empty result
-        return NextResponse.json(
-          {
-            success: true,
-            data: [],
-            pagination: calculatePaginationMetadata(page, limit, 0),
-          },
-          { status: StatusCodes.OK }
-        );
-      }
-    }
-
-    // Filter by treatment method
-    if (params.treatmentMethodId) {
-      const doctorIdsWithTreatmentMethod = await db
-        .selectDistinct({ doctorId: doctorTreatmentMethods.doctorId })
-        .from(doctorTreatmentMethods)
-        .where(eq(doctorTreatmentMethods.treatmentMethodId, params.treatmentMethodId));
-
-      if (doctorIdsWithTreatmentMethod.length > 0) {
-        const doctorIds = doctorIdsWithTreatmentMethod.map((dtm) => dtm.doctorId);
-        conditions.push(sql`${doctors.id} IN (${sql.join(doctorIds, sql.raw(","))})`);
-      } else {
-        // No doctors with this treatment method - return empty result
-        return NextResponse.json(
-          {
-            success: true,
-            data: [],
-            pagination: calculatePaginationMetadata(page, limit, 0),
-          },
-          { status: StatusCodes.OK }
-        );
-      }
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    // Get total count
-    const countQuery = db.select({ count: count() }).from(doctors);
-    if (whereClause) {
-      countQuery.where(whereClause);
-    }
-    const [{ count: totalCount }] = await countQuery;
-
-    // Get paginated data with relations
-    const dataQuery = db
-      .select({
-        id: doctors.id,
-        userId: doctors.userId,
-        ci: doctors.ci,
-        firstName: doctors.firstName,
-        middleName: doctors.middleName,
-        firstLastName: doctors.firstLastName,
-        secondLastName: doctors.secondLastName,
-        birthDate: doctors.birthDate,
-        address: doctors.address,
-        placeId: doctors.placeId,
-        biography: doctors.biography,
-        firstSessionExpectation: doctors.firstSessionExpectation,
-        biggestStrengths: doctors.biggestStrengths,
-        isActive: doctors.isActive,
-        createdAt: doctors.createdAt,
-        updatedAt: doctors.updatedAt,
-        place: {
-          id: places.id,
-          name: places.name,
-        },
-      })
-      .from(doctors)
-      .leftJoin(places, eq(doctors.placeId, places.id))
-      .limit(limit)
-      .offset(offset);
-
-    if (whereClause) {
-      dataQuery.where(whereClause);
-    }
-
-    const data = await dataQuery;
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    // Get doctors using DAL
+    const result = await findAllDoctors(
+      filters,
+      { page, limit, offset },
+      restrictToIds
+    );
 
     return NextResponse.json(
       {
         success: true,
-        data,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -314,9 +165,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Check if user already has a doctor profile
-    const existingDoctor = await db.query.doctors.findFirst({
-      where: eq(doctors.userId, userId),
-    });
+    const existingDoctor = await findDoctorByUserId(userId);
 
     if (existingDoctor) {
       return NextResponse.json(
@@ -332,9 +181,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if CI is already in use
-    const existingCI = await db.query.doctors.findFirst({
-      where: eq(doctors.ci, validatedData.ci),
-    });
+    const existingCI = await findDoctorByCi(validatedData.ci);
 
     if (existingCI) {
       return NextResponse.json(
@@ -350,9 +197,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify place exists
-    const place = await db.query.places.findFirst({
-      where: eq(places.id, validatedData.placeId),
-    });
+    const place = await findPlaceById(validatedData.placeId);
 
     if (!place) {
       return NextResponse.json(
@@ -368,14 +213,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Create doctor profile (isActive defaults to false - requires admin approval)
-    const [doctor] = await db
-      .insert(doctors)
-      .values({
-        ...validatedData,
-        userId,
-        isActive: false, // Requires admin approval
-      })
-      .returning();
+    const doctor = await createDoctor({
+      ...validatedData,
+      userId,
+      isActive: false, // Requires admin approval
+    });
 
     return NextResponse.json(
       {

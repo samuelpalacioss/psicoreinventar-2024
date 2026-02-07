@@ -5,9 +5,11 @@ import { validateBody } from "@/utils/api/middleware/validation";
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { cancelAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { appointments } from "@/src/db/schema";
-import { and, eq, gt, isNull, sql } from "drizzle-orm";
+import {
+  findAppointmentByIdBasic,
+  cancelAppointment,
+  findAppointmentById,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -80,13 +82,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Check if appointment exists and is not soft-deleted
-    const existingAppointment = await db.query.appointments.findFirst({
-      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
-      with: {
-        person: true,
-        doctor: true,
-      },
-    });
+    const existingAppointment = await findAppointmentByIdBasic(appointmentId);
 
     if (!existingAppointment) {
       return NextResponse.json(
@@ -129,28 +125,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Cancel the appointment with atomic 24-hour check for patients
-    let whereCondition;
-    if (role === Role.PATIENT) {
-      // For patients, enforce 24-hour policy in the WHERE clause (atomic check)
-      whereCondition = and(
-        eq(appointments.id, appointmentId),
-        isNull(appointments.deletedAt),
-        gt(appointments.startDateTime, sql`NOW() + INTERVAL '24 hours'`)
-      );
-    } else {
-      // Admins can cancel anytime (no time restriction)
-      whereCondition = and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt));
-    }
-
-    const [cancelledAppointment] = await db
-      .update(appointments)
-      .set({
-        status: "cancelled",
-        cancellationReason: validatedData.cancellationReason,
-        updatedAt: new Date(),
-      })
-      .where(whereCondition)
-      .returning();
+    const enforceAdvancePolicy = role === Role.PATIENT;
+    const cancelledAppointment = await cancelAppointment(
+      appointmentId,
+      validatedData.cancellationReason,
+      enforceAdvancePolicy
+    );
 
     // If no rows were updated for patients, it means the 24-hour check failed
     if (!cancelledAppointment && role === Role.PATIENT) {
@@ -168,35 +148,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Fetch complete appointment data with relations
-    const completeAppointment = await db.query.appointments.findFirst({
-      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctorService: {
-          with: {
-            service: true,
-          },
-        },
-        payment: true,
-      },
-    });
+    const completeAppointment = await findAppointmentById(appointmentId);
 
     return NextResponse.json(
       {

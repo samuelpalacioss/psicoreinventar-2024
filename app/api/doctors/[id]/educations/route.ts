@@ -3,13 +3,11 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createEducationSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, educations, institutions } from "@/src/db/schema";
-import { eq, count } from "drizzle-orm";
+import { findDoctorById, findDoctorEducations, createDoctorEducation, findInstitutionById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +57,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,26 +72,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(educations.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(educations)
-      .where(whereClause);
-
     // Get paginated educations for this doctor with institution details
-    const doctorEducations = await db.query.educations.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      with: {
-        institution: true,
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorEducations, pagination } = await findDoctorEducations(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -176,9 +154,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -194,9 +170,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify institution exists
-    const institution = await db.query.institutions.findFirst({
-      where: eq(institutions.id, validatedData.institutionId),
-    });
+    const institution = await findInstitutionById(validatedData.institutionId);
 
     if (!institution) {
       return NextResponse.json(
@@ -212,13 +186,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create education record
-    const [education] = await db
-      .insert(educations)
-      .values({
-        ...validatedData,
-        doctorId,
-      })
-      .returning();
+    const education = await createDoctorEducation(doctorId, validatedData);
 
     return NextResponse.json(
       {

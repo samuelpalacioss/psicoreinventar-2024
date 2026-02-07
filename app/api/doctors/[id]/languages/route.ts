@@ -3,13 +3,17 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { addDoctorLanguageSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, doctorLanguages, languages } from "@/src/db/schema";
-import { and, eq, count } from "drizzle-orm";
+import {
+  findDoctorById,
+  findDoctorLanguages,
+  findDoctorLanguage,
+  createDoctorLanguage,
+  findLanguageById
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,26 +78,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(doctorLanguages.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(doctorLanguages)
-      .where(whereClause);
-
     // Get paginated languages for this doctor with type
-    const doctorLanguagesList = await db.query.doctorLanguages.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      with: {
-        language: true,
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorLanguagesList, pagination } = await findDoctorLanguages(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -176,9 +160,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -194,9 +176,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify language exists
-    const language = await db.query.languages.findFirst({
-      where: eq(languages.id, validatedData.languageId),
-    });
+    const language = await findLanguageById(validatedData.languageId);
 
     if (!language) {
       return NextResponse.json(
@@ -212,12 +192,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check if language is already associated with this doctor
-    const existingDoctorLanguage = await db.query.doctorLanguages.findFirst({
-      where: and(
-        eq(doctorLanguages.doctorId, doctorId),
-        eq(doctorLanguages.languageId, validatedData.languageId)
-      ),
-    });
+    const existingDoctorLanguage = await findDoctorLanguage(doctorId, validatedData.languageId);
 
     if (existingDoctorLanguage) {
       return NextResponse.json(
@@ -233,14 +208,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create doctor-language association with type
-    const [doctorLanguage] = await db
-      .insert(doctorLanguages)
-      .values({
-        doctorId,
-        languageId: validatedData.languageId,
-        type: validatedData.type,
-      })
-      .returning();
+    const doctorLanguage = await createDoctorLanguage(doctorId, validatedData.languageId, validatedData.type);
 
     return NextResponse.json(
       {
@@ -264,4 +232,3 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
   }
 }
-

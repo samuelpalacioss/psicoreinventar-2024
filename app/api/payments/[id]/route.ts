@@ -5,9 +5,7 @@ import { validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { payments, paymentMethods } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findPaymentPersonId, findPaymentById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -52,14 +50,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // First, fetch only the personId to check authorization before accessing sensitive data
-    const [paymentMinimal] = await db
-      .select({
-        personId: payments.personId,
-      })
-      .from(payments)
-      .where(eq(payments.id, paymentId));
+    const personId = await findPaymentPersonId(paymentId);
 
-    if (!paymentMinimal) {
+    if (personId === undefined) {
       return NextResponse.json(
         {
           success: false,
@@ -73,35 +66,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Authorization check - verify user can read this payment BEFORE fetching sensitive data
-    const authzResult = await checkResourceAccess(userId, role as Role, "payment", "read", paymentMinimal.personId);
+    const authzResult = await checkResourceAccess(userId, role as Role, "payment", "read", personId);
     if (!authzResult.allowed) return authzResult.error;
 
     // Now fetch the full payment data with related information
-    const [payment] = await db
-      .select({
-        id: payments.id,
-        personId: payments.personId,
-        paymentMethodId: payments.paymentMethodId,
-        payoutMethodId: payments.payoutMethodId,
-        amount: payments.amount,
-        date: payments.date,
-        createdAt: payments.createdAt,
-        updatedAt: payments.updatedAt,
-        paymentMethod: {
-          id: paymentMethods.id,
-          type: paymentMethods.type,
-          // Card fields (token never exposed)
-          cardLast4: paymentMethods.cardLast4,
-          cardHolderName: paymentMethods.cardHolderName,
-          cardBrand: paymentMethods.cardBrand,
-          // Pago Móvil fields
-          pagoMovilPhone: paymentMethods.pagoMovilPhone,
-          pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
-        },
-      })
-      .from(payments)
-      .leftJoin(paymentMethods, eq(payments.paymentMethodId, paymentMethods.id))
-      .where(eq(payments.id, paymentId));
+    const payment = await findPaymentById(paymentId);
 
     return NextResponse.json(
       {

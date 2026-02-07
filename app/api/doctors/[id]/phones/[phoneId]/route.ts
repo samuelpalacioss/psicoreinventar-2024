@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
-import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
+import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { doctorPhoneSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, phones } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorPhone, editDoctorPhone, deleteDoctorPhone } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +74,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +90,7 @@ export async function PATCH(
     }
 
     // Verify phone exists and belongs to this doctor
-    const existingPhone = await db.query.phones.findFirst({
-      where: and(eq(phones.id, phoneId), eq(phones.doctorId, doctorId)),
-    });
+    const existingPhone = await findDoctorPhone(doctorId, phoneId);
 
     if (!existingPhone) {
       return NextResponse.json(
@@ -112,11 +106,7 @@ export async function PATCH(
     }
 
     // Update phone
-    const [updatedPhone] = await db
-      .update(phones)
-      .set(validatedData)
-      .where(eq(phones.id, phoneId))
-      .returning();
+    const updatedPhone = await editDoctorPhone(phoneId, validatedData);
 
     return NextResponse.json(
       {
@@ -195,9 +185,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -213,9 +201,7 @@ export async function DELETE(
     }
 
     // Verify phone exists and belongs to this doctor
-    const existingPhone = await db.query.phones.findFirst({
-      where: and(eq(phones.id, phoneId), eq(phones.doctorId, doctorId)),
-    });
+    const existingPhone = await findDoctorPhone(doctorId, phoneId);
 
     if (!existingPhone) {
       return NextResponse.json(
@@ -231,7 +217,7 @@ export async function DELETE(
     }
 
     // Delete phone
-    await db.delete(phones).where(eq(phones.id, phoneId));
+    await deleteDoctorPhone(phoneId);
 
     return NextResponse.json(
       {

@@ -5,9 +5,13 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateEducationSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, educations, institutions } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+  findDoctorById,
+  findDoctorEducation,
+  editDoctorEducation,
+  deleteDoctorEducation,
+  findInstitutionById
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +80,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +96,7 @@ export async function PATCH(
     }
 
     // Verify education exists and belongs to this doctor
-    const existingEducation = await db.query.educations.findFirst({
-      where: and(eq(educations.id, educationId), eq(educations.doctorId, doctorId)),
-    });
+    const existingEducation = await findDoctorEducation(doctorId, educationId);
 
     if (!existingEducation) {
       return NextResponse.json(
@@ -113,9 +113,7 @@ export async function PATCH(
 
     // If updating institution, verify it exists
     if (validatedData.institutionId) {
-      const institution = await db.query.institutions.findFirst({
-        where: eq(institutions.id, validatedData.institutionId),
-      });
+      const institution = await findInstitutionById(validatedData.institutionId);
 
       if (!institution) {
         return NextResponse.json(
@@ -132,11 +130,7 @@ export async function PATCH(
     }
 
     // Update education
-    const [updatedEducation] = await db
-      .update(educations)
-      .set(validatedData)
-      .where(eq(educations.id, educationId))
-      .returning();
+    const updatedEducation = await editDoctorEducation(educationId, validatedData);
 
     return NextResponse.json(
       {
@@ -215,9 +209,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -233,9 +225,7 @@ export async function DELETE(
     }
 
     // Verify education exists and belongs to this doctor
-    const existingEducation = await db.query.educations.findFirst({
-      where: and(eq(educations.id, educationId), eq(educations.doctorId, doctorId)),
-    });
+    const existingEducation = await findDoctorEducation(doctorId, educationId);
 
     if (!existingEducation) {
       return NextResponse.json(
@@ -251,7 +241,7 @@ export async function DELETE(
     }
 
     // Delete education
-    await db.delete(educations).where(eq(educations.id, educationId));
+    await deleteDoctorEducation(educationId);
 
     return NextResponse.json(
       {

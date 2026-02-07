@@ -7,10 +7,12 @@ import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { doctors, payoutMethods } from "@/src/db/schema";
+import { payoutMethods } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
+import { findDoctorById, createDoctorPayoutMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import { listDoctorPayoutsSchema, createPayoutMethodSchema } from "@/lib/api/schemas/doctor.schemas";
+
 /**
  * GET /api/doctors/[id]/payout-methods
  * List all payout methods for a doctor (saved bank accounts/pago movil)
@@ -65,9 +67,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -182,9 +182,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -199,36 +197,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // If setting as preferred, unset other preferred methods for this doctor
-    if (validatedData.isPreferred) {
-      await db
-        .update(payoutMethods)
-        .set({ isPreferred: false, updatedAt: new Date() })
-        .where(and(eq(payoutMethods.doctorId, doctorId), eq(payoutMethods.isPreferred, true)));
-    }
-
-    // Create the payout method
-    const [newPayoutMethod] = await db
-      .insert(payoutMethods)
-      .values({
-        doctorId,
-        type: validatedData.type,
-        nickname: validatedData.nickname,
-        isPreferred: validatedData.isPreferred,
-        // Type-specific fields
-        ...(validatedData.type === "bank_transfer"
-          ? {
-              bankName: validatedData.bankName,
-              accountNumber: validatedData.accountNumber,
-              accountType: validatedData.accountType,
-            }
-          : {
-              pagoMovilPhone: validatedData.pagoMovilPhone,
-              pagoMovilBankCode: validatedData.pagoMovilBankCode,
-              pagoMovilCi: validatedData.pagoMovilCi,
-            }),
-      })
-      .returning();
+    // Create the payout method (DAL handles preferred logic)
+    const newPayoutMethod = await createDoctorPayoutMethod(doctorId, validatedData);
 
     return NextResponse.json(
       {

@@ -5,9 +5,13 @@ import { validateBody } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { appointments } from "@/src/db/schema";
-import { and, eq, isNull } from "drizzle-orm";
+import {
+  findAppointmentById,
+  findAppointmentByIdBasic,
+  findAppointmentByIdWithDeleted,
+  editAppointment,
+  softDeleteAppointment,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -69,49 +73,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Fetch appointment with relations (exclude soft-deleted)
-    const appointment = await db.query.appointments.findFirst({
-      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-            ci: true,
-            birthDate: true,
-            address: true,
-          },
-          with: {
-            place: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-            biography: true,
-          },
-        },
-        doctorService: {
-          with: {
-            service: true,
-          },
-        },
-        payment: {
-          columns: {
-            id: true,
-            amount: true,
-            date: true,
-          },
-        },
-        review: true,
-      },
-    });
+    const appointment = await findAppointmentById(appointmentId);
 
     if (!appointment) {
       return NextResponse.json(
@@ -229,9 +191,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   try {
     // Check if appointment exists and is not soft-deleted
-    const existingAppointment = await db.query.appointments.findFirst({
-      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
-    });
+    const existingAppointment = await findAppointmentByIdBasic(appointmentId);
 
     if (!existingAppointment) {
       return NextResponse.json(
@@ -286,45 +246,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // Update appointment
-    const [updatedAppointment] = await db
-      .update(appointments)
-      .set({
-        ...validatedData,
-        updatedAt: new Date(),
-      })
-      .where(eq(appointments.id, appointmentId))
-      .returning();
+    await editAppointment(appointmentId, validatedData);
 
     // Fetch complete appointment data with relations
-    const completeAppointment = await db.query.appointments.findFirst({
-      where: and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctorService: {
-          with: {
-            service: true,
-          },
-        },
-        payment: true,
-      },
-    });
+    const completeAppointment = await findAppointmentById(appointmentId);
 
     return NextResponse.json(
       {
@@ -410,9 +335,7 @@ export async function DELETE(
 
   try {
     // Check if appointment exists and is not already soft-deleted
-    const existingAppointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, appointmentId),
-    });
+    const existingAppointment = await findAppointmentByIdWithDeleted(appointmentId);
 
     if (!existingAppointment || existingAppointment.deletedAt) {
       return NextResponse.json(
@@ -428,13 +351,7 @@ export async function DELETE(
     }
 
     // Soft delete to preserve financial audit trail
-    await db
-      .update(appointments)
-      .set({
-        deletedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(appointments.id, appointmentId));
+    await softDeleteAppointment(appointmentId);
 
     return NextResponse.json(
       {

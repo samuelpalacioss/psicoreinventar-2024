@@ -5,11 +5,9 @@ import { validateParams, validateSearchParams } from "@/utils/api/middleware/val
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema, paginationSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, paymentMethodPersons, paymentMethods } from "@/src/db/schema";
-import { and, count, eq } from "drizzle-orm";
+import { findPersonById, findPersonPaymentMethods } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 
 /**
  * GET /api/persons/[id]/payment-methods
@@ -61,9 +59,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -78,51 +74,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(paymentMethodPersons)
-      .where(eq(paymentMethodPersons.personId, personId));
-
     // Get paginated payment methods with details
-    const personPaymentMethods = await db
-      .select({
-        id: paymentMethodPersons.id,
-        personId: paymentMethodPersons.personId,
-        paymentMethodId: paymentMethodPersons.paymentMethodId,
-        isPreferred: paymentMethodPersons.isPreferred,
-        nickname: paymentMethodPersons.nickname,
-        createdAt: paymentMethodPersons.createdAt,
-        updatedAt: paymentMethodPersons.updatedAt,
-        paymentMethod: {
-          id: paymentMethods.id,
-          type: paymentMethods.type,
-          // Card fields (token should NOT be exposed to frontend for security)
-          cardLast4: paymentMethods.cardLast4,
-          cardHolderName: paymentMethods.cardHolderName,
-          cardBrand: paymentMethods.cardBrand,
-          expirationMonth: paymentMethods.expirationMonth,
-          expirationYear: paymentMethods.expirationYear,
-          // Pago Móvil fields
-          pagoMovilPhone: paymentMethods.pagoMovilPhone,
-          pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
-          pagoMovilCi: paymentMethods.pagoMovilCi,
-        },
-      })
-      .from(paymentMethodPersons)
-      .leftJoin(paymentMethods, eq(paymentMethodPersons.paymentMethodId, paymentMethods.id))
-      .where(eq(paymentMethodPersons.personId, personId))
-      .limit(limit)
-      .offset(offset);
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const result = await findPersonPaymentMethods(personId, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data: personPaymentMethods,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -140,5 +98,3 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 }
-
-

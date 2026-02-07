@@ -3,13 +3,11 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { personPhoneSchema } from "@/lib/api/schemas/person.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, phones } from "@/src/db/schema";
-import { eq, count } from "drizzle-orm";
+import { findPersonById, findPersonPhones, createPersonPhone } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +57,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -76,29 +72,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(phones.personId, personId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(phones)
-      .where(whereClause);
-
     // Get paginated phones for this person
-    const personPhones = await db.query.phones.findMany({
-      where: whereClause,
-      limit,
-      offset,
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const result = await findPersonPhones(personId, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data: personPhones,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -173,9 +153,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -191,13 +169,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create phone
-    const [phone] = await db
-      .insert(phones)
-      .values({
-        ...validatedData,
-        personId,
-      })
-      .returning();
+    const phone = await createPersonPhone(personId, validatedData);
 
     return NextResponse.json(
       {
@@ -221,5 +193,3 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
   }
 }
-
-

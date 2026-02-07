@@ -5,9 +5,7 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { personPhoneSchema } from "@/lib/api/schemas/person.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, phones } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findPersonPhone, editPersonPhone, deletePersonPhone } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -64,9 +62,7 @@ export async function GET(
 
   try {
     // Fetch phone and verify it belongs to the person
-    const phone = await db.query.phones.findFirst({
-      where: and(eq(phones.id, phoneId), eq(phones.personId, personId)),
-    });
+    const phone = await findPersonPhone(personId, phoneId);
 
     if (!phone) {
       return NextResponse.json(
@@ -156,9 +152,7 @@ export async function PATCH(
 
   try {
     // Check if phone exists and belongs to person
-    const existing = await db.query.phones.findFirst({
-      where: and(eq(phones.id, phoneId), eq(phones.personId, personId)),
-    });
+    const existing = await findPersonPhone(personId, phoneId);
 
     if (!existing) {
       return NextResponse.json(
@@ -174,11 +168,7 @@ export async function PATCH(
     }
 
     // Update phone
-    const [phone] = await db
-      .update(phones)
-      .set(validatedData)
-      .where(eq(phones.id, phoneId))
-      .returning();
+    const phone = await editPersonPhone(phoneId, validatedData);
 
     return NextResponse.json(
       {
@@ -250,9 +240,7 @@ export async function DELETE(
 
   try {
     // Check if phone exists and belongs to person
-    const existing = await db.query.phones.findFirst({
-      where: and(eq(phones.id, phoneId), eq(phones.personId, personId)),
-    });
+    const existing = await findPersonPhone(personId, phoneId);
 
     if (!existing) {
       return NextResponse.json(
@@ -268,7 +256,7 @@ export async function DELETE(
     }
 
     // Delete phone
-    await db.delete(phones).where(eq(phones.id, phoneId));
+    await deletePersonPhone(phoneId);
 
     return NextResponse.json(
       {
@@ -291,5 +279,3 @@ export async function DELETE(
     );
   }
 }
-
-

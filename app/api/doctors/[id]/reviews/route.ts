@@ -6,8 +6,9 @@ import { createReviewSchema } from "@/lib/api/schemas/review.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { reviews, persons, doctors, appointments } from "@/src/db/schema";
+import { reviews, appointments } from "@/src/db/schema";
 import { and, eq } from "drizzle-orm";
+import { findDoctorById, findPersonByUserId } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -30,9 +31,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Check if doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -160,9 +159,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Get patient's person record
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.userId, userId),
-    });
+    const person = await findPersonByUserId(userId);
 
     if (!person) {
       return NextResponse.json(
@@ -178,9 +175,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check if doctor exists and is active
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(

@@ -7,8 +7,16 @@ import { listPaymentsSchema, createPaymentSchema } from "@/lib/api/schemas/payme
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { payments, persons, paymentMethods, payoutMethods, appointments, doctors } from "@/src/db/schema";
-import { and, count, eq, gte, lte, sql, inArray } from "drizzle-orm";
+import { paymentMethods, payoutMethods } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
+import {
+  findPersonByUserId,
+  findDoctorByUserId,
+  findDoctorAssignedPatientIdsFromPayments,
+  findAllPayments,
+  findPersonById,
+  createPayment,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -54,15 +62,18 @@ export async function GET(request: NextRequest) {
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Build WHERE conditions based on role and filters
-    const conditions = [];
+    // Build filters
+    const filters = {
+      personId: queryParams.personId,
+      startDate: queryParams.startDate,
+      endDate: queryParams.endDate,
+      minAmount: queryParams.minAmount,
+      maxAmount: queryParams.maxAmount,
+    };
 
     // Role-based filtering
     if (role === "patient") {
-      // Get person ID for the current user
-      const person = await db.query.persons.findFirst({
-        where: eq(persons.userId, userId),
-      });
+      const person = await findPersonByUserId(userId);
 
       if (!person) {
         return NextResponse.json(
@@ -77,16 +88,11 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      conditions.push(eq(payments.personId, person.id));
+      filters.personId = person.id;
     } else if (role === "doctor") {
-      // Doctors see payments for their assigned patients (patients with appointments)
-      // Get the doctor's ID from their user ID
-      const doctor = await db.query.doctors.findFirst({
-        where: eq(doctors.userId, userId),
-      });
+      const doctor = await findDoctorByUserId(userId);
 
       if (!doctor) {
-        // User is a doctor but has no doctor profile - return empty result
         return NextResponse.json(
           {
             success: true,
@@ -97,98 +103,26 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // Get distinct person IDs from payments that have appointments with this doctor
-      const assignedPersonIds = await db
-        .selectDistinct({ personId: payments.personId })
-        .from(payments)
-        .innerJoin(appointments, eq(payments.id, appointments.paymentId))
-        .where(eq(appointments.doctorId, doctor.id));
+      const personIds = await findDoctorAssignedPatientIdsFromPayments(doctor.id);
 
-      const personIds = assignedPersonIds.map((p) => p.personId);
-      if (personIds.length > 0) {
-        conditions.push(inArray(payments.personId, personIds));
-      } else {
-        // No assigned patients, return empty result
-        return NextResponse.json(
-          {
-            success: true,
-            data: [],
-            pagination: calculatePaginationMetadata(page, limit, 0),
-          },
-          { status: StatusCodes.OK }
-        );
-      }
-    }
-    // Admin sees all payments (no additional condition)
+      const result = await findAllPayments(filters, { page, limit, offset }, personIds);
 
-    // Additional filters
-    if (queryParams.personId) {
-      conditions.push(eq(payments.personId, queryParams.personId));
-    }
-
-    if (queryParams.startDate) {
-      conditions.push(gte(payments.date, queryParams.startDate));
-    }
-
-    if (queryParams.endDate) {
-      conditions.push(lte(payments.date, queryParams.endDate));
-    }
-
-    if (queryParams.minAmount !== undefined) {
-      conditions.push(gte(payments.amount, String(queryParams.minAmount)));
-    }
-
-    if (queryParams.maxAmount !== undefined) {
-      conditions.push(lte(payments.amount, String(queryParams.maxAmount)));
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    // Get total count
-    const countQuery = db.select({ count: count() }).from(payments);
-    if (whereClause) {
-      countQuery.where(whereClause);
-    }
-    const [{ count: totalCount }] = await countQuery;
-
-    // Get paginated payments with related data
-    const paymentsList = await db
-      .select({
-        id: payments.id,
-        personId: payments.personId,
-        paymentMethodId: payments.paymentMethodId,
-        payoutMethodId: payments.payoutMethodId,
-        amount: payments.amount,
-        date: payments.date,
-        createdAt: payments.createdAt,
-        updatedAt: payments.updatedAt,
-        paymentMethod: {
-          id: paymentMethods.id,
-          type: paymentMethods.type,
-          // Card fields (token never exposed)
-          cardLast4: paymentMethods.cardLast4,
-          cardHolderName: paymentMethods.cardHolderName,
-          cardBrand: paymentMethods.cardBrand,
-          // Pago Móvil fields
-          pagoMovilPhone: paymentMethods.pagoMovilPhone,
-          pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
+      return NextResponse.json(
+        {
+          success: true,
+          ...result,
         },
-      })
-      .from(payments)
-      .leftJoin(paymentMethods, eq(payments.paymentMethodId, paymentMethods.id))
-      .where(whereClause)
-      .orderBy(payments.date)
-      .limit(limit)
-      .offset(offset);
+        { status: StatusCodes.OK }
+      );
+    }
+    // Admin sees all payments (no additional filter)
 
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const result = await findAllPayments(filters, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data: paymentsList,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -257,9 +191,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, validatedData.personId),
-    });
+    const person = await findPersonById(validatedData.personId);
 
     if (!person) {
       return NextResponse.json(
@@ -276,9 +208,7 @@ export async function POST(request: NextRequest) {
 
     // For patients, verify they're creating payment for themselves
     if (role === "patient") {
-      const currentPerson = await db.query.persons.findFirst({
-        where: eq(persons.userId, userId),
-      });
+      const currentPerson = await findPersonByUserId(userId);
 
       if (!currentPerson || currentPerson.id !== validatedData.personId) {
         return NextResponse.json(
@@ -331,16 +261,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the payment
-    const [newPayment] = await db
-      .insert(payments)
-      .values({
-        personId: validatedData.personId,
-        paymentMethodId: validatedData.paymentMethodId,
-        payoutMethodId: validatedData.payoutMethodId,
-        amount: validatedData.amount.toFixed(2), // Convert to string with 2 decimal places for decimal field
-        date: validatedData.date,
-      })
-      .returning();
+    const newPayment = await createPayment({
+      personId: validatedData.personId,
+      paymentMethodId: validatedData.paymentMethodId,
+      payoutMethodId: validatedData.payoutMethodId,
+      amount: validatedData.amount.toFixed(2),
+      date: validatedData.date,
+    });
 
     return NextResponse.json(
       {

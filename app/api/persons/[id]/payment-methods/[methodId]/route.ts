@@ -3,11 +3,18 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { updatePaymentMethodPersonWithDetailsSchema } from "@/lib/api/schemas/payment.schemas";
+import {
+  updatePaymentMethodPersonWithDetailsSchema,
+  cardPaymentMethodFields,
+  pagoMovilPaymentMethodFields,
+} from "@/lib/api/schemas/payment.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, paymentMethodPersons, paymentMethods } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+  findPersonById,
+  findPersonPaymentMethod,
+  editPersonPaymentMethod,
+  deletePersonPaymentMethod,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -63,9 +70,7 @@ export async function GET(
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -81,38 +86,7 @@ export async function GET(
     }
 
     // Fetch the payment method association with details
-    const [paymentMethodPerson] = await db
-      .select({
-        id: paymentMethodPersons.id,
-        personId: paymentMethodPersons.personId,
-        paymentMethodId: paymentMethodPersons.paymentMethodId,
-        isPreferred: paymentMethodPersons.isPreferred,
-        nickname: paymentMethodPersons.nickname,
-        createdAt: paymentMethodPersons.createdAt,
-        updatedAt: paymentMethodPersons.updatedAt,
-        paymentMethod: {
-          id: paymentMethods.id,
-          type: paymentMethods.type,
-          // Card fields (token should NOT be exposed to frontend for security)
-          cardLast4: paymentMethods.cardLast4,
-          cardHolderName: paymentMethods.cardHolderName,
-          cardBrand: paymentMethods.cardBrand,
-          expirationMonth: paymentMethods.expirationMonth,
-          expirationYear: paymentMethods.expirationYear,
-          // Pago Móvil fields
-          pagoMovilPhone: paymentMethods.pagoMovilPhone,
-          pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
-          pagoMovilCi: paymentMethods.pagoMovilCi,
-        },
-      })
-      .from(paymentMethodPersons)
-      .leftJoin(paymentMethods, eq(paymentMethodPersons.paymentMethodId, paymentMethods.id))
-      .where(
-        and(
-          eq(paymentMethodPersons.id, methodId),
-          eq(paymentMethodPersons.personId, personId)
-        )
-      );
+    const paymentMethodPerson = await findPersonPaymentMethod(personId, methodId);
 
     if (!paymentMethodPerson) {
       return NextResponse.json(
@@ -203,15 +177,7 @@ export async function PATCH(
 
   try {
     // Check if the payment method association exists for this person
-    const existing = await db.query.paymentMethodPersons.findFirst({
-      where: and(
-        eq(paymentMethodPersons.id, methodId),
-        eq(paymentMethodPersons.personId, personId)
-      ),
-      with: {
-        paymentMethod: true,
-      },
-    });
+    const existing = await findPersonPaymentMethod(personId, methodId);
 
     if (!existing) {
       return NextResponse.json(
@@ -236,21 +202,19 @@ export async function PATCH(
     if (validatedData.nickname !== undefined) associationFields.nickname = validatedData.nickname;
     if (validatedData.isPreferred !== undefined) associationFields.isPreferred = validatedData.isPreferred;
 
-    // Extract payment method fields based on type
-    const cardFields = ['cardToken', 'cardLast4', 'cardHolderName', 'cardBrand', 'expirationMonth', 'expirationYear'] as const;
-    const pagoMovilFields = ['pagoMovilPhone', 'pagoMovilBankCode', 'pagoMovilCi'] as const;
+    // Extract payment method fields based on type (from schema)
 
     // Check for invalid field combinations
     if (paymentMethodType === 'card') {
       // Extract card fields
-      for (const field of cardFields) {
+      for (const field of cardPaymentMethodFields) {
         if (validatedData[field] !== undefined) {
           (paymentMethodFields as any)[field] = validatedData[field];
         }
       }
 
       // Reject pago móvil fields for card payment methods
-      const invalidFields = pagoMovilFields.filter(field => validatedData[field] !== undefined);
+      const invalidFields = pagoMovilPaymentMethodFields.filter(field => validatedData[field] !== undefined);
       if (invalidFields.length > 0) {
         return NextResponse.json(
           {
@@ -265,14 +229,14 @@ export async function PATCH(
       }
     } else if (paymentMethodType === 'pago_movil') {
       // Extract pago móvil fields
-      for (const field of pagoMovilFields) {
+      for (const field of pagoMovilPaymentMethodFields) {
         if (validatedData[field] !== undefined) {
           (paymentMethodFields as any)[field] = validatedData[field];
         }
       }
 
       // Reject card fields for pago móvil payment methods
-      const invalidFields = cardFields.filter(field => validatedData[field] !== undefined);
+      const invalidFields = cardPaymentMethodFields.filter(field => validatedData[field] !== undefined);
       if (invalidFields.length > 0) {
         return NextResponse.json(
           {
@@ -287,77 +251,17 @@ export async function PATCH(
       }
     }
 
-    // Perform all updates in a transaction to ensure atomicity
-    await db.transaction(async (tx) => {
-      // If setting as preferred, unset other preferred methods for this person
-      if (validatedData.isPreferred) {
-        await tx
-          .update(paymentMethodPersons)
-          .set({ isPreferred: false, updatedAt: new Date() })
-          .where(
-            and(
-              eq(paymentMethodPersons.personId, personId),
-              eq(paymentMethodPersons.isPreferred, true)
-            )
-          );
-      }
+    // Use DAL to update (handles transaction for preferred method + association + payment method)
+    const hasAssociationFields = Object.keys(associationFields).length > 0;
+    const hasPaymentMethodFields = Object.keys(paymentMethodFields).length > 0;
 
-      // Update the association if there are association fields
-      if (Object.keys(associationFields).length > 0) {
-        await tx
-          .update(paymentMethodPersons)
-          .set({
-            ...associationFields,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(paymentMethodPersons.id, methodId),
-              eq(paymentMethodPersons.personId, personId)
-            )
-          );
-      }
-
-      // Update the payment method details if there are payment method fields
-      if (Object.keys(paymentMethodFields).length > 0) {
-        await tx
-          .update(paymentMethods)
-          .set({
-            ...paymentMethodFields,
-            updatedAt: new Date(),
-          })
-          .where(eq(paymentMethods.id, existing.paymentMethodId));
-      }
-    });
-
-    // Fetch complete data with payment method details
-    const [completeData] = await db
-      .select({
-        id: paymentMethodPersons.id,
-        personId: paymentMethodPersons.personId,
-        paymentMethodId: paymentMethodPersons.paymentMethodId,
-        isPreferred: paymentMethodPersons.isPreferred,
-        nickname: paymentMethodPersons.nickname,
-        createdAt: paymentMethodPersons.createdAt,
-        updatedAt: paymentMethodPersons.updatedAt,
-        paymentMethod: {
-          id: paymentMethods.id,
-          type: paymentMethods.type,
-          // Card fields (token should NOT be exposed)
-          cardLast4: paymentMethods.cardLast4,
-          cardHolderName: paymentMethods.cardHolderName,
-          cardBrand: paymentMethods.cardBrand,
-          expirationMonth: paymentMethods.expirationMonth,
-          expirationYear: paymentMethods.expirationYear,
-          // Pago Móvil fields
-          pagoMovilPhone: paymentMethods.pagoMovilPhone,
-          pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
-          pagoMovilCi: paymentMethods.pagoMovilCi,
-        },
-      })
-      .from(paymentMethodPersons)
-      .leftJoin(paymentMethods, eq(paymentMethodPersons.paymentMethodId, paymentMethods.id))
-      .where(eq(paymentMethodPersons.id, methodId));
+    const completeData = await editPersonPaymentMethod(
+      methodId,
+      existing.paymentMethodId,
+      personId,
+      hasAssociationFields ? associationFields as any : undefined,
+      hasPaymentMethodFields ? paymentMethodFields as any : undefined
+    );
 
     return NextResponse.json(
       {
@@ -429,12 +333,7 @@ export async function DELETE(
 
   try {
     // Check if the payment method association exists for this person
-    const existing = await db.query.paymentMethodPersons.findFirst({
-      where: and(
-        eq(paymentMethodPersons.id, methodId),
-        eq(paymentMethodPersons.personId, personId)
-      ),
-    });
+    const existing = await findPersonPaymentMethod(personId, methodId);
 
     if (!existing) {
       return NextResponse.json(
@@ -449,15 +348,8 @@ export async function DELETE(
       );
     }
 
-    // Delete the association (CASCADE will handle related records)
-    await db
-      .delete(paymentMethodPersons)
-      .where(
-        and(
-          eq(paymentMethodPersons.id, methodId),
-          eq(paymentMethodPersons.personId, personId)
-        )
-      );
+    // Delete the association and payment method (DAL handles transaction)
+    await deletePersonPaymentMethod(methodId, existing.paymentMethodId);
 
     return NextResponse.json(
       {

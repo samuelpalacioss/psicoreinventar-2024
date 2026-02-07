@@ -4,9 +4,7 @@ import { validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { userIdParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, doctors, users } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findUserById, findUserPersonProfile, findUserDoctorProfile } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -15,7 +13,7 @@ import { StatusCodes } from "http-status-codes";
  * - Patient: Returns their person record with relations
  * - Doctor: Returns their doctor record with relations
  * - Admin: Returns user data only
- * 
+ *
  * Access:
  * - Users can only access their own profile
  * - Admins can access any user's profile
@@ -65,9 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Fetch user record
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, requestedUserId),
-    });
+    const user = await findUserById(requestedUserId);
 
     if (!user) {
       return NextResponse.json(
@@ -85,13 +81,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Return role-based data
     if (user.role === Role.PATIENT) {
       // Fetch person record with relations
-      const person = await db.query.persons.findFirst({
-        where: eq(persons.userId, requestedUserId),
-        with: {
-          place: true,
-          phones: true,
-        },
-      });
+      const person = await findUserPersonProfile(requestedUserId);
 
       if (!person) {
         return NextResponse.json(
@@ -127,44 +117,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (user.role === Role.DOCTOR) {
       // Fetch doctor record with relations
-      const doctor = await db.query.doctors.findFirst({
-        where: eq(doctors.userId, requestedUserId),
-        with: {
-          place: true,
-          phones: true,
-          educations: {
-            with: {
-              institution: {
-                with: {
-                  place: true,
-                },
-              },
-            },
-          },
-          schedules: true,
-          ageGroups: true,
-          doctorServices: {
-            with: {
-              service: true,
-            },
-          },
-          doctorTreatmentMethods: {
-            with: {
-              treatmentMethod: true,
-            },
-          },
-          doctorConditions: {
-            with: {
-              condition: true,
-            },
-          },
-          doctorLanguages: {
-            with: {
-              language: true,
-            },
-          },
-        },
-      });
+      const doctor = await findUserDoctorProfile(requestedUserId);
 
       if (!doctor) {
         return NextResponse.json(

@@ -3,12 +3,18 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateSearchParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createProgressSchema, listProgressSchema } from "@/lib/api/schemas/progress.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { progresses, persons, doctors, appointments } from "@/src/db/schema";
-import { and, count, eq } from "drizzle-orm";
+import {
+  findPersonByUserId,
+  findDoctorByUserId,
+  findAllProgresses,
+  findPersonById,
+  findAppointmentForProgress,
+  createProgress,
+  findProgressById,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -54,15 +60,22 @@ export async function GET(request: NextRequest) {
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Build WHERE clause with role-based filtering
-    const conditions = [];
+    // Build filters with role-based filtering
+    const filters: {
+      personId?: number;
+      doctorId?: number;
+      appointmentId?: number;
+      conditionId?: number;
+    } = {
+      personId: params.personId,
+      doctorId: params.doctorId,
+      appointmentId: params.appointmentId,
+      conditionId: params.conditionId,
+    };
 
     // Role-based filtering
     if (role === Role.PATIENT) {
-      // Patients see their own progress records
-      const person = await db.query.persons.findFirst({
-        where: eq(persons.userId, userId),
-      });
+      const person = await findPersonByUserId(userId);
 
       if (!person) {
         return NextResponse.json(
@@ -77,12 +90,9 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      conditions.push(eq(progresses.personId, person.id));
+      filters.personId = person.id;
     } else if (role === Role.DOCTOR) {
-      // Doctors see progress records for their assigned patients
-      const doctor = await db.query.doctors.findFirst({
-        where: eq(doctors.userId, userId),
-      });
+      const doctor = await findDoctorByUserId(userId);
 
       if (!doctor) {
         return NextResponse.json(
@@ -97,85 +107,16 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      conditions.push(eq(progresses.doctorId, doctor.id));
+      filters.doctorId = doctor.id;
     }
     // Admin has no access (already checked in authorization)
 
-    // Additional filters from query params
-    if (params.personId) {
-      conditions.push(eq(progresses.personId, params.personId));
-    }
-
-    if (params.doctorId) {
-      conditions.push(eq(progresses.doctorId, params.doctorId));
-    }
-
-    if (params.appointmentId) {
-      conditions.push(eq(progresses.appointmentId, params.appointmentId));
-    }
-
-    if (params.conditionId) {
-      conditions.push(eq(progresses.conditionId, params.conditionId));
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    // Get total count
-    const countQuery = db.select({ count: count() }).from(progresses);
-    if (whereClause) {
-      countQuery.where(whereClause);
-    }
-    const [{ count: totalCount }] = await countQuery;
-
-    // Get paginated data with relations
-    const data = await db.query.progresses.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      orderBy: (progresses, { desc }) => [desc(progresses.createdAt)],
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        appointment: {
-          columns: {
-            id: true,
-            startDateTime: true,
-            status: true,
-          },
-        },
-        condition: {
-          columns: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const result = await findAllProgresses(filters, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -252,9 +193,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get doctor record
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.userId, userId),
-    });
+    const doctor = await findDoctorByUserId(userId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -270,9 +209,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, validatedData.personId),
-    });
+    const person = await findPersonById(validatedData.personId);
 
     if (!person) {
       return NextResponse.json(
@@ -289,13 +226,11 @@ export async function POST(request: NextRequest) {
 
     // If appointmentId is provided, verify it exists and belongs to the patient and doctor
     if (validatedData.appointmentId) {
-      const appointment = await db.query.appointments.findFirst({
-        where: and(
-          eq(appointments.id, validatedData.appointmentId),
-          eq(appointments.personId, validatedData.personId),
-          eq(appointments.doctorId, doctor.id)
-        ),
-      });
+      const appointment = await findAppointmentForProgress(
+        validatedData.appointmentId,
+        validatedData.personId,
+        doctor.id
+      );
 
       if (!appointment) {
         return NextResponse.json(
@@ -312,56 +247,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Create progress record
-    const [progress] = await db
-      .insert(progresses)
-      .values({
-        personId: validatedData.personId,
-        doctorId: doctor.id,
-        appointmentId: validatedData.appointmentId || null,
-        conditionId: validatedData.conditionId || null,
-        title: validatedData.title,
-        level: validatedData.level || null,
-        notes: validatedData.notes || null,
-      })
-      .returning();
+    const progress = await createProgress({
+      personId: validatedData.personId,
+      doctorId: doctor.id,
+      appointmentId: validatedData.appointmentId || null,
+      conditionId: validatedData.conditionId || null,
+      title: validatedData.title,
+      level: validatedData.level || null,
+      notes: validatedData.notes || null,
+    });
 
     // Fetch complete progress data with relations
-    const completeProgress = await db.query.progresses.findFirst({
-      where: eq(progresses.id, progress.id),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        appointment: {
-          columns: {
-            id: true,
-            startDateTime: true,
-            status: true,
-          },
-        },
-        condition: {
-          columns: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    const completeProgress = await findProgressById(progress.id);
 
     return NextResponse.json(
       {

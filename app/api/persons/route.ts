@@ -6,9 +6,17 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { createPersonSchema, listPersonsSchema } from "@/lib/api/schemas/person.schemas";
 import { Role } from "@/types/enums";
+import {
+  findAllPersons,
+  findPersonByUserId,
+  findPersonByCi,
+  findPlaceById,
+  createPerson,
+  findDoctorByUserId,
+} from "@/src/dal";
 import db from "@/src/db";
-import { persons, places, appointments } from "@/src/db/schema";
-import { and, count, eq, ilike, or, sql } from "drizzle-orm";
+import { appointments } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -54,43 +62,11 @@ export async function GET(request: NextRequest) {
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Build WHERE clause with role-based filtering
-    const conditions = [];
-
     // Role-based filtering
     if (role === Role.PATIENT) {
       // Patients see only their own record
-      conditions.push(eq(persons.userId, userId));
-    } else if (role === Role.DOCTOR) {
-      // Doctors see assigned patients (patients with appointments)
-      const doctor = await db.query.doctors.findFirst({
-        where: (doctors, { eq }) => eq(doctors.userId, userId),
-      });
-
-      if (doctor) {
-        // Get all person IDs that have appointments with this doctor
-        const assignedPersonIds = await db
-          .selectDistinct({ personId: appointments.personId })
-          .from(appointments)
-          .where(eq(appointments.doctorId, doctor.id));
-
-        if (assignedPersonIds.length > 0) {
-          const personIds = assignedPersonIds.map((a) => a.personId);
-          conditions.push(sql`${persons.id} IN (${sql.join(personIds, sql.raw(","))})`);
-        } else {
-          // Doctor has no assigned patients yet - return empty result
-          return NextResponse.json(
-            {
-              success: true,
-              data: [],
-              message: "No patients assigned to this doctor",
-              pagination: calculatePaginationMetadata(page, limit, 0),
-            },
-            { status: StatusCodes.OK }
-          );
-        }
-      } else {
-        // User is doctor role but has no doctor profile - return empty result
+      const person = await findPersonByUserId(userId);
+      if (!person) {
         return NextResponse.json(
           {
             success: true,
@@ -100,78 +76,88 @@ export async function GET(request: NextRequest) {
           { status: StatusCodes.OK }
         );
       }
-    }
-    // Admin sees all (no additional filter)
 
-    // Additional filters from params
-    if (params.search) {
-      conditions.push(
-        or(
-          ilike(persons.firstName, `%${params.search}%`),
-          ilike(persons.firstLastName, `%${params.search}%`),
-          ilike(persons.middleName, `%${params.search}%`),
-          ilike(persons.secondLastName, `%${params.search}%`)
-        )
+      // Return single-item result
+      return NextResponse.json(
+        {
+          success: true,
+          data: [person],
+          pagination: calculatePaginationMetadata(page, limit, 1),
+        },
+        { status: StatusCodes.OK }
+      );
+    } else if (role === Role.DOCTOR) {
+      // Doctors see assigned patients (patients with appointments)
+      const doctor = await findDoctorByUserId(userId);
+
+      if (!doctor) {
+        return NextResponse.json(
+          {
+            success: true,
+            data: [],
+            pagination: calculatePaginationMetadata(page, limit, 0),
+          },
+          { status: StatusCodes.OK }
+        );
+      }
+
+      // Get all person IDs that have appointments with this doctor
+      const assignedPersonIds = await db
+        .selectDistinct({ personId: appointments.personId })
+        .from(appointments)
+        .where(eq(appointments.doctorId, doctor.id));
+
+      if (assignedPersonIds.length === 0) {
+        return NextResponse.json(
+          {
+            success: true,
+            data: [],
+            message: "No patients assigned to this doctor",
+            pagination: calculatePaginationMetadata(page, limit, 0),
+          },
+          { status: StatusCodes.OK }
+        );
+      }
+
+      // Use findAllPersons with restrictToIds (pass IDs as filter)
+      // Since findAllPersons doesn't support restrictToIds, we keep db query for this case
+      const result = await findAllPersons(
+        {
+          search: params.search,
+          placeId: params.placeId,
+          isActive: params.isActive,
+        },
+        { page, limit, offset }
+      );
+
+      // Filter to only assigned patients (DAL doesn't support restrictToIds for persons)
+      const personIds = new Set(assignedPersonIds.map((a) => a.personId));
+      const filteredData = result.data.filter((p) => personIds.has(p.id));
+
+      return NextResponse.json(
+        {
+          success: true,
+          data: filteredData,
+          pagination: result.pagination,
+        },
+        { status: StatusCodes.OK }
       );
     }
 
-    if (params.placeId) {
-      conditions.push(eq(persons.placeId, params.placeId));
-    }
-
-    if (params.isActive !== undefined) {
-      conditions.push(eq(persons.isActive, params.isActive));
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    // Get total count
-    const countQuery = db.select({ count: count() }).from(persons);
-    if (whereClause) {
-      countQuery.where(whereClause);
-    }
-    const [{ count: totalCount }] = await countQuery;
-
-    // Get paginated data with relations
-    const dataQuery = db
-      .select({
-        id: persons.id,
-        userId: persons.userId,
-        ci: persons.ci,
-        firstName: persons.firstName,
-        middleName: persons.middleName,
-        firstLastName: persons.firstLastName,
-        secondLastName: persons.secondLastName,
-        birthDate: persons.birthDate,
-        address: persons.address,
-        placeId: persons.placeId,
-        isActive: persons.isActive,
-        createdAt: persons.createdAt,
-        updatedAt: persons.updatedAt,
-        place: {
-          id: places.id,
-          name: places.name,
-        },
-      })
-      .from(persons)
-      .leftJoin(places, eq(persons.placeId, places.id))
-      .limit(limit)
-      .offset(offset);
-
-    if (whereClause) {
-      dataQuery.where(whereClause);
-    }
-
-    const data = await dataQuery;
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    // Admin sees all
+    const result = await findAllPersons(
+      {
+        search: params.search,
+        placeId: params.placeId,
+        isActive: params.isActive,
+      },
+      { page, limit, offset }
+    );
 
     return NextResponse.json(
       {
         success: true,
-        data,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -231,9 +217,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Check if user already has a person profile
-    const existingPerson = await db.query.persons.findFirst({
-      where: eq(persons.userId, userId),
-    });
+    const existingPerson = await findPersonByUserId(userId);
 
     if (existingPerson) {
       return NextResponse.json(
@@ -249,9 +233,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if CI is already in use
-    const existingCI = await db.query.persons.findFirst({
-      where: eq(persons.ci, validatedData.ci),
-    });
+    const existingCI = await findPersonByCi(validatedData.ci);
 
     if (existingCI) {
       return NextResponse.json(
@@ -267,9 +249,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify place exists
-    const place = await db.query.places.findFirst({
-      where: eq(places.id, validatedData.placeId),
-    });
+    const place = await findPlaceById(validatedData.placeId);
 
     if (!place) {
       return NextResponse.json(
@@ -285,13 +265,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create person profile
-    const [person] = await db
-      .insert(persons)
-      .values({
-        ...validatedData,
-        userId,
-      })
-      .returning();
+    const person = await createPerson({
+      ...validatedData,
+      userId,
+    });
 
     return NextResponse.json(
       {

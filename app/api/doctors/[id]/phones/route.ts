@@ -3,13 +3,11 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { doctorPhoneSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, phones } from "@/src/db/schema";
-import { eq, count } from "drizzle-orm";
+import { findDoctorById, findDoctorPhones, createDoctorPhone } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +57,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,23 +72,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(phones.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(phones)
-      .where(whereClause);
-
     // Get paginated phones for this doctor
-    const doctorPhones = await db.query.phones.findMany({
-      where: whereClause,
-      limit,
-      offset,
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorPhones, pagination } = await findDoctorPhones(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -173,9 +154,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -191,14 +170,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create phone
-    const [phone] = await db
-      .insert(phones)
-      .values({
-        ...validatedData,
-        doctorId,
-        personId: null, // Ensure personId is null for doctor phones
-      })
-      .returning();
+    const phone = await createDoctorPhone(doctorId, validatedData);
 
     return NextResponse.json(
       {

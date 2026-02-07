@@ -122,6 +122,43 @@ export const updatePaymentMethodPersonWithDetailsSchema = z.object({
 
 export type UpdatePaymentMethodPersonWithDetailsInput = z.infer<typeof updatePaymentMethodPersonWithDetailsSchema>;
 
+/**
+ * Helper type to extract card payment method field names
+ */
+type CardPaymentMethodFields = Extract<
+  keyof UpdatePaymentMethodPersonWithDetailsInput,
+  "cardToken" | "cardLast4" | "cardHolderName" | "cardBrand" | "expirationMonth" | "expirationYear"
+>;
+
+/**
+ * Helper type to extract pago móvil payment method field names
+ */
+type PagoMovilPaymentMethodFields = Extract<
+  keyof UpdatePaymentMethodPersonWithDetailsInput,
+  "pagoMovilPhone" | "pagoMovilBankCode" | "pagoMovilCi"
+>;
+
+/**
+ * Array of card payment method field names (extracted from schema)
+ */
+export const cardPaymentMethodFields: readonly CardPaymentMethodFields[] = [
+  "cardToken",
+  "cardLast4",
+  "cardHolderName",
+  "cardBrand",
+  "expirationMonth",
+  "expirationYear",
+] as const;
+
+/**
+ * Array of pago móvil payment method field names (extracted from schema)
+ */
+export const pagoMovilPaymentMethodFields: readonly PagoMovilPaymentMethodFields[] = [
+  "pagoMovilPhone",
+  "pagoMovilBankCode",
+  "pagoMovilCi",
+] as const;
+
 // ============================================================================
 // PAYMENT (Transaction Records)
 // ============================================================================

@@ -5,9 +5,11 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updatePayoutMethodSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, payoutMethods } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+  findDoctorPayoutMethod,
+  editDoctorPayoutMethod,
+  deleteDoctorPayoutMethod
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -62,28 +64,8 @@ export async function GET(
   if (!authzResult.allowed) return authzResult.error;
 
   try {
-    // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
-
-    if (!doctor) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Doctor not found",
-            code: "NOT_FOUND",
-          },
-        },
-        { status: StatusCodes.NOT_FOUND }
-      );
-    }
-
     // Fetch the payout method
-    const payoutMethod = await db.query.payoutMethods.findFirst({
-      where: and(eq(payoutMethods.id, methodId), eq(payoutMethods.doctorId, doctorId)),
-    });
+    const payoutMethod = await findDoctorPayoutMethod(doctorId, methodId);
 
     if (!payoutMethod) {
       return NextResponse.json(
@@ -174,9 +156,7 @@ export async function PATCH(
 
   try {
     // Check if the payout method exists for this doctor
-    const existing = await db.query.payoutMethods.findFirst({
-      where: and(eq(payoutMethods.id, methodId), eq(payoutMethods.doctorId, doctorId)),
-    });
+    const existing = await findDoctorPayoutMethod(doctorId, methodId);
 
     if (!existing) {
       return NextResponse.json(
@@ -251,23 +231,8 @@ export async function PATCH(
       }
     }
 
-    // If setting as preferred, unset other preferred methods for this doctor
-    if (validatedData.isPreferred) {
-      await db
-        .update(payoutMethods)
-        .set({ isPreferred: false, updatedAt: new Date() })
-        .where(and(eq(payoutMethods.doctorId, doctorId), eq(payoutMethods.isPreferred, true)));
-    }
-
-    // Update the payout method
-    const [updatedPayoutMethod] = await db
-      .update(payoutMethods)
-      .set({
-        ...updateFields,
-        updatedAt: new Date(),
-      })
-      .where(and(eq(payoutMethods.id, methodId), eq(payoutMethods.doctorId, doctorId)))
-      .returning();
+    // Update the payout method (DAL handles preferred logic)
+    const updatedPayoutMethod = await editDoctorPayoutMethod(doctorId, methodId, updateFields);
 
     return NextResponse.json(
       {
@@ -339,9 +304,7 @@ export async function DELETE(
 
   try {
     // Check if the payout method exists for this doctor
-    const existing = await db.query.payoutMethods.findFirst({
-      where: and(eq(payoutMethods.id, methodId), eq(payoutMethods.doctorId, doctorId)),
-    });
+    const existing = await findDoctorPayoutMethod(doctorId, methodId);
 
     if (!existing) {
       return NextResponse.json(
@@ -356,8 +319,8 @@ export async function DELETE(
       );
     }
 
-    // Delete the payout method (CASCADE will handle related records)
-    await db.delete(payoutMethods).where(and(eq(payoutMethods.id, methodId), eq(payoutMethods.doctorId, doctorId)));
+    // Delete the payout method
+    await deleteDoctorPayoutMethod(methodId);
 
     return NextResponse.json(
       {

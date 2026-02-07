@@ -10,11 +10,16 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { idParamSchema, paginationSchema } from "@/lib/api/schemas/common.schemas";
 import { createProgressSchema } from "@/lib/api/schemas/simple.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, progresses, conditions, appointments, doctors } from "@/src/db/schema";
-import { and, count, eq } from "drizzle-orm";
+import {
+  findPersonById,
+  findPatientProgresses,
+  findDoctorByUserId,
+  findAppointmentForProgress,
+  createProgress,
+  findProgressById,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 
 /**
  * GET /api/persons/[id]/progresses
@@ -67,9 +72,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -84,79 +87,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // If requester is a doctor, get their doctor record to filter progress records
-    let doctorId: number | undefined;
-    if (role === Role.DOCTOR) {
-      const doctor = await db.query.doctors.findFirst({
-        where: eq(doctors.userId, userId),
-      });
-      if (doctor) {
-        doctorId = doctor.id;
-      }
-    }
-
-    // Build where conditions
-    const whereConditions = [eq(progresses.personId, personId)];
-    // If doctor, only show progress records they created
-    if (doctorId !== undefined) {
-      whereConditions.push(eq(progresses.doctorId, doctorId));
-    }
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(progresses)
-      .where(and(...whereConditions));
-
-    // Get paginated progress records with condition, appointment, and doctor details
-    // Join with doctors table using progresses.doctorId (the doctor who created the progress)
-    const personProgresses = await db
-      .select({
-        id: progresses.id,
-        personId: progresses.personId,
-        doctorId: progresses.doctorId,
-        appointmentId: progresses.appointmentId,
-        conditionId: progresses.conditionId,
-        title: progresses.title,
-        level: progresses.level,
-        notes: progresses.notes,
-        createdAt: progresses.createdAt,
-        condition: {
-          id: conditions.id,
-          name: conditions.name,
-        },
-        appointment: {
-          id: appointments.id,
-          doctorId: appointments.doctorId,
-          startDateTime: appointments.startDateTime,
-          endDateTime: appointments.endDateTime,
-          status: appointments.status,
-        },
-        doctor: {
-          id: doctors.id,
-          firstName: doctors.firstName,
-          middleName: doctors.middleName,
-          firstLastName: doctors.firstLastName,
-          secondLastName: doctors.secondLastName,
-        },
-      })
-      .from(progresses)
-      .leftJoin(conditions, eq(progresses.conditionId, conditions.id))
-      .leftJoin(appointments, eq(progresses.appointmentId, appointments.id))
-      .leftJoin(doctors, eq(progresses.doctorId, doctors.id))
-      .where(and(...whereConditions))
-      .orderBy(progresses.createdAt)
-      .limit(limit)
-      .offset(offset);
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    // Get paginated progress records
+    const result = await findPatientProgresses(personId, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data: personProgresses,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -227,9 +164,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // Get doctor record if requester is a doctor (required for creating progress)
   let doctorId: number | undefined;
   if (role === Role.DOCTOR) {
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.userId, userId),
-    });
+    const doctor = await findDoctorByUserId(userId);
     if (!doctor) {
       return NextResponse.json(
         {
@@ -267,9 +202,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -286,13 +219,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // If appointmentId is provided, verify it belongs to this person and this doctor
     if (validatedData.appointmentId) {
-      const appointment = await db.query.appointments.findFirst({
-        where: and(
-          eq(appointments.id, validatedData.appointmentId),
-          eq(appointments.personId, personId),
-          eq(appointments.doctorId, doctorId)
-        ),
-      });
+      const appointment = await findAppointmentForProgress(
+        validatedData.appointmentId,
+        personId,
+        doctorId
+      );
 
       if (!appointment) {
         return NextResponse.json(
@@ -309,66 +240,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create progress record with doctorId
-    const [progress] = await db
-      .insert(progresses)
-      .values({
-        ...validatedData,
-        personId,
-        doctorId,
-      })
-      .returning();
-
-    // Fetch the created progress with related data
-    const progressWithRelations = await db.query.progresses.findFirst({
-      where: eq(progresses.id, progress.id),
-      with: {
-        condition: true,
-        doctor: true,
-        appointment: true,
-      },
+    const progress = await createProgress({
+      ...validatedData,
+      personId,
+      doctorId,
     });
 
-    // Format response to match GET endpoint structure
-    const responseData = {
-      id: progressWithRelations!.id,
-      personId: progressWithRelations!.personId,
-      doctorId: progressWithRelations!.doctorId,
-      appointmentId: progressWithRelations!.appointmentId,
-      conditionId: progressWithRelations!.conditionId,
-      title: progressWithRelations!.title,
-      level: progressWithRelations!.level,
-      notes: progressWithRelations!.notes,
-      createdAt: progressWithRelations!.createdAt,
-      condition: progressWithRelations!.condition
-        ? {
-            id: progressWithRelations!.condition.id,
-            name: progressWithRelations!.condition.name,
-          }
-        : null,
-      appointment: progressWithRelations!.appointment
-        ? {
-            id: progressWithRelations!.appointment.id,
-            doctorId: progressWithRelations!.appointment.doctorId,
-            startDateTime: progressWithRelations!.appointment.startDateTime,
-            endDateTime: progressWithRelations!.appointment.endDateTime,
-            status: progressWithRelations!.appointment.status,
-          }
-        : null,
-      doctor: progressWithRelations!.doctor
-        ? {
-            id: progressWithRelations!.doctor.id,
-            firstName: progressWithRelations!.doctor.firstName,
-            middleName: progressWithRelations!.doctor.middleName,
-            firstLastName: progressWithRelations!.doctor.firstLastName,
-            secondLastName: progressWithRelations!.doctor.secondLastName,
-          }
-        : null,
-    };
+    // Fetch the created progress with related data
+    const progressWithRelations = await findProgressById(progress.id);
 
     return NextResponse.json(
       {
         success: true,
-        data: responseData,
+        data: progressWithRelations,
         message: "Progress record created successfully",
       },
       { status: StatusCodes.CREATED }

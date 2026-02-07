@@ -5,9 +5,7 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateDoctorServiceSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, doctorServices } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorService, editDoctorService, deleteDoctorService } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +74,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +90,7 @@ export async function PATCH(
     }
 
     // Verify doctor-service association exists
-    const existingDoctorService = await db.query.doctorServices.findFirst({
-      where: and(eq(doctorServices.doctorId, doctorId), eq(doctorServices.serviceId, serviceId)),
-    });
+    const existingDoctorService = await findDoctorService(doctorId, serviceId);
 
     if (!existingDoctorService) {
       return NextResponse.json(
@@ -112,11 +106,7 @@ export async function PATCH(
     }
 
     // Update service pricing
-    const [updatedDoctorService] = await db
-      .update(doctorServices)
-      .set(validatedData)
-      .where(and(eq(doctorServices.doctorId, doctorId), eq(doctorServices.serviceId, serviceId)))
-      .returning();
+    const updatedDoctorService = await editDoctorService(doctorId, serviceId, validatedData);
 
     return NextResponse.json(
       {
@@ -195,9 +185,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -213,9 +201,7 @@ export async function DELETE(
     }
 
     // Verify doctor-service association exists
-    const existingDoctorService = await db.query.doctorServices.findFirst({
-      where: and(eq(doctorServices.doctorId, doctorId), eq(doctorServices.serviceId, serviceId)),
-    });
+    const existingDoctorService = await findDoctorService(doctorId, serviceId);
 
     if (!existingDoctorService) {
       return NextResponse.json(
@@ -231,9 +217,7 @@ export async function DELETE(
     }
 
     // Delete doctor-service association
-    await db
-      .delete(doctorServices)
-      .where(and(eq(doctorServices.doctorId, doctorId), eq(doctorServices.serviceId, serviceId)));
+    await deleteDoctorService(doctorId, serviceId);
 
     return NextResponse.json(
       {
@@ -256,4 +240,3 @@ export async function DELETE(
     );
   }
 }
-

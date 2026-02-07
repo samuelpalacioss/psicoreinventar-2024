@@ -5,9 +5,12 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateReviewSchema } from "@/lib/api/schemas/review.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { reviews, persons } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  findReviewById,
+  findPersonByUserId,
+  editReview,
+  deleteReview,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -30,37 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Fetch review with relations
-    const review = await db.query.reviews.findFirst({
-      where: eq(reviews.id, reviewId),
-      with: {
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-            biography: true,
-          },
-        },
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        appointment: {
-          columns: {
-            id: true,
-            startDateTime: true,
-            status: true,
-          },
-        },
-      },
-    });
+    const review = await findReviewById(reviewId);
 
     if (!review) {
       return NextResponse.json(
@@ -141,12 +114,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   try {
     // Check if review exists
-    const existingReview = await db.query.reviews.findFirst({
-      where: eq(reviews.id, reviewId),
-      with: {
-        person: true,
-      },
-    });
+    const existingReview = await findReviewById(reviewId);
 
     if (!existingReview) {
       return NextResponse.json(
@@ -164,9 +132,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Authorization: patient can update own review, admin can update any
     if (role === Role.PATIENT) {
       // Get patient's person record
-      const person = await db.query.persons.findFirst({
-        where: eq(persons.userId, userId),
-      });
+      const person = await findPersonByUserId(userId);
 
       if (!person || existingReview.personId !== person.id) {
         return NextResponse.json(
@@ -196,39 +162,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Admins can update any review (no additional check needed)
 
     // Update review
-    const [updatedReview] = await db
-      .update(reviews)
-      .set({
-        ...validatedData,
-        updatedAt: new Date(),
-      })
-      .where(eq(reviews.id, reviewId))
-      .returning();
+    await editReview(reviewId, validatedData);
 
     // Fetch complete review data with relations
-    const completeReview = await db.query.reviews.findFirst({
-      where: eq(reviews.id, reviewId),
-      with: {
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-      },
-    });
+    const completeReview = await findReviewById(reviewId);
 
     return NextResponse.json(
       {
@@ -294,12 +231,7 @@ export async function DELETE(
 
   try {
     // Check if review exists
-    const existingReview = await db.query.reviews.findFirst({
-      where: eq(reviews.id, reviewId),
-      with: {
-        person: true,
-      },
-    });
+    const existingReview = await findReviewById(reviewId);
 
     if (!existingReview) {
       return NextResponse.json(
@@ -317,9 +249,7 @@ export async function DELETE(
     // Authorization: patient can delete own review, admin can delete any
     if (role === Role.PATIENT) {
       // Get patient's person record
-      const person = await db.query.persons.findFirst({
-        where: eq(persons.userId, userId),
-      });
+      const person = await findPersonByUserId(userId);
 
       if (!person || existingReview.personId !== person.id) {
         return NextResponse.json(
@@ -349,7 +279,7 @@ export async function DELETE(
     // Admins can delete any review (no additional check needed)
 
     // Delete review
-    await db.delete(reviews).where(eq(reviews.id, reviewId));
+    await deleteReview(reviewId);
 
     return NextResponse.json(
       {

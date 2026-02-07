@@ -3,14 +3,11 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateParams, validateSearchParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
-import { idParamSchema } from "@/lib/api/schemas/common.schemas";
-import { paginationSchema } from "@/lib/api/schemas/common.schemas";
+import { idParamSchema, paginationSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, appointments, doctors, users } from "@/src/db/schema";
-import { count, eq } from "drizzle-orm";
+import { findPersonById, findPatientAppointments } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 
 /**
  * GET /api/persons/[id]/appointments
@@ -63,9 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -80,52 +75,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(appointments)
-      .where(eq(appointments.personId, personId));
-
     // Get paginated appointments with doctor info
-    const personAppointments = await db
-      .select({
-        id: appointments.id,
-        personId: appointments.personId,
-        doctorId: appointments.doctorId,
-        doctorServiceDoctorId: appointments.doctorServiceDoctorId,
-        doctorServiceServiceId: appointments.doctorServiceServiceId,
-        paymentId: appointments.paymentId,
-        startDateTime: appointments.startDateTime,
-        endDateTime: appointments.endDateTime,
-        status: appointments.status,
-        notes: appointments.notes,
-        cancellationReason: appointments.cancellationReason,
-        createdAt: appointments.createdAt,
-        updatedAt: appointments.updatedAt,
-        doctor: {
-          id: doctors.id,
-          firstName: doctors.firstName,
-          firstLastName: doctors.firstLastName,
-          userName: users.name,
-          userEmail: users.email,
-        },
-      })
-      .from(appointments)
-      .leftJoin(doctors, eq(appointments.doctorId, doctors.id))
-      .leftJoin(users, eq(doctors.userId, users.id))
-      .where(eq(appointments.personId, personId))
-      .orderBy(appointments.startDateTime)
-      .limit(limit)
-      .offset(offset);
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const result = await findPatientAppointments(personId, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data: personAppointments,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );

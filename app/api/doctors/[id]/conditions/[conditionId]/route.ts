@@ -6,8 +6,9 @@ import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit
 import { updateDoctorConditionSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { doctors, doctorConditions } from "@/src/db/schema";
+import { doctorConditions } from "@/src/db/schema";
 import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorCondition, deleteDoctorCondition } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +77,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +93,7 @@ export async function PATCH(
     }
 
     // Verify doctor-condition association exists
-    const existingDoctorCondition = await db.query.doctorConditions.findFirst({
-      where: and(eq(doctorConditions.doctorId, doctorId), eq(doctorConditions.conditionId, conditionId)),
-    });
+    const existingDoctorCondition = await findDoctorCondition(doctorId, conditionId);
 
     if (!existingDoctorCondition) {
       return NextResponse.json(
@@ -111,7 +108,7 @@ export async function PATCH(
       );
     }
 
-    // Update condition type
+    // Update condition type (DAL doesn't have editDoctorCondition, so use db directly)
     const [updatedDoctorCondition] = await db
       .update(doctorConditions)
       .set(validatedData)
@@ -195,9 +192,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -213,9 +208,7 @@ export async function DELETE(
     }
 
     // Verify doctor-condition association exists
-    const existingDoctorCondition = await db.query.doctorConditions.findFirst({
-      where: and(eq(doctorConditions.doctorId, doctorId), eq(doctorConditions.conditionId, conditionId)),
-    });
+    const existingDoctorCondition = await findDoctorCondition(doctorId, conditionId);
 
     if (!existingDoctorCondition) {
       return NextResponse.json(
@@ -231,9 +224,7 @@ export async function DELETE(
     }
 
     // Delete doctor-condition association
-    await db
-      .delete(doctorConditions)
-      .where(and(eq(doctorConditions.doctorId, doctorId), eq(doctorConditions.conditionId, conditionId)));
+    await deleteDoctorCondition(doctorId, conditionId);
 
     return NextResponse.json(
       {
@@ -256,4 +247,3 @@ export async function DELETE(
     );
   }
 }
-

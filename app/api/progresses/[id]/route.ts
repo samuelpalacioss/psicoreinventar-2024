@@ -6,9 +6,12 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateProgressSchema } from "@/lib/api/schemas/progress.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { progresses, appointments } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+  findProgressById,
+  findAppointmentForProgress,
+  editProgress,
+  deleteProgress,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -54,42 +57,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Fetch progress record with relations
-    const progress = await db.query.progresses.findFirst({
-      where: eq(progresses.id, progressId),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        appointment: {
-          columns: {
-            id: true,
-            startDateTime: true,
-            status: true,
-          },
-        },
-        condition: {
-          columns: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    const progress = await findProgressById(progressId);
 
     if (!progress) {
       return NextResponse.json(
@@ -192,12 +160,7 @@ export async function PATCH(
 
   try {
     // Check if progress record exists
-    const existingProgress = await db.query.progresses.findFirst({
-      where: eq(progresses.id, progressId),
-      with: {
-        doctor: true,
-      },
-    });
+    const existingProgress = await findProgressById(progressId);
 
     if (!existingProgress) {
       return NextResponse.json(
@@ -214,13 +177,11 @@ export async function PATCH(
 
     // If appointmentId is being updated, verify it exists and belongs to the patient and doctor
     if (validatedData.appointmentId) {
-      const appointment = await db.query.appointments.findFirst({
-        where: and(
-          eq(appointments.id, validatedData.appointmentId),
-          eq(appointments.personId, existingProgress.personId),
-          eq(appointments.doctorId, existingProgress.doctorId)
-        ),
-      });
+      const appointment = await findAppointmentForProgress(
+        validatedData.appointmentId,
+        existingProgress.personId,
+        existingProgress.doctorId
+      );
 
       if (!appointment) {
         return NextResponse.json(
@@ -237,50 +198,10 @@ export async function PATCH(
     }
 
     // Update progress record
-    await db
-      .update(progresses)
-      .set({
-        ...validatedData,
-      })
-      .where(eq(progresses.id, progressId));
+    await editProgress(progressId, validatedData);
 
     // Fetch complete progress data with relations
-    const completeProgress = await db.query.progresses.findFirst({
-      where: eq(progresses.id, progressId),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        appointment: {
-          columns: {
-            id: true,
-            startDateTime: true,
-            status: true,
-          },
-        },
-        condition: {
-          columns: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    const completeProgress = await findProgressById(progressId);
 
     return NextResponse.json(
       {
@@ -365,9 +286,7 @@ export async function DELETE(
 
   try {
     // Check if progress record exists
-    const existingProgress = await db.query.progresses.findFirst({
-      where: eq(progresses.id, progressId),
-    });
+    const existingProgress = await findProgressById(progressId);
 
     if (!existingProgress) {
       return NextResponse.json(
@@ -383,7 +302,7 @@ export async function DELETE(
     }
 
     // Delete progress record
-    await db.delete(progresses).where(eq(progresses.id, progressId));
+    await deleteProgress(progressId);
 
     return NextResponse.json(
       {

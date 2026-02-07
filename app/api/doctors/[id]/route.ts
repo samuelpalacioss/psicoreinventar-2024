@@ -6,9 +6,13 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateDoctorSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, places } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  findDoctorById,
+  findDoctorByCi,
+  findPlaceById,
+  editDoctor,
+  deleteDoctor,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -55,40 +59,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Get doctor with all relations
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-      with: {
-        place: true,
-        phones: true,
-        educations: {
-          with: {
-            institution: true,
-          },
-        },
-        schedules: true,
-        ageGroups: true,
-        doctorServices: {
-          with: {
-            service: true,
-          },
-        },
-        doctorTreatmentMethods: {
-          with: {
-            treatmentMethod: true,
-          },
-        },
-        doctorConditions: {
-          with: {
-            condition: true,
-          },
-        },
-        doctorLanguages: {
-          with: {
-            language: true,
-          },
-        },
-      },
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -174,9 +145,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   try {
     // Verify doctor exists
-    const existingDoctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const existingDoctor = await findDoctorById(doctorId);
 
     if (!existingDoctor) {
       return NextResponse.json(
@@ -193,9 +162,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // If updating CI, check for duplicates
     if (validatedData.ci && validatedData.ci !== existingDoctor.ci) {
-      const duplicateCI = await db.query.doctors.findFirst({
-        where: eq(doctors.ci, validatedData.ci),
-      });
+      const duplicateCI = await findDoctorByCi(validatedData.ci);
 
       if (duplicateCI) {
         return NextResponse.json(
@@ -213,9 +180,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // If updating place, verify it exists
     if (validatedData.placeId) {
-      const place = await db.query.places.findFirst({
-        where: eq(places.id, validatedData.placeId),
-      });
+      const place = await findPlaceById(validatedData.placeId);
 
       if (!place) {
         return NextResponse.json(
@@ -232,14 +197,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // Update doctor
-    const [updatedDoctor] = await db
-      .update(doctors)
-      .set({
-        ...validatedData,
-        updatedAt: new Date(),
-      })
-      .where(eq(doctors.id, doctorId))
-      .returning();
+    const updatedDoctor = await editDoctor(doctorId, validatedData);
 
     return NextResponse.json(
       {
@@ -309,9 +267,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const existingDoctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const existingDoctor = await findDoctorById(doctorId);
 
     if (!existingDoctor) {
       return NextResponse.json(
@@ -327,7 +283,7 @@ export async function DELETE(
     }
 
     // Delete doctor (CASCADE will delete all related records)
-    await db.delete(doctors).where(eq(doctors.id, doctorId));
+    await deleteDoctor(doctorId);
 
     return NextResponse.json(
       {

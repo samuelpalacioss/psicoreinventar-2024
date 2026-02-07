@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateParams } from "@/utils/api/middleware/validation";
-import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
+import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { persons, payments, paymentMethods, payoutMethods } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findPersonById, findPaymentById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -63,9 +61,7 @@ export async function GET(
 
   try {
     // Verify person exists
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.id, personId),
-    });
+    const person = await findPersonById(personId);
 
     if (!person) {
       return NextResponse.json(
@@ -81,50 +77,9 @@ export async function GET(
     }
 
     // Fetch the payment with all related details
-    const [payment] = await db
-      .select({
-        id: payments.id,
-        personId: payments.personId,
-        paymentMethodId: payments.paymentMethodId,
-        payoutMethodId: payments.payoutMethodId,
-        amount: payments.amount,
-        date: payments.date,
-        createdAt: payments.createdAt,
-        updatedAt: payments.updatedAt,
-        paymentMethod: {
-          id: paymentMethods.id,
-          type: paymentMethods.type,
-          // Card fields (token should NOT be exposed for security)
-          cardLast4: paymentMethods.cardLast4,
-          cardHolderName: paymentMethods.cardHolderName,
-          cardBrand: paymentMethods.cardBrand,
-          expirationMonth: paymentMethods.expirationMonth,
-          expirationYear: paymentMethods.expirationYear,
-          // Pago Móvil fields
-          pagoMovilPhone: paymentMethods.pagoMovilPhone,
-          pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
-          pagoMovilCi: paymentMethods.pagoMovilCi,
-        },
-        payoutMethod: {
-          id: payoutMethods.id,
-          type: payoutMethods.type,
-          // Bank Transfer fields
-          bankName: payoutMethods.bankName,
-          accountNumber: payoutMethods.accountNumber,
-          accountType: payoutMethods.accountType,
-          // Pago Móvil fields
-          pagoMovilPhone: payoutMethods.pagoMovilPhone,
-          pagoMovilBankCode: payoutMethods.pagoMovilBankCode,
-          pagoMovilCi: payoutMethods.pagoMovilCi,
-          nickname: payoutMethods.nickname,
-        },
-      })
-      .from(payments)
-      .leftJoin(paymentMethods, eq(payments.paymentMethodId, paymentMethods.id))
-      .leftJoin(payoutMethods, eq(payments.payoutMethodId, payoutMethods.id))
-      .where(and(eq(payments.id, paymentId), eq(payments.personId, personId)));
+    const payment = await findPaymentById(paymentId);
 
-    if (!payment) {
+    if (!payment || payment.personId !== personId) {
       return NextResponse.json(
         {
           success: false,

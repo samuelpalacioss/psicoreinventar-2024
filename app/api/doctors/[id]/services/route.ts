@@ -3,13 +3,17 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { addDoctorServiceSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, doctorServices, services } from "@/src/db/schema";
-import { and, eq, count } from "drizzle-orm";
+import {
+  findDoctorById,
+  findDoctorServices,
+  findDoctorService,
+  createDoctorService,
+  findServiceById
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,26 +78,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(doctorServices.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(doctorServices)
-      .where(whereClause);
-
     // Get paginated services for this doctor with pricing
-    const doctorServicesList = await db.query.doctorServices.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      with: {
-        service: true,
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorServicesList, pagination } = await findDoctorServices(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -176,9 +160,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -194,9 +176,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify service exists
-    const service = await db.query.services.findFirst({
-      where: eq(services.id, validatedData.serviceId),
-    });
+    const service = await findServiceById(validatedData.serviceId);
 
     if (!service) {
       return NextResponse.json(
@@ -212,12 +192,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check if service is already associated with this doctor
-    const existingDoctorService = await db.query.doctorServices.findFirst({
-      where: and(
-        eq(doctorServices.doctorId, doctorId),
-        eq(doctorServices.serviceId, validatedData.serviceId)
-      ),
-    });
+    const existingDoctorService = await findDoctorService(doctorId, validatedData.serviceId);
 
     if (existingDoctorService) {
       return NextResponse.json(
@@ -233,14 +208,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create doctor-service association with pricing
-    const [doctorService] = await db
-      .insert(doctorServices)
-      .values({
-        doctorId,
-        serviceId: validatedData.serviceId,
-        amount: validatedData.amount,
-      })
-      .returning();
+    const doctorService = await createDoctorService(doctorId, validatedData.serviceId, validatedData.amount);
 
     return NextResponse.json(
       {

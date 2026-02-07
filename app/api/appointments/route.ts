@@ -9,9 +9,15 @@ import {
   listAppointmentsSchema,
 } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/types/enums";
+import {
+  findAllAppointments,
+  findPersonByUserId,
+  findDoctorByUserId,
+  findAppointmentById,
+} from "@/src/dal";
 import db from "@/src/db";
-import { appointments, persons, doctors, payments, paymentMethodPersons, payoutMethods } from "@/src/db/schema";
-import { and, count, eq, gte, lte } from "drizzle-orm";
+import { appointments, payments, paymentMethodPersons, payoutMethods } from "@/src/db/schema";
+import { and, eq } from "drizzle-orm";
 import { StatusCodes } from "http-status-codes";
 import {
   validateDoctorService,
@@ -65,20 +71,19 @@ export async function GET(request: NextRequest) {
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Build WHERE clause with role-based filtering
-    const conditions = [];
+    // Build filters based on role
+    const filters: Record<string, any> = {
+      doctorId: params.doctorId,
+      personId: params.personId,
+      status: params.status,
+      startDate: params.startDate,
+      endDate: params.endDate,
+    };
 
     // Role-based filtering
     if (role === Role.PATIENT) {
-      // Patients see only their own appointments
-      const person = await db.query.persons.findFirst({
-        where: eq(persons.userId, userId),
-      });
-
-      if (person) {
-        conditions.push(eq(appointments.personId, person.id));
-      } else {
-        // User is patient but has no person profile - return empty result
+      const person = await findPersonByUserId(userId);
+      if (!person) {
         return NextResponse.json(
           {
             success: true,
@@ -88,16 +93,10 @@ export async function GET(request: NextRequest) {
           { status: StatusCodes.OK }
         );
       }
+      filters.personId = person.id;
     } else if (role === Role.DOCTOR) {
-      // Doctors see appointments with their patients
-      const doctor = await db.query.doctors.findFirst({
-        where: eq(doctors.userId, userId),
-      });
-
-      if (doctor) {
-        conditions.push(eq(appointments.doctorId, doctor.id));
-      } else {
-        // User is doctor but has no doctor profile - return empty result
+      const doctor = await findDoctorByUserId(userId);
+      if (!doctor) {
         return NextResponse.json(
           {
             success: true,
@@ -107,89 +106,17 @@ export async function GET(request: NextRequest) {
           { status: StatusCodes.OK }
         );
       }
+      filters.doctorId = doctor.id;
     }
     // Admin sees all (no additional filter)
 
-    // Additional filters from params
-    if (params.doctorId) {
-      conditions.push(eq(appointments.doctorId, params.doctorId));
-    }
-
-    if (params.personId) {
-      conditions.push(eq(appointments.personId, params.personId));
-    }
-
-    if (params.status) {
-      conditions.push(eq(appointments.status, params.status));
-    }
-
-    if (params.startDate) {
-      const startDate = new Date(params.startDate);
-      conditions.push(gte(appointments.startDateTime, startDate));
-    }
-
-    if (params.endDate) {
-      const endDate = new Date(params.endDate);
-      conditions.push(lte(appointments.startDateTime, endDate));
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    // Get total count
-    const countQuery = db.select({ count: count() }).from(appointments);
-    if (whereClause) {
-      countQuery.where(whereClause);
-    }
-    const [{ count: totalCount }] = await countQuery;
-
-    // Get paginated data with relations
-    const data = await db.query.appointments.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      orderBy: (appointments, { desc }) => [desc(appointments.startDateTime)],
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctorService: {
-          with: {
-            service: true,
-          },
-        },
-        payment: {
-          columns: {
-            id: true,
-            amount: true,
-            date: true,
-          },
-        },
-      },
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    // Get appointments using DAL
+    const result = await findAllAppointments(filters, { page, limit, offset });
 
     return NextResponse.json(
       {
         success: true,
-        data,
-        pagination,
+        ...result,
       },
       { status: StatusCodes.OK }
     );
@@ -258,9 +185,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get patient's person record
-    const person = await db.query.persons.findFirst({
-      where: eq(persons.userId, userId),
-    });
+    const person = await findPersonByUserId(userId);
 
     if (!person) {
       return NextResponse.json(
@@ -276,9 +201,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify doctor exists and is active
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, validatedData.doctorId),
-    });
+    const { findDoctorById } = await import("@/src/dal");
+    const doctor = await findDoctorById(validatedData.doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -442,35 +366,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch complete appointment data with relations
-    const completeAppointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, result.appointment.id),
-      with: {
-        person: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctor: {
-          columns: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            firstLastName: true,
-            secondLastName: true,
-          },
-        },
-        doctorService: {
-          with: {
-            service: true,
-          },
-        },
-        payment: true,
-      },
-    });
+    const completeAppointment = await findAppointmentById(result.appointment.id);
 
     return NextResponse.json(
       {

@@ -6,8 +6,9 @@ import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit
 import { updateDoctorLanguageSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { doctors, doctorLanguages } from "@/src/db/schema";
+import { doctorLanguages } from "@/src/db/schema";
 import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorLanguage, deleteDoctorLanguage } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +77,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +93,7 @@ export async function PATCH(
     }
 
     // Verify doctor-language association exists
-    const existingDoctorLanguage = await db.query.doctorLanguages.findFirst({
-      where: and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId)),
-    });
+    const existingDoctorLanguage = await findDoctorLanguage(doctorId, languageId);
 
     if (!existingDoctorLanguage) {
       return NextResponse.json(
@@ -111,7 +108,7 @@ export async function PATCH(
       );
     }
 
-    // Update language type
+    // Update language type (DAL doesn't have editDoctorLanguage, so use db directly)
     const [updatedDoctorLanguage] = await db
       .update(doctorLanguages)
       .set(validatedData)
@@ -195,9 +192,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -213,9 +208,7 @@ export async function DELETE(
     }
 
     // Verify doctor-language association exists
-    const existingDoctorLanguage = await db.query.doctorLanguages.findFirst({
-      where: and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId)),
-    });
+    const existingDoctorLanguage = await findDoctorLanguage(doctorId, languageId);
 
     if (!existingDoctorLanguage) {
       return NextResponse.json(
@@ -231,9 +224,7 @@ export async function DELETE(
     }
 
     // Delete doctor-language association
-    await db
-      .delete(doctorLanguages)
-      .where(and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId)));
+    await deleteDoctorLanguage(doctorId, languageId);
 
     return NextResponse.json(
       {
@@ -256,4 +247,3 @@ export async function DELETE(
     );
   }
 }
-

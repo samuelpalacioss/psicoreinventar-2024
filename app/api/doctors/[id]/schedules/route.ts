@@ -3,13 +3,11 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createScheduleSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, schedules } from "@/src/db/schema";
-import { eq, count } from "drizzle-orm";
+import { findDoctorById, findDoctorSchedules, createDoctorSchedule } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -59,9 +57,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -76,24 +72,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const whereClause = eq(schedules.doctorId, doctorId);
-
-    // Get total count
-    const [{ count: totalCount }] = await db
-      .select({ count: count() })
-      .from(schedules)
-      .where(whereClause);
-
     // Get paginated schedules for this doctor
-    const doctorSchedules = await db.query.schedules.findMany({
-      where: whereClause,
-      limit,
-      offset,
-      orderBy: (schedules, { asc }) => [asc(schedules.day), asc(schedules.startTime)],
-    });
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const { data: doctorSchedules, pagination } = await findDoctorSchedules(doctorId, { page, limit, offset });
 
     return NextResponse.json(
       {
@@ -174,9 +154,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -192,13 +170,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create schedule record
-    const [schedule] = await db
-      .insert(schedules)
-      .values({
-        ...validatedData,
-        doctorId,
-      })
-      .returning();
+    const schedule = await createDoctorSchedule(doctorId, validatedData);
 
     return NextResponse.json(
       {

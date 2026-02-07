@@ -5,9 +5,7 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateScheduleSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, schedules } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorSchedule, editDoctorSchedule, deleteDoctorSchedule } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -76,9 +74,7 @@ export async function PATCH(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -94,9 +90,7 @@ export async function PATCH(
     }
 
     // Verify schedule exists and belongs to this doctor
-    const existingSchedule = await db.query.schedules.findFirst({
-      where: and(eq(schedules.id, scheduleId), eq(schedules.doctorId, doctorId)),
-    });
+    const existingSchedule = await findDoctorSchedule(doctorId, scheduleId);
 
     if (!existingSchedule) {
       return NextResponse.json(
@@ -112,11 +106,7 @@ export async function PATCH(
     }
 
     // Update schedule
-    const [updatedSchedule] = await db
-      .update(schedules)
-      .set(validatedData)
-      .where(eq(schedules.id, scheduleId))
-      .returning();
+    const updatedSchedule = await editDoctorSchedule(scheduleId, validatedData);
 
     return NextResponse.json(
       {
@@ -195,9 +185,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -213,9 +201,7 @@ export async function DELETE(
     }
 
     // Verify schedule exists and belongs to this doctor
-    const existingSchedule = await db.query.schedules.findFirst({
-      where: and(eq(schedules.id, scheduleId), eq(schedules.doctorId, doctorId)),
-    });
+    const existingSchedule = await findDoctorSchedule(doctorId, scheduleId);
 
     if (!existingSchedule) {
       return NextResponse.json(
@@ -231,7 +217,7 @@ export async function DELETE(
     }
 
     // Delete schedule
-    await db.delete(schedules).where(eq(schedules.id, scheduleId));
+    await deleteDoctorSchedule(scheduleId);
 
     return NextResponse.json(
       {

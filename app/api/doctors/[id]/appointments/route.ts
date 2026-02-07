@@ -7,8 +7,9 @@ import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { Role } from "@/types/enums";
 import db from "@/src/db";
-import { doctors, appointments } from "@/src/db/schema";
+import { appointments } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
+import { findDoctorById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -69,9 +70,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -153,4 +152,3 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 }
-

@@ -4,9 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { doctors, doctorTreatmentMethods } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
+import { findDoctorById, findDoctorTreatmentMethod, deleteDoctorTreatmentMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -69,9 +67,7 @@ export async function DELETE(
 
   try {
     // Verify doctor exists
-    const doctor = await db.query.doctors.findFirst({
-      where: eq(doctors.id, doctorId),
-    });
+    const doctor = await findDoctorById(doctorId);
 
     if (!doctor) {
       return NextResponse.json(
@@ -87,12 +83,7 @@ export async function DELETE(
     }
 
     // Verify doctor-treatment method association exists
-    const existingDoctorTreatmentMethod = await db.query.doctorTreatmentMethods.findFirst({
-      where: and(
-        eq(doctorTreatmentMethods.doctorId, doctorId),
-        eq(doctorTreatmentMethods.treatmentMethodId, treatmentMethodId)
-      ),
-    });
+    const existingDoctorTreatmentMethod = await findDoctorTreatmentMethod(doctorId, treatmentMethodId);
 
     if (!existingDoctorTreatmentMethod) {
       return NextResponse.json(
@@ -108,14 +99,7 @@ export async function DELETE(
     }
 
     // Delete doctor-treatment method association
-    await db
-      .delete(doctorTreatmentMethods)
-      .where(
-        and(
-          eq(doctorTreatmentMethods.doctorId, doctorId),
-          eq(doctorTreatmentMethods.treatmentMethodId, treatmentMethodId)
-        )
-      );
+    await deleteDoctorTreatmentMethod(doctorId, treatmentMethodId);
 
     return NextResponse.json(
       {
@@ -138,4 +122,3 @@ export async function DELETE(
     );
   }
 }
-
