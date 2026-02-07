@@ -65,7 +65,7 @@ export async function GET(
   const methodId = Number(paramsValidationResult.data.methodId);
 
   // Authorization - check access to parent person resource
-  const authzResult = await checkResourceAccess(userId, role as Role, "payment-method", "read", personId);
+  const authzResult = await checkResourceAccess(userId, role, "payment-method", "read", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -166,7 +166,7 @@ export async function PATCH(
   const methodId = Number(paramsValidationResult.data.methodId);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "payment-method", "update", personId);
+  const authzResult = await checkResourceAccess(userId, role, "payment-method", "update", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -200,12 +200,13 @@ export async function PATCH(
 
     // Extract association fields
     if (validatedData.nickname !== undefined) associationFields.nickname = validatedData.nickname;
-    if (validatedData.isPreferred !== undefined) associationFields.isPreferred = validatedData.isPreferred;
+    if (validatedData.isPreferred !== undefined)
+      associationFields.isPreferred = validatedData.isPreferred;
 
     // Extract payment method fields based on type (from schema)
 
     // Check for invalid field combinations
-    if (paymentMethodType === 'card') {
+    if (paymentMethodType === "card") {
       // Extract card fields
       for (const field of cardPaymentMethodFields) {
         if (validatedData[field] !== undefined) {
@@ -214,20 +215,24 @@ export async function PATCH(
       }
 
       // Reject pago móvil fields for card payment methods
-      const invalidFields = pagoMovilPaymentMethodFields.filter(field => validatedData[field] !== undefined);
+      const invalidFields = pagoMovilPaymentMethodFields.filter(
+        (field) => validatedData[field] !== undefined
+      );
       if (invalidFields.length > 0) {
         return NextResponse.json(
           {
             success: false,
             error: {
-              message: `Cannot update pago móvil fields for a card payment method: ${invalidFields.join(', ')}`,
+              message: `Cannot update pago móvil fields for a card payment method: ${invalidFields.join(
+                ", "
+              )}`,
               code: "INVALID_FIELDS",
             },
           },
           { status: StatusCodes.BAD_REQUEST }
         );
       }
-    } else if (paymentMethodType === 'pago_movil') {
+    } else if (paymentMethodType === "pago_movil") {
       // Extract pago móvil fields
       for (const field of pagoMovilPaymentMethodFields) {
         if (validatedData[field] !== undefined) {
@@ -236,13 +241,17 @@ export async function PATCH(
       }
 
       // Reject card fields for pago móvil payment methods
-      const invalidFields = cardPaymentMethodFields.filter(field => validatedData[field] !== undefined);
+      const invalidFields = cardPaymentMethodFields.filter(
+        (field) => validatedData[field] !== undefined
+      );
       if (invalidFields.length > 0) {
         return NextResponse.json(
           {
             success: false,
             error: {
-              message: `Cannot update card fields for a pago móvil payment method: ${invalidFields.join(', ')}`,
+              message: `Cannot update card fields for a pago móvil payment method: ${invalidFields.join(
+                ", "
+              )}`,
               code: "INVALID_FIELDS",
             },
           },
@@ -259,8 +268,8 @@ export async function PATCH(
       methodId,
       existing.paymentMethodId,
       personId,
-      hasAssociationFields ? associationFields as any : undefined,
-      hasPaymentMethodFields ? paymentMethodFields as any : undefined
+      hasAssociationFields ? (associationFields as any) : undefined,
+      hasPaymentMethodFields ? (paymentMethodFields as any) : undefined
     );
 
     return NextResponse.json(
@@ -328,7 +337,7 @@ export async function DELETE(
   const methodId = Number(paramsValidationResult.data.methodId);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "payment-method", "delete", personId);
+  const authzResult = await checkResourceAccess(userId, role, "payment-method", "delete", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {

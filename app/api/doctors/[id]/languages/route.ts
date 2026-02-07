@@ -12,7 +12,7 @@ import {
   findDoctorLanguages,
   findDoctorLanguage,
   createDoctorLanguage,
-  findLanguageById
+  findLanguageById,
 } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
@@ -79,7 +79,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Get paginated languages for this doctor with type
-    const { data: doctorLanguagesList, pagination } = await findDoctorLanguages(doctorId, { page, limit, offset });
+    const { data: doctorLanguagesList, pagination } = await findDoctorLanguages(doctorId, {
+      page,
+      limit,
+      offset,
+    });
 
     return NextResponse.json(
       {
@@ -144,7 +148,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-language",
     "create",
     undefined,
@@ -208,7 +212,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create doctor-language association with type
-    const doctorLanguage = await createDoctorLanguage(doctorId, validatedData.languageId, validatedData.type);
+    const doctorLanguage = await createDoctorLanguage(
+      doctorId,
+      validatedData.languageId,
+      validatedData.type
+    );
 
     return NextResponse.json(
       {

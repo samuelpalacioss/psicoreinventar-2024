@@ -49,7 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
@@ -73,7 +73,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Get paginated schedules for this doctor
-    const { data: doctorSchedules, pagination } = await findDoctorSchedules(doctorId, { page, limit, offset });
+    const { data: doctorSchedules, pagination } = await findDoctorSchedules(doctorId, {
+      page,
+      limit,
+      offset,
+    });
 
     return NextResponse.json(
       {
@@ -136,14 +140,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "schedule",
-    "create",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "schedule", "create", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body

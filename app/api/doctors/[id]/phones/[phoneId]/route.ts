@@ -56,14 +56,9 @@ export async function PATCH(
   const phoneId = parseInt(paramsValidationResult.data.phoneId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "phone",
-    "update",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "phone", "update", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -173,14 +168,9 @@ export async function DELETE(
   const phoneId = parseInt(paramsValidationResult.data.phoneId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "phone",
-    "delete",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "phone", "delete", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   try {

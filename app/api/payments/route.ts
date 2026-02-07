@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "payment", "list");
+  const authzResult = await checkResourceAccess(userId, role, "payment", "list");
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
   // Authorization - check if user can create payment for this person
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "payment",
     "create",
     validatedData.personId

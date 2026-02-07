@@ -56,7 +56,7 @@ export async function GET(
   const paymentId = Number(paramsValidationResult.data.paymentId);
 
   // Authorization - check access to parent person resource
-  const authzResult = await checkResourceAccess(userId, role as Role, "payment", "read", personId);
+  const authzResult = await checkResourceAccess(userId, role, "payment", "read", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {

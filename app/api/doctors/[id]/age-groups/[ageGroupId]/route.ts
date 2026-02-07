@@ -5,7 +5,12 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateAgeGroupSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/src/types";
-import { findDoctorById, findDoctorAgeGroup, editDoctorAgeGroup, deleteDoctorAgeGroup } from "@/src/dal";
+import {
+  findDoctorById,
+  findDoctorAgeGroup,
+  editDoctorAgeGroup,
+  deleteDoctorAgeGroup,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -56,14 +61,9 @@ export async function PATCH(
   const ageGroupId = parseInt(paramsValidationResult.data.ageGroupId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "age-group",
-    "update",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "age-group", "update", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -173,14 +173,9 @@ export async function DELETE(
   const ageGroupId = parseInt(paramsValidationResult.data.ageGroupId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "age-group",
-    "delete",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "age-group", "delete", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   try {

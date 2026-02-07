@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   const { id: userId, role } = session.user;
-  const authzResult = await checkResourceAccess(userId, role as Role, "language", "update");
+  const authzResult = await checkResourceAccess(userId, role, "language", "update");
   if (!authzResult.allowed) return authzResult.error;
 
   const resolvedParams = await params;
@@ -109,7 +109,7 @@ export async function DELETE(
   }
 
   const { id: userId, role } = session.user;
-  const authzResult = await checkResourceAccess(userId, role as Role, "language", "delete");
+  const authzResult = await checkResourceAccess(userId, role, "language", "delete");
   if (!authzResult.allowed) return authzResult.error;
 
   const resolvedParams = await params;

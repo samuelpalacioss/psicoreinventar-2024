@@ -70,7 +70,7 @@ export async function GET(
   const progressId = Number(paramsValidationResult.data.progressId);
 
   // Authorization - check access to progress resource
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "read", personId);
+  const authzResult = await checkResourceAccess(userId, role, "progress", "read", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -171,7 +171,7 @@ export async function PATCH(
   const progressId = Number(paramsValidationResult.data.progressId);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "update", personId);
+  const authzResult = await checkResourceAccess(userId, role, "progress", "update", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -287,7 +287,7 @@ export async function DELETE(
   const progressId = Number(paramsValidationResult.data.progressId);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "delete", personId);
+  const authzResult = await checkResourceAccess(userId, role, "progress", "delete", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {

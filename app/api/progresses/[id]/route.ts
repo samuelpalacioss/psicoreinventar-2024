@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const progressId = Number(paramsValidationResult.data.id);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "read", progressId);
+  const authzResult = await checkResourceAccess(userId, role, "progress", "read", progressId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -102,10 +102,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * - Patient: No permission
  * - Admin: No permission
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Rate limiting (strict for mutations)
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
@@ -149,7 +146,7 @@ export async function PATCH(
   const progressId = Number(paramsValidationResult.data.id);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "update", progressId);
+  const authzResult = await checkResourceAccess(userId, role, "progress", "update", progressId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -281,7 +278,7 @@ export async function DELETE(
   const progressId = Number(paramsValidationResult.data.id);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "delete", progressId);
+  const authzResult = await checkResourceAccess(userId, role, "progress", "delete", progressId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {

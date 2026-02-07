@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "person", "list");
+  const authzResult = await checkResourceAccess(userId, role, "person", "list");
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "person", "create");
+  const authzResult = await checkResourceAccess(userId, role, "person", "create");
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body

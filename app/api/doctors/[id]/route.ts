@@ -6,13 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateDoctorSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/src/types";
-import {
-  findDoctorById,
-  findDoctorByCi,
-  findPlaceById,
-  editDoctor,
-  deleteDoctor,
-} from "@/src/dal";
+import { findDoctorById, findDoctorByCi, findPlaceById, editDoctor, deleteDoctor } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -54,7 +48,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -134,7 +128,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "update", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "update", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -262,7 +256,7 @@ export async function DELETE(
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "delete", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "delete", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {

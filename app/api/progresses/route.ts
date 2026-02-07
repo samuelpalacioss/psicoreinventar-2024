@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "list");
+  const authzResult = await checkResourceAccess(userId, role, "progress", "list");
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
   const validatedData = bodyValidationResult.data;
 
   // Authorization - check if doctor is assigned to this patient
-  const authzResult = await checkResourceAccess(userId, role as Role, "progress", "create", undefined, {
+  const authzResult = await checkResourceAccess(userId, role, "progress", "create", undefined, {
     personId: validatedData.personId,
   });
   if (!authzResult.allowed) return authzResult.error;

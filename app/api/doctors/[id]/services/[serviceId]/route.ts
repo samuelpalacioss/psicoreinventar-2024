@@ -5,7 +5,12 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateDoctorServiceSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/src/types";
-import { findDoctorById, findDoctorService, editDoctorService, deleteDoctorService } from "@/src/dal";
+import {
+  findDoctorById,
+  findDoctorService,
+  editDoctorService,
+  deleteDoctorService,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -58,7 +63,7 @@ export async function PATCH(
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-service",
     "update",
     undefined,
@@ -175,7 +180,7 @@ export async function DELETE(
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-service",
     "delete",
     undefined,

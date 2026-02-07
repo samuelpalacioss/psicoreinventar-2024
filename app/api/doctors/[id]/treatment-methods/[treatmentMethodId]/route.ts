@@ -57,7 +57,7 @@ export async function DELETE(
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-treatment-method",
     "delete",
     undefined,
@@ -83,7 +83,10 @@ export async function DELETE(
     }
 
     // Verify doctor-treatment method association exists
-    const existingDoctorTreatmentMethod = await findDoctorTreatmentMethod(doctorId, treatmentMethodId);
+    const existingDoctorTreatmentMethod = await findDoctorTreatmentMethod(
+      doctorId,
+      treatmentMethodId
+    );
 
     if (!existingDoctorTreatmentMethod) {
       return NextResponse.json(

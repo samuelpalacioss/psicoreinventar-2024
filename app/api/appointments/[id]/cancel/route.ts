@@ -5,11 +5,7 @@ import { validateBody } from "@/utils/api/middleware/validation";
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { cancelAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
 import { Role } from "@/src/types";
-import {
-  findAppointmentByIdBasic,
-  cancelAppointment,
-  findAppointmentById,
-} from "@/src/dal";
+import { findAppointmentByIdBasic, cancelAppointment, findAppointmentById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -67,7 +63,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // Authorization - check update permission (canceling is a type of update)
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "appointment",
     "update",
     appointmentId

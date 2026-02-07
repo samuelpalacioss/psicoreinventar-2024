@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const personId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent person
-  const authzResult = await checkResourceAccess(userId, role as Role, "person", "read", personId);
+  const authzResult = await checkResourceAccess(userId, role, "person", "read", personId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters

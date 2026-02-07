@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { id: userId, role } = session.user;
-  const authzResult = await checkResourceAccess(userId, role as Role, "institution", "create");
+  const authzResult = await checkResourceAccess(userId, role, "institution", "create");
   if (!authzResult.allowed) return authzResult.error;
 
   const body = await request.json().catch(() => ({}));

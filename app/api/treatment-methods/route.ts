@@ -9,7 +9,11 @@ import {
   listTreatmentMethodsSchema,
 } from "@/lib/api/schemas/simple.schemas";
 import { Role } from "@/src/types";
-import { findAllTreatmentMethods, findTreatmentMethodByName, createTreatmentMethod } from "@/src/dal";
+import {
+  findAllTreatmentMethods,
+  findTreatmentMethodByName,
+  createTreatmentMethod,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -33,10 +37,7 @@ export async function GET(request: NextRequest) {
   try {
     const result = await findAllTreatmentMethods({ search: params.search }, pagination);
 
-    return NextResponse.json(
-      { success: true, ...result },
-      { status: StatusCodes.OK }
-    );
+    return NextResponse.json({ success: true, ...result }, { status: StatusCodes.OK });
   } catch (error) {
     console.error("Error fetching treatment methods:", error);
     return NextResponse.json(
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
 
   const { id: userId, role } = session.user;
 
-  const authzResult = await checkResourceAccess(userId, role as Role, "treatment-method", "create");
+  const authzResult = await checkResourceAccess(userId, role, "treatment-method", "create");
   if (!authzResult.allowed) return authzResult.error;
 
   const body = await request.json().catch(() => ({}));

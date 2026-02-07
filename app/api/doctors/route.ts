@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "list");
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "list");
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
@@ -96,11 +96,7 @@ export async function GET(request: NextRequest) {
     // Admin sees all (no additional filter)
 
     // Get doctors using DAL
-    const result = await findAllDoctors(
-      filters,
-      { page, limit, offset },
-      restrictToIds
-    );
+    const result = await findAllDoctors(filters, { page, limit, offset }, restrictToIds);
 
     return NextResponse.json(
       {
@@ -154,7 +150,7 @@ export async function POST(request: NextRequest) {
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "create");
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "create");
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body

@@ -5,7 +5,12 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateScheduleSchema } from "@/lib/api/schemas/doctor.schemas";
 import { Role } from "@/src/types";
-import { findDoctorById, findDoctorSchedule, editDoctorSchedule, deleteDoctorSchedule } from "@/src/dal";
+import {
+  findDoctorById,
+  findDoctorSchedule,
+  editDoctorSchedule,
+  deleteDoctorSchedule,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
 
@@ -56,14 +61,9 @@ export async function PATCH(
   const scheduleId = parseInt(paramsValidationResult.data.scheduleId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "schedule",
-    "update",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "schedule", "update", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -173,14 +173,9 @@ export async function DELETE(
   const scheduleId = parseInt(paramsValidationResult.data.scheduleId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "schedule",
-    "delete",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "schedule", "delete", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   try {

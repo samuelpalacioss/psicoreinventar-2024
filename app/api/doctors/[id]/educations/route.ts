@@ -7,7 +7,12 @@ import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createEducationSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/src/types";
-import { findDoctorById, findDoctorEducations, createDoctorEducation, findInstitutionById } from "@/src/dal";
+import {
+  findDoctorById,
+  findDoctorEducations,
+  createDoctorEducation,
+  findInstitutionById,
+} from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -49,7 +54,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
@@ -73,7 +78,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Get paginated educations for this doctor with institution details
-    const { data: doctorEducations, pagination } = await findDoctorEducations(doctorId, { page, limit, offset });
+    const { data: doctorEducations, pagination } = await findDoctorEducations(doctorId, {
+      page,
+      limit,
+      offset,
+    });
 
     return NextResponse.json(
       {
@@ -136,14 +145,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "education",
-    "create",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "education", "create", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body

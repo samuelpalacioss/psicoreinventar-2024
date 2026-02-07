@@ -66,7 +66,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Authorization check - verify user can read this payment BEFORE fetching sensitive data
-    const authzResult = await checkResourceAccess(userId, role as Role, "payment", "read", personId);
+    const authzResult = await checkResourceAccess(userId, role, "payment", "read", personId);
     if (!authzResult.allowed) return authzResult.error;
 
     // Now fetch the full payment data with related information

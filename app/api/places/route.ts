@@ -26,10 +26,7 @@ export async function GET(request: NextRequest) {
   const pagination = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    const result = await findAllPlaces(
-      { search: params.search, type: params.type },
-      pagination
-    );
+    const result = await findAllPlaces({ search: params.search, type: params.type }, pagination);
 
     return NextResponse.json({ success: true, ...result }, { status: StatusCodes.OK });
   } catch (error) {
@@ -60,7 +57,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { id: userId, role } = session.user;
-  const authzResult = await checkResourceAccess(userId, role as Role, "place", "create");
+  const authzResult = await checkResourceAccess(userId, role, "place", "create");
   if (!authzResult.allowed) return authzResult.error;
 
   const body = await request.json().catch(() => ({}));

@@ -57,7 +57,7 @@ export async function GET(
   const phoneId = parseInt(paramsValidationResult.data.phoneId);
 
   // Authorization - check access to phone
-  const authzResult = await checkResourceAccess(userId, role as Role, "phone", "read", phoneId);
+  const authzResult = await checkResourceAccess(userId, role, "phone", "read", phoneId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -141,7 +141,7 @@ export async function PATCH(
   const phoneId = parseInt(paramsValidationResult.data.phoneId);
 
   // Authorization - check access to phone
-  const authzResult = await checkResourceAccess(userId, role as Role, "phone", "update", phoneId);
+  const authzResult = await checkResourceAccess(userId, role, "phone", "update", phoneId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -235,7 +235,7 @@ export async function DELETE(
   const phoneId = parseInt(paramsValidationResult.data.phoneId);
 
   // Authorization - check access to phone
-  const authzResult = await checkResourceAccess(userId, role as Role, "phone", "delete", phoneId);
+  const authzResult = await checkResourceAccess(userId, role, "phone", "delete", phoneId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {

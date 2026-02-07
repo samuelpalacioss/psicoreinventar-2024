@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
-import { validateBody, validateParams, validateSearchParams } from "@/utils/api/middleware/validation";
+import {
+  validateBody,
+  validateParams,
+  validateSearchParams,
+} from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
@@ -11,7 +15,10 @@ import { payoutMethods } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
 import { findDoctorById, createDoctorPayoutMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
-import { listDoctorPayoutsSchema, createPayoutMethodSchema } from "@/lib/api/schemas/doctor.schemas";
+import {
+  listDoctorPayoutsSchema,
+  createPayoutMethodSchema,
+} from "@/lib/api/schemas/doctor.schemas";
 
 /**
  * GET /api/doctors/[id]/payout-methods
@@ -51,7 +58,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
@@ -171,7 +178,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to create payout methods for this doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "payout-method", "create", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "payout-method", "create", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body

@@ -62,13 +62,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id: userId, role } = session.user;
 
   // Authorization
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "appointment",
-    "read",
-    appointmentId
-  );
+  const authzResult = await checkResourceAccess(userId, role, "appointment", "read", appointmentId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -160,7 +154,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   // Authorization
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "appointment",
     "update",
     appointmentId
@@ -326,7 +320,7 @@ export async function DELETE(
   // Authorization
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "appointment",
     "delete",
     appointmentId

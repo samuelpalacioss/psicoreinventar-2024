@@ -27,10 +27,7 @@ export async function GET(request: NextRequest) {
   try {
     const result = await findAllConditions({ search: params.search }, pagination);
 
-    return NextResponse.json(
-      { success: true, ...result },
-      { status: StatusCodes.OK }
-    );
+    return NextResponse.json({ success: true, ...result }, { status: StatusCodes.OK });
   } catch (error) {
     console.error("Error fetching conditions:", error);
     return NextResponse.json(
@@ -71,7 +68,7 @@ export async function POST(request: NextRequest) {
 
   const { id: userId, role } = session.user;
 
-  const authzResult = await checkResourceAccess(userId, role as Role, "condition", "create");
+  const authzResult = await checkResourceAccess(userId, role, "condition", "create");
   if (!authzResult.allowed) return authzResult.error;
 
   const body = await request.json().catch(() => ({}));

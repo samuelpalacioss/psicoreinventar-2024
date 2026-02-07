@@ -10,7 +10,7 @@ import {
   findDoctorEducation,
   editDoctorEducation,
   deleteDoctorEducation,
-  findInstitutionById
+  findInstitutionById,
 } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
@@ -62,14 +62,9 @@ export async function PATCH(
   const educationId = parseInt(paramsValidationResult.data.educationId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "education",
-    "update",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "education", "update", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -197,14 +192,9 @@ export async function DELETE(
   const educationId = parseInt(paramsValidationResult.data.educationId);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(
-    userId,
-    role as Role,
-    "education",
-    "delete",
-    undefined,
-    { doctorId }
-  );
+  const authzResult = await checkResourceAccess(userId, role, "education", "delete", undefined, {
+    doctorId,
+  });
   if (!authzResult.allowed) return authzResult.error;
 
   try {

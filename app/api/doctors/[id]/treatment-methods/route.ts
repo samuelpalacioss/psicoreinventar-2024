@@ -12,7 +12,7 @@ import {
   findDoctorTreatmentMethods,
   findDoctorTreatmentMethod,
   createDoctorTreatmentMethod,
-  findTreatmentMethodById
+  findTreatmentMethodById,
 } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
@@ -79,7 +79,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Get paginated treatment methods for this doctor
-    const { data: doctorTreatmentMethodsList, pagination } = await findDoctorTreatmentMethods(doctorId, { page, limit, offset });
+    const { data: doctorTreatmentMethodsList, pagination } = await findDoctorTreatmentMethods(
+      doctorId,
+      { page, limit, offset }
+    );
 
     return NextResponse.json(
       {
@@ -144,7 +147,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-treatment-method",
     "create",
     undefined,
@@ -192,7 +195,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Check if treatment method is already associated with this doctor
-    const existingDoctorTreatmentMethod = await findDoctorTreatmentMethod(doctorId, validatedData.treatmentMethodId);
+    const existingDoctorTreatmentMethod = await findDoctorTreatmentMethod(
+      doctorId,
+      validatedData.treatmentMethodId
+    );
 
     if (existingDoctorTreatmentMethod) {
       return NextResponse.json(
@@ -208,7 +214,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Create doctor-treatment method association
-    const doctorTreatmentMethod = await createDoctorTreatmentMethod(doctorId, validatedData.treatmentMethodId);
+    const doctorTreatmentMethod = await createDoctorTreatmentMethod(
+      doctorId,
+      validatedData.treatmentMethodId
+    );
 
     return NextResponse.json(
       {

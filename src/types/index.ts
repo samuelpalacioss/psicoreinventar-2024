@@ -85,8 +85,6 @@ export type User = {
   image?: string | null;
 };
 
-
-
 export const Role = {
   PATIENT: "patient",
   DOCTOR: "doctor",

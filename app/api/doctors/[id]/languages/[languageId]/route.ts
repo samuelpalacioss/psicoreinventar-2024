@@ -61,7 +61,7 @@ export async function PATCH(
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-language",
     "update",
     undefined,
@@ -112,7 +112,9 @@ export async function PATCH(
     const [updatedDoctorLanguage] = await db
       .update(doctorLanguages)
       .set(validatedData)
-      .where(and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId)))
+      .where(
+        and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId))
+      )
       .returning();
 
     return NextResponse.json(
@@ -182,7 +184,7 @@ export async function DELETE(
   // Authorization - check access to parent doctor
   const authzResult = await checkResourceAccess(
     userId,
-    role as Role,
+    role,
     "doctor-language",
     "delete",
     undefined,

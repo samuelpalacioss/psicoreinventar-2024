@@ -8,7 +8,7 @@ import { Role } from "@/src/types";
 import {
   findDoctorPayoutMethod,
   editDoctorPayoutMethod,
-  deleteDoctorPayoutMethod
+  deleteDoctorPayoutMethod,
 } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";
@@ -60,7 +60,7 @@ export async function GET(
   const methodId = Number(paramsValidationResult.data.methodId);
 
   // Authorization - check access to parent doctor resource
-  const authzResult = await checkResourceAccess(userId, role as Role, "payout-method", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "payout-method", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
@@ -145,7 +145,7 @@ export async function PATCH(
   const methodId = Number(paramsValidationResult.data.methodId);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "payout-method", "update", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "payout-method", "update", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Parse and validate request body
@@ -178,7 +178,8 @@ export async function PATCH(
 
     // Extract common fields
     if (validatedData.nickname !== undefined) updateFields.nickname = validatedData.nickname;
-    if (validatedData.isPreferred !== undefined) updateFields.isPreferred = validatedData.isPreferred;
+    if (validatedData.isPreferred !== undefined)
+      updateFields.isPreferred = validatedData.isPreferred;
 
     // Extract type-specific fields based on existing payout method type
     const bankTransferFields = ["bankName", "accountNumber", "accountType"] as const;
@@ -200,7 +201,9 @@ export async function PATCH(
           {
             success: false,
             error: {
-              message: `Cannot update pago móvil fields for a bank transfer payout method: ${invalidFields.join(", ")}`,
+              message: `Cannot update pago móvil fields for a bank transfer payout method: ${invalidFields.join(
+                ", "
+              )}`,
               code: "INVALID_FIELDS",
             },
           },
@@ -216,13 +219,17 @@ export async function PATCH(
       }
 
       // Reject bank transfer fields for pago móvil payout methods
-      const invalidFields = bankTransferFields.filter((field) => validatedData[field] !== undefined);
+      const invalidFields = bankTransferFields.filter(
+        (field) => validatedData[field] !== undefined
+      );
       if (invalidFields.length > 0) {
         return NextResponse.json(
           {
             success: false,
             error: {
-              message: `Cannot update bank transfer fields for a pago móvil payout method: ${invalidFields.join(", ")}`,
+              message: `Cannot update bank transfer fields for a pago móvil payout method: ${invalidFields.join(
+                ", "
+              )}`,
               code: "INVALID_FIELDS",
             },
           },
@@ -299,7 +306,7 @@ export async function DELETE(
   const methodId = Number(paramsValidationResult.data.methodId);
 
   // Authorization
-  const authzResult = await checkResourceAccess(userId, role as Role, "payout-method", "delete", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "payout-method", "delete", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   try {
