@@ -5,36 +5,43 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import { dashboardConfig } from "@/config/dashboard";
 import { Role } from "@/src/types";
 
-import Link from "next/link";
+import { Button } from "../ui/button";
+import { Icons } from "../icons";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   userRole: Role;
 }
 
-export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
+// TODO: Add dynamic role based on user logged in
+export function AppSidebar({ userRole = Role.PATIENT, ...props }: AppSidebarProps) {
   const navItems = dashboardConfig.sidebarNav[userRole];
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="offcanvas" {...props} className="pt-5">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <Link href="/dashboard">
-                <span className="text-base font-semibold">Psicoreinventar</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center justify-between">
+          <span className="text-base font-semibold p-2">Psicoreinventar</span>
+
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => setOpenMobile(false)}
+            >
+              <Icons.close className="size-5 text-gray-800" />
+              <span className="sr-only">Close sidebar</span>
+            </Button>
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />

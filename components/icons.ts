@@ -19,6 +19,7 @@ import {
   Users,
   MessageSquare,
   UserRoundPen,
+  X,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,6 +31,7 @@ export const Icons = {
   booking: ClipboardPenLine,
   calendar: CalendarCheck,
   chevronLeft: ChevronLeft,
+  close: X,
   command: CommandIcon,
   creditCard: CreditCard,
   dashboard: LayoutDashboard,

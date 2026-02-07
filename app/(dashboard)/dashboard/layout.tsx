@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Role } from "@/src/types";
 import "./theme.css";
+import { NavDashboard } from "@/components/dashboard/nav-dashboard";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   // TODO: Get user role from session/auth
@@ -17,17 +18,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
     >
       <AppSidebar variant="inset" userRole={userRole} />
-      <SidebarInset>
-        <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-          <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mx-2 h-4 data-[orientation=vertical]:h-4"
-            />
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col">{children}</div>
+      <SidebarInset className="m-0! flex flex-col min-h-svh max-h-svh overflow-hidden md:rounded-tl-xl! md:rounded-tr-xl! md:rounded-bl-none! md:rounded-br-none!">
+        <NavDashboard />
+        <div className="flex flex-1 flex-col overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
