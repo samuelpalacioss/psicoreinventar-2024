@@ -3,15 +3,13 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateSearchParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import {
   createTreatmentMethodSchema,
   listTreatmentMethodsSchema,
 } from "@/lib/api/schemas/simple.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { treatmentMethods } from "@/src/db/schema";
-import { and, count, ilike, or } from "drizzle-orm";
+import { findAllTreatmentMethods, findTreatmentMethodByName, createTreatmentMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -20,11 +18,9 @@ import { StatusCodes } from "http-status-codes";
  * Public access
  */
 export async function GET(request: NextRequest) {
-  // Rate limiting
   const rateLimitResponse = await withRateLimit(request, defaultRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Validate query parameters
   const validationResult = validateSearchParams(
     request.nextUrl.searchParams,
     listTreatmentMethodsSchema
@@ -32,46 +28,13 @@ export async function GET(request: NextRequest) {
   if (!validationResult.success) return validationResult.error;
   const params = validationResult.data;
 
-  // Get pagination params
-  const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
+  const pagination = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    // Build WHERE clause
-    const conditions = [];
-    if (params.search) {
-      conditions.push(
-        or(
-          ilike(treatmentMethods.name, `%${params.search}%`),
-          ilike(treatmentMethods.description, `%${params.search}%`)
-        )
-      );
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    // Get total count
-    const countQuery = db.select({ count: count() }).from(treatmentMethods);
-    if (whereClause) {
-      countQuery.where(whereClause);
-    }
-    const [{ count: totalCount }] = await countQuery;
-
-    // Get paginated data
-    const dataQuery = db.select().from(treatmentMethods).limit(limit).offset(offset);
-    if (whereClause) {
-      dataQuery.where(whereClause);
-    }
-    const data = await dataQuery;
-
-    // Calculate pagination metadata
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
+    const result = await findAllTreatmentMethods({ search: params.search }, pagination);
 
     return NextResponse.json(
-      {
-        success: true,
-        data,
-        pagination,
-      },
+      { success: true, ...result },
       { status: StatusCodes.OK }
     );
   } catch (error) {
@@ -95,11 +58,9 @@ export async function GET(request: NextRequest) {
  * Admin only
  */
 export async function POST(request: NextRequest) {
-  // Rate limiting (strict for mutations)
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Authentication (supports dev token in development mode)
   const session = await getAuthSession(request);
   if (!session?.user) {
     return NextResponse.json(
@@ -116,21 +77,16 @@ export async function POST(request: NextRequest) {
 
   const { id: userId, role } = session.user;
 
-  // Authorization (admin only)
   const authzResult = await checkResourceAccess(userId, role as Role, "treatment-method", "create");
   if (!authzResult.allowed) return authzResult.error;
 
-  // Parse and validate request body
   const body = await request.json().catch(() => ({}));
   const bodyValidationResult = validateBody(body, createTreatmentMethodSchema);
   if (!bodyValidationResult.success) return bodyValidationResult.error;
   const validatedData = bodyValidationResult.data;
 
   try {
-    // Check for duplicate name
-    const existing = await db.query.treatmentMethods.findFirst({
-      where: ilike(treatmentMethods.name, validatedData.name),
-    });
+    const existing = await findTreatmentMethodByName(validatedData.name);
 
     if (existing) {
       return NextResponse.json(
@@ -145,8 +101,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create treatment method
-    const [treatmentMethod] = await db.insert(treatmentMethods).values(validatedData).returning();
+    const treatmentMethod = await createTreatmentMethod(validatedData);
 
     return NextResponse.json(
       {

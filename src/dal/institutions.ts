@@ -8,6 +8,7 @@ export interface InstitutionFilters {
   search?: string;
   type?: string;
   placeId?: number;
+  isVerified?: boolean;
 }
 
 export async function findAllInstitutions(
@@ -25,6 +26,9 @@ export async function findAllInstitutions(
   }
   if (filters.placeId) {
     conds.push(eq(institutions.placeId, filters.placeId));
+  }
+  if (filters.isVerified !== undefined) {
+    conds.push(eq(institutions.isVerified, filters.isVerified));
   }
 
   const whereClause = conds.length > 0 ? and(...conds) : undefined;
@@ -52,6 +56,12 @@ export async function findInstitutionById(id: number) {
 
 export async function findInstitutionByName(name: string) {
   return db.query.institutions.findFirst({ where: ilike(institutions.name, name) });
+}
+
+export async function findInstitutionByNameAndType(name: string, type: string) {
+  return db.query.institutions.findFirst({
+    where: and(ilike(institutions.name, name), eq(institutions.type, type as any)),
+  });
 }
 
 export async function createInstitution(data: typeof institutions.$inferInsert) {

@@ -6,9 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateConditionSchema } from "@/lib/api/schemas/simple.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { conditions } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findConditionById, editCondition, deleteCondition } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -29,9 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const condition = await db.query.conditions.findFirst({
-      where: eq(conditions.id, id),
-    });
+    const condition = await findConditionById(id);
 
     if (!condition) {
       return NextResponse.json(
@@ -79,7 +75,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validatedData = bodyValidationResult.data;
 
   try {
-    const existing = await db.query.conditions.findFirst({ where: eq(conditions.id, id) });
+    const existing = await findConditionById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Condition not found", code: "NOT_FOUND" } },
@@ -87,11 +83,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
-    const [condition] = await db
-      .update(conditions)
-      .set(validatedData)
-      .where(eq(conditions.id, id))
-      .returning();
+    const condition = await editCondition(id, validatedData);
 
     return NextResponse.json(
       { success: true, data: condition, message: "Condition updated successfully" },
@@ -133,7 +125,7 @@ export async function DELETE(
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const existing = await db.query.conditions.findFirst({ where: eq(conditions.id, id) });
+    const existing = await findConditionById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Condition not found", code: "NOT_FOUND" } },
@@ -141,7 +133,7 @@ export async function DELETE(
       );
     }
 
-    await db.delete(conditions).where(eq(conditions.id, id));
+    await deleteCondition(id);
 
     return NextResponse.json(
       { success: true, message: "Condition deleted successfully" },

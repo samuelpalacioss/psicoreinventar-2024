@@ -6,9 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateLanguageSchema } from "@/lib/api/schemas/simple.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { languages } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findLanguageById, editLanguage, deleteLanguage } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -28,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const language = await db.query.languages.findFirst({ where: eq(languages.id, id) });
+    const language = await findLanguageById(id);
     if (!language) {
       return NextResponse.json(
         { success: false, error: { message: "Language not found", code: "NOT_FOUND" } },
@@ -73,7 +71,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validatedData = bodyValidationResult.data;
 
   try {
-    const existing = await db.query.languages.findFirst({ where: eq(languages.id, id) });
+    const existing = await findLanguageById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Language not found", code: "NOT_FOUND" } },
@@ -81,11 +79,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
-    const [language] = await db
-      .update(languages)
-      .set(validatedData)
-      .where(eq(languages.id, id))
-      .returning();
+    const language = await editLanguage(id, validatedData);
     return NextResponse.json(
       { success: true, data: language, message: "Language updated successfully" },
       { status: StatusCodes.OK }
@@ -125,7 +119,7 @@ export async function DELETE(
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const existing = await db.query.languages.findFirst({ where: eq(languages.id, id) });
+    const existing = await findLanguageById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Language not found", code: "NOT_FOUND" } },
@@ -133,7 +127,7 @@ export async function DELETE(
       );
     }
 
-    await db.delete(languages).where(eq(languages.id, id));
+    await deleteLanguage(id);
     return NextResponse.json(
       { success: true, message: "Language deleted successfully" },
       { status: StatusCodes.OK }

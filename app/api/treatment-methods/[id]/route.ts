@@ -6,9 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateTreatmentMethodSchema } from "@/lib/api/schemas/simple.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { treatmentMethods } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findTreatmentMethodById, editTreatmentMethod, deleteTreatmentMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -17,22 +15,18 @@ import { StatusCodes } from "http-status-codes";
  * Public access
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  // Rate limiting
   const rateLimitResponse = await withRateLimit(request, defaultRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
   const resolvedParams = await params;
 
-  // Validate ID parameter
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const treatmentMethod = await db.query.treatmentMethods.findFirst({
-      where: eq(treatmentMethods.id, id),
-    });
+    const treatmentMethod = await findTreatmentMethodById(id);
 
     if (!treatmentMethod) {
       return NextResponse.json(
@@ -75,11 +69,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * Admin only
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  // Rate limiting (strict for mutations)
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Authentication (supports dev token in development mode)
   const session = await getAuthSession(request);
   if (!session?.user) {
     return NextResponse.json(
@@ -96,29 +88,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const { id: userId, role } = session.user;
 
-  // Authorization (admin only)
   const authzResult = await checkResourceAccess(userId, role as Role, "treatment-method", "update");
   if (!authzResult.allowed) return authzResult.error;
 
   const resolvedParams = await params;
 
-  // Validate ID parameter
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
   const id = parseInt(paramsValidationResult.data.id);
 
-  // Parse and validate request body
   const body = await request.json().catch(() => ({}));
   const bodyValidationResult = validateBody(body, updateTreatmentMethodSchema);
   if (!bodyValidationResult.success) return bodyValidationResult.error;
   const validatedData = bodyValidationResult.data;
 
   try {
-    // Check if treatment method exists
-    const existing = await db.query.treatmentMethods.findFirst({
-      where: eq(treatmentMethods.id, id),
-    });
+    const existing = await findTreatmentMethodById(id);
 
     if (!existing) {
       return NextResponse.json(
@@ -133,12 +119,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
-    // Update treatment method
-    const [treatmentMethod] = await db
-      .update(treatmentMethods)
-      .set(validatedData)
-      .where(eq(treatmentMethods.id, id))
-      .returning();
+    const treatmentMethod = await editTreatmentMethod(id, validatedData);
 
     return NextResponse.json(
       {
@@ -172,11 +153,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Rate limiting (strict for mutations)
   const rateLimitResponse = await withRateLimit(request, strictRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Authentication (supports dev token in development mode)
   const session = await getAuthSession(request);
   if (!session?.user) {
     return NextResponse.json(
@@ -193,23 +172,18 @@ export async function DELETE(
 
   const { id: userId, role } = session.user;
 
-  // Authorization (admin only)
   const authzResult = await checkResourceAccess(userId, role as Role, "treatment-method", "delete");
   if (!authzResult.allowed) return authzResult.error;
 
   const resolvedParams = await params;
 
-  // Validate ID parameter
   const paramsValidationResult = validateParams(resolvedParams, idParamSchema);
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    // Check if treatment method exists
-    const existing = await db.query.treatmentMethods.findFirst({
-      where: eq(treatmentMethods.id, id),
-    });
+    const existing = await findTreatmentMethodById(id);
 
     if (!existing) {
       return NextResponse.json(
@@ -224,8 +198,7 @@ export async function DELETE(
       );
     }
 
-    // Delete treatment method (CASCADE will handle related records)
-    await db.delete(treatmentMethods).where(eq(treatmentMethods.id, id));
+    await deleteTreatmentMethod(id);
 
     return NextResponse.json(
       {

@@ -3,12 +3,10 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateSearchParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
-import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
+import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createLanguageSchema, listLanguagesSchema } from "@/lib/api/schemas/simple.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { languages } from "@/src/db/schema";
-import { and, count, ilike } from "drizzle-orm";
+import { findAllLanguages, findLanguageByName, createLanguage } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -25,27 +23,12 @@ export async function GET(request: NextRequest) {
   if (!validationResult.success) return validationResult.error;
   const params = validationResult.data;
 
-  const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);
+  const pagination = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    const conditions = [];
-    if (params.search) {
-      conditions.push(ilike(languages.name, `%${params.search}%`));
-    }
+    const result = await findAllLanguages({ search: params.search }, pagination);
 
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    const countQuery = db.select({ count: count() }).from(languages);
-    if (whereClause) countQuery.where(whereClause);
-    const [{ count: totalCount }] = await countQuery;
-
-    const dataQuery = db.select().from(languages).limit(limit).offset(offset);
-    if (whereClause) dataQuery.where(whereClause);
-    const data = await dataQuery;
-
-    const pagination = calculatePaginationMetadata(page, limit, totalCount);
-
-    return NextResponse.json({ success: true, data, pagination }, { status: StatusCodes.OK });
+    return NextResponse.json({ success: true, ...result }, { status: StatusCodes.OK });
   } catch (error) {
     console.error("Error fetching languages:", error);
     return NextResponse.json(
@@ -83,9 +66,7 @@ export async function POST(request: NextRequest) {
   const validatedData = bodyValidationResult.data;
 
   try {
-    const existing = await db.query.languages.findFirst({
-      where: ilike(languages.name, validatedData.name),
-    });
+    const existing = await findLanguageByName(validatedData.name);
 
     if (existing) {
       return NextResponse.json(
@@ -97,7 +78,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const [language] = await db.insert(languages).values(validatedData).returning();
+    const language = await createLanguage(validatedData);
 
     return NextResponse.json(
       { success: true, data: language, message: "Language created successfully" },

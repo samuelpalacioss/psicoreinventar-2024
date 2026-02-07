@@ -6,9 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updateInstitutionSchema } from "@/lib/api/schemas/simple.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { institutions } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findInstitutionById, editInstitution, deleteInstitution } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -28,10 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const institution = await db.query.institutions.findFirst({
-      where: eq(institutions.id, id),
-      with: { place: true },
-    });
+    const institution = await findInstitutionById(id);
 
     if (!institution) {
       return NextResponse.json(
@@ -84,7 +79,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validatedData = bodyValidationResult.data;
 
   try {
-    const existing = await db.query.institutions.findFirst({ where: eq(institutions.id, id) });
+    const existing = await findInstitutionById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Institution not found", code: "NOT_FOUND" } },
@@ -98,11 +93,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       delete updateData.isVerified;
     }
 
-    const [institution] = await db
-      .update(institutions)
-      .set(updateData)
-      .where(eq(institutions.id, id))
-      .returning();
+    const institution = await editInstitution(id, updateData);
 
     return NextResponse.json(
       { success: true, data: institution, message: "Institution updated successfully" },
@@ -149,7 +140,7 @@ export async function DELETE(
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const existing = await db.query.institutions.findFirst({ where: eq(institutions.id, id) });
+    const existing = await findInstitutionById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Institution not found", code: "NOT_FOUND" } },
@@ -157,7 +148,7 @@ export async function DELETE(
       );
     }
 
-    await db.delete(institutions).where(eq(institutions.id, id));
+    await deleteInstitution(id);
 
     return NextResponse.json(
       { success: true, message: "Institution deleted successfully" },

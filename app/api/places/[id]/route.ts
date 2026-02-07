@@ -6,9 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { updatePlaceSchema } from "@/lib/api/schemas/simple.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { Role } from "@/types/enums";
-import db from "@/src/db";
-import { places } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { findPlaceById, editPlace, deletePlace } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -28,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const place = await db.query.places.findFirst({ where: eq(places.id, id) });
+    const place = await findPlaceById(id);
     if (!place) {
       return NextResponse.json(
         { success: false, error: { message: "Place not found", code: "NOT_FOUND" } },
@@ -79,7 +77,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const validatedData = bodyValidationResult.data;
 
   try {
-    const existing = await db.query.places.findFirst({ where: eq(places.id, id) });
+    const existing = await findPlaceById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Place not found", code: "NOT_FOUND" } },
@@ -87,7 +85,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
-    const [place] = await db.update(places).set(validatedData).where(eq(places.id, id)).returning();
+    const place = await editPlace(id, validatedData);
     return NextResponse.json(
       { success: true, data: place, message: "Place updated successfully" },
       { status: StatusCodes.OK }
@@ -133,7 +131,7 @@ export async function DELETE(
   const id = parseInt(paramsValidationResult.data.id);
 
   try {
-    const existing = await db.query.places.findFirst({ where: eq(places.id, id) });
+    const existing = await findPlaceById(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Place not found", code: "NOT_FOUND" } },
@@ -141,7 +139,7 @@ export async function DELETE(
       );
     }
 
-    await db.delete(places).where(eq(places.id, id));
+    await deletePlace(id);
     return NextResponse.json(
       { success: true, message: "Place deleted successfully" },
       { status: StatusCodes.OK }
