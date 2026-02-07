@@ -1,7 +1,7 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import "./theme.css";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

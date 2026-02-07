@@ -5,7 +5,7 @@ import { validateBody, validateSearchParams } from "@/utils/api/middleware/valid
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import { createDoctorSchema, listDoctorsSchema } from "@/lib/api/schemas/doctor.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findAllDoctors,
   findDoctorByUserId,

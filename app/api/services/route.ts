@@ -5,7 +5,7 @@ import { validateBody, validateSearchParams } from "@/utils/api/middleware/valid
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createServiceSchema, listServicesSchema } from "@/lib/api/schemas/simple.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findAllServices, findServiceByName, createService } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

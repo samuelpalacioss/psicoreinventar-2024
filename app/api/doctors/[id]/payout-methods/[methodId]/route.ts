@@ -4,7 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updatePayoutMethodSchema } from "@/lib/api/schemas/doctor.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findDoctorPayoutMethod,
   editDoctorPayoutMethod,

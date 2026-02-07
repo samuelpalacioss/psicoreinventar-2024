@@ -4,7 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findPaymentPersonId, findPaymentById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

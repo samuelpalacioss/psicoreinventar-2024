@@ -3,7 +3,7 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { userIdParamSchema } from "@/lib/api/schemas/common.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findUserById, findUserPersonProfile, findUserDoctorProfile } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

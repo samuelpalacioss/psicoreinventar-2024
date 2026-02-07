@@ -5,7 +5,7 @@ import { validateBody, validateParams } from "@/utils/api/middleware/validation"
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateTreatmentMethodSchema } from "@/lib/api/schemas/simple.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findTreatmentMethodById, editTreatmentMethod, deleteTreatmentMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 /**
  * Session type matching your better-auth session structure

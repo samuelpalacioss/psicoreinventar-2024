@@ -5,7 +5,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, buttonVariants } from "./ui/button";
-import { MainNavItem } from "@/types";
+import { MainNavItem } from "@/src/types";
 import { User } from "@/lib/auth/auth";
 import UserDropdown from "./user-dropdown";
 import {

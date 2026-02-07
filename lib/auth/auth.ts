@@ -4,7 +4,7 @@ import db from "@/src/db";
 import { users, sessions, accounts, verifications } from "@/src/db/schema";
 import { env } from "../../utils/env";
 import { nextCookies } from "better-auth/next-js";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { authContext } from "./auth-context";
 import { hashPassword, verifyPassword } from "@/utils/bcrypt";
 

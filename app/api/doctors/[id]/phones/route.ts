@@ -6,7 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { doctorPhoneSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findDoctorById, findDoctorPhones, createDoctorPhone } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

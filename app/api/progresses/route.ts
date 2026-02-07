@@ -5,7 +5,7 @@ import { validateBody, validateSearchParams } from "@/utils/api/middleware/valid
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createProgressSchema, listProgressSchema } from "@/lib/api/schemas/progress.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findPersonByUserId,
   findDoctorByUserId,

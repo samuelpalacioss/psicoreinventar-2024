@@ -8,7 +8,7 @@ import {
   cardPaymentMethodFields,
   pagoMovilPaymentMethodFields,
 } from "@/lib/api/schemas/payment.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findPersonById,
   findPersonPaymentMethod,

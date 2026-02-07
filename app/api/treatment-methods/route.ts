@@ -8,7 +8,7 @@ import {
   createTreatmentMethodSchema,
   listTreatmentMethodsSchema,
 } from "@/lib/api/schemas/simple.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findAllTreatmentMethods, findTreatmentMethodByName, createTreatmentMethod } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

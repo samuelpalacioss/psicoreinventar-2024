@@ -4,7 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { updateDoctorConditionSchema } from "@/lib/api/schemas/doctor.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import db from "@/src/db";
 import { doctorConditions } from "@/src/db/schema";
 import { and, eq } from "drizzle-orm";

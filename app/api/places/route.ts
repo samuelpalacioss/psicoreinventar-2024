@@ -5,7 +5,7 @@ import { validateBody, validateSearchParams } from "@/utils/api/middleware/valid
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createPlaceSchema, listPlacesSchema } from "@/lib/api/schemas/simple.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findAllPlaces, findPlaceByNameAndType, createPlace } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 

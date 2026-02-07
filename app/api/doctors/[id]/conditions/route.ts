@@ -6,7 +6,7 @@ import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/mi
 import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { addDoctorConditionSchema } from "@/lib/api/schemas/doctor.schemas";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findDoctorById,
   findDoctorConditions,

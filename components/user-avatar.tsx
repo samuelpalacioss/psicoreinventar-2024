@@ -1,4 +1,4 @@
-import { User } from '@/types';
+import { User } from '@/src/types';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 

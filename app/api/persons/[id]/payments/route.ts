@@ -4,7 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateParams, validateSearchParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema, paginationSchema } from "@/lib/api/schemas/common.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findPersonById, findPatientPayments } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import { getPaginationParams } from "@/utils/api/pagination/paginate";

@@ -5,7 +5,6 @@ import { validateParams, validateSearchParams } from "@/utils/api/middleware/val
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema } from "@/lib/api/schemas/common.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import { Role } from "@/types/enums";
 import db from "@/src/db";
 import { appointments } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
@@ -57,11 +56,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const doctorId = parseInt(paramsValidationResult.data.id);
 
   // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role as Role, "doctor", "read", doctorId);
+  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
   if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
-  const queryValidationResult = validateSearchParams(request.nextUrl.searchParams, listDoctorAppointmentsSchema);
+  const queryValidationResult = validateSearchParams(
+    request.nextUrl.searchParams,
+    listDoctorAppointmentsSchema
+  );
   if (!queryValidationResult.success) return queryValidationResult.error;
   const queryParams = queryValidationResult.data;
 

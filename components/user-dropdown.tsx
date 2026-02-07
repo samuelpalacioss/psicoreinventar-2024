@@ -12,7 +12,7 @@ import UserAvatar from './user-avatar';
 import Link from 'next/link';
 import { Icons } from './icons';
 import { dashboardConfig } from '@/config/dashboard';
-import { Role } from '@/types/enums';
+import { Role } from '@/src/types';
 
 interface UserDropdownProps {
   children?: React.ReactNode;

@@ -4,7 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody, validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { personPhoneSchema } from "@/lib/api/schemas/person.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findPersonPhone, editPersonPhone, deletePersonPhone } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";

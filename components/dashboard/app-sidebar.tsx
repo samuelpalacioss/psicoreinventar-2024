@@ -12,7 +12,7 @@ import {
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import { dashboardConfig } from "@/config/dashboard";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 import Link from "next/link";
 

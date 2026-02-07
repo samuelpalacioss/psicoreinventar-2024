@@ -9,7 +9,7 @@ import {
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { idParamSchema, paginationSchema } from "@/lib/api/schemas/common.schemas";
 import { createProgressSchema } from "@/lib/api/schemas/simple.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findPersonById,
   findPatientProgresses,

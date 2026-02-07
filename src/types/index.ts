@@ -1,6 +1,5 @@
 import { Icons } from "@/components/icons";
 import type { Icon } from "@/components/icons";
-import { Role } from "./enums";
 
 export type MainNavSubItem = {
   href: string;
@@ -25,6 +24,12 @@ export type FeatureItem = {
 export type StatItem = {
   description: string;
   value: string;
+};
+
+export type StepItem = {
+  title: string;
+  description: string;
+  cta?: string;
 };
 
 export type TestimonialItem = {
@@ -79,3 +84,13 @@ export type User = {
   email?: string | null;
   image?: string | null;
 };
+
+
+
+export const Role = {
+  PATIENT: "patient",
+  DOCTOR: "doctor",
+  ADMIN: "admin",
+} as const;
+
+export type Role = (typeof Role)[keyof typeof Role];

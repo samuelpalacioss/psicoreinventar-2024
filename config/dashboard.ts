@@ -1,6 +1,6 @@
-import { DashboardConfig, SidebarNavItem } from "@/types";
+import { DashboardConfig, SidebarNavItem } from "@/src/types";
 import { Icons } from "@/components/icons";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 const navItems = {
   overview: {

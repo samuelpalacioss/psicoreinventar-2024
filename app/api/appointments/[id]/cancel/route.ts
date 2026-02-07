@@ -4,7 +4,7 @@ import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateBody } from "@/utils/api/middleware/validation";
 import { withRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { cancelAppointmentSchema } from "@/lib/api/schemas/appointment.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findAppointmentByIdBasic,
   cancelAppointment,

@@ -1,4 +1,4 @@
-import { StatItem } from '@/types';
+import { StatItem } from '@/src/types';
 
 interface StatsProps extends React.HTMLAttributes<HTMLDivElement> {
   stats: StatItem[];

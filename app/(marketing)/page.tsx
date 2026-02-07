@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { CircleBackground } from "@/components/circle-background";
 import Container from "@/components/container";
-import { FeatureItem } from "@/types";
+import { FeatureItem } from "@/src/types";
 import { marketingConfig } from "@/config/marketing";
 import SpecialtiesSection from "@/components/specialties-section";
 import FAQHomepage from "@/components/faq-homepage";

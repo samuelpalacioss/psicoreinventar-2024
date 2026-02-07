@@ -8,7 +8,7 @@ import {
   createAppointmentSchema,
   listAppointmentsSchema,
 } from "@/lib/api/schemas/appointment.schemas";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import {
   findAllAppointments,
   findPersonByUserId,

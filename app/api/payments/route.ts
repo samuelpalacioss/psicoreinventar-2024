@@ -5,7 +5,7 @@ import { validateBody, validateSearchParams } from "@/utils/api/middleware/valid
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { listPaymentsSchema, createPaymentSchema } from "@/lib/api/schemas/payment.schemas";
 import { getPaginationParams, calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import db from "@/src/db";
 import { paymentMethods, payoutMethods } from "@/src/db/schema";
 import { eq } from "drizzle-orm";

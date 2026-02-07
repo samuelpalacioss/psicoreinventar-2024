@@ -3,7 +3,7 @@ import { getAuthSession } from "@/utils/api/middleware/auth";
 import { checkResourceAccess } from "@/utils/api/authorization/guards";
 import { validateParams } from "@/utils/api/middleware/validation";
 import { withRateLimit, defaultRateLimit } from "@/utils/api/middleware/ratelimit";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import { findPersonById, findPaymentById } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 import * as z from "zod";

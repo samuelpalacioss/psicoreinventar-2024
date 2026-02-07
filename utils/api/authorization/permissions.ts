@@ -1,4 +1,4 @@
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 /**
  * Permission matrix defining access control for all resources

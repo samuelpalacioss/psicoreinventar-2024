@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { tryCatch } from "@/utils/tryCatch";
 import { authContext } from "@/lib/auth/auth-context";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 async function signUpAction(formData: FormData, role: Role) {
   const data = {

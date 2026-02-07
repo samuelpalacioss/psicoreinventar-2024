@@ -1,7 +1,7 @@
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import SignOutButton from "@/components/sign-out-button";
 import { getServerSession } from "@/lib/auth/session";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 // const boilerplateUser = {
 //   name: "Samuel Palacios",

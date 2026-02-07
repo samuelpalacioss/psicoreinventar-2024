@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "async_hooks";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 
 interface AuthContext {
   role: Role;

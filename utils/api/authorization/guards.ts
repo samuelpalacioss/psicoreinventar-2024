@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Role } from "@/types/enums";
+import { Role } from "@/src/types";
 import db from "@/src/db";
 import { and, eq } from "drizzle-orm";
 import {
