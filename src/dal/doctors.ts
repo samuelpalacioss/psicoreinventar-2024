@@ -1,7 +1,6 @@
 import db from "@/src/db";
 import {
   doctors,
-  places,
   phones,
   schedules,
   educations,
@@ -17,7 +16,7 @@ import {
 } from "@/src/db/schema";
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 // ============================================================================
 // FILTERS
@@ -33,16 +32,26 @@ export interface DoctorFilters {
   treatmentMethodId?: number;
 }
 
+export interface DoctorQueryOptions<T = any> extends QueryOptions<T> {
+  includePlace?: boolean;
+  includeStats?: boolean;
+  includeConditions?: boolean;
+}
+
 // ============================================================================
 // CORE
 // ============================================================================
 
-export async function findAllDoctors(
+export async function findAllDoctors<
+  const T extends { [K in keyof typeof doctors.$inferSelect]?: boolean }
+>(
   filters: DoctorFilters,
   pagination: PaginationParams,
-  restrictToIds?: number[]
+  restrictToIds?: number[],
+  options: DoctorQueryOptions<T> = {}
 ) {
   const { page, limit, offset } = pagination;
+  const { columns, includePlace, includeStats, includeConditions } = options;
 
   const conditions = [];
 
@@ -114,89 +123,89 @@ export async function findAllDoctors(
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const dataQuery = db
-    .select({
-      id: doctors.id,
-      userId: doctors.userId,
-      ci: doctors.ci,
-      firstName: doctors.firstName,
-      middleName: doctors.middleName,
-      firstLastName: doctors.firstLastName,
-      secondLastName: doctors.secondLastName,
-      birthDate: doctors.birthDate,
-      address: doctors.address,
-      placeId: doctors.placeId,
-      biography: doctors.biography,
-      firstSessionExpectation: doctors.firstSessionExpectation,
-      biggestStrengths: doctors.biggestStrengths,
-      isActive: doctors.isActive,
-      createdAt: doctors.createdAt,
-      updatedAt: doctors.updatedAt,
-      place: {
-        id: places.id,
-        name: places.name,
-      },
-    })
-    .from(doctors)
-    .leftJoin(places, eq(doctors.placeId, places.id))
-    .limit(limit)
-    .offset(offset);
+  // Use db.query with dynamic columns
+  const queryOptions: any = {
+    where: whereClause,
+    limit,
+    offset,
+  };
 
-  if (whereClause) dataQuery.where(whereClause);
-  const data = await dataQuery;
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  if (includePlace) {
+    queryOptions.with = {
+      place: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+    };
+  }
+
+  const data = await db.query.doctors.findMany(queryOptions);
 
   // If no doctors found, return early
   if (data.length === 0) {
     return { data: [], pagination: calculatePaginationMetadata(page, limit, totalCount) };
   }
 
-  // Fetch aggregated stats for each doctor
+  // Type-safe enriched data
+  let enrichedData: any[] = data;
   const doctorIds = data.map((d) => d.id);
 
-  // Get review stats for all doctors
-  const reviewStats = await db
-    .select({
-      doctorId: reviews.doctorId,
-      averageScore: sql<number>`COALESCE(AVG(${reviews.score}), 0)`,
-      totalReviews: count(reviews.id),
-    })
-    .from(reviews)
-    .where(sql`${reviews.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`)
-    .groupBy(reviews.doctorId);
+  // Conditionally fetch stats
+  if (includeStats) {
+    const reviewStats = await db
+      .select({
+        doctorId: reviews.doctorId,
+        averageScore: sql<number>`COALESCE(AVG(${reviews.score}), 0)`,
+        totalReviews: count(reviews.id),
+      })
+      .from(reviews)
+      .where(sql`${reviews.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`)
+      .groupBy(reviews.doctorId);
 
-  // Get conditions for all doctors
-  const doctorConditionsData = await db
-    .select({
-      doctorId: doctorConditions.doctorId,
-      conditionId: doctorConditions.conditionId,
-      conditionName: conditionsTable.name,
-    })
-    .from(doctorConditions)
-    .leftJoin(conditionsTable, eq(doctorConditions.conditionId, conditionsTable.id))
-    .where(sql`${doctorConditions.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`);
+    const reviewStatsMap = new Map(reviewStats.map((r) => [r.doctorId, r]));
 
-  // Map stats to doctors
-  const reviewStatsMap = new Map(reviewStats.map((r) => [r.doctorId, r]));
-  const conditionsMap = new Map<number, string[]>();
+    enrichedData = enrichedData.map((doctor) => ({
+      ...doctor,
+      stats: {
+        averageScore: reviewStatsMap.get(doctor.id)?.averageScore || 0,
+        totalReviews: reviewStatsMap.get(doctor.id)?.totalReviews || 0,
+      },
+    }));
+  }
 
-  doctorConditionsData.forEach((dc) => {
-    if (!conditionsMap.has(dc.doctorId)) {
-      conditionsMap.set(dc.doctorId, []);
-    }
-    if (dc.conditionName) {
-      conditionsMap.get(dc.doctorId)!.push(dc.conditionName);
-    }
-  });
+  // Conditionally fetch conditions
+  if (includeConditions) {
+    const doctorConditionsData = await db
+      .select({
+        doctorId: doctorConditions.doctorId,
+        conditionId: doctorConditions.conditionId,
+        conditionName: conditionsTable.name,
+      })
+      .from(doctorConditions)
+      .leftJoin(conditionsTable, eq(doctorConditions.conditionId, conditionsTable.id))
+      .where(sql`${doctorConditions.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`);
 
-  // Enrich data with stats
-  const enrichedData = data.map((doctor) => ({
-    ...doctor,
-    stats: {
-      averageScore: reviewStatsMap.get(doctor.id)?.averageScore || 0,
-      totalReviews: reviewStatsMap.get(doctor.id)?.totalReviews || 0,
-    },
-    conditions: conditionsMap.get(doctor.id) || [],
-  }));
+    const conditionsMap = new Map<number, string[]>();
+    doctorConditionsData.forEach((dc) => {
+      if (!conditionsMap.has(dc.doctorId)) {
+        conditionsMap.set(dc.doctorId, []);
+      }
+      if (dc.conditionName) {
+        conditionsMap.get(dc.doctorId)!.push(dc.conditionName);
+      }
+    });
+
+    enrichedData = enrichedData.map((doctor) => ({
+      ...doctor,
+      conditions: conditionsMap.get(doctor.id) || [],
+    }));
+  }
 
   return { data: enrichedData, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

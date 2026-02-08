@@ -2,14 +2,19 @@ import db from "@/src/db";
 import { services } from "@/src/db/schema";
 import { and, count, ilike, or, eq } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 export interface ServiceFilters {
   search?: string;
 }
 
-export async function findAllServices(filters: ServiceFilters, pagination: PaginationParams) {
+export interface ServiceQueryOptions<T = any> extends QueryOptions<T> {}
+
+export async function findAllServices<
+  const T extends { [K in keyof typeof services.$inferSelect]?: boolean }
+>(filters: ServiceFilters, pagination: PaginationParams, options: ServiceQueryOptions<T> = {}) {
   const { page, limit, offset } = pagination;
+  const { columns } = options;
 
   const conds = [];
   if (filters.search) {
@@ -27,9 +32,17 @@ export async function findAllServices(filters: ServiceFilters, pagination: Pagin
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const dataQuery = db.select().from(services).limit(limit).offset(offset);
-  if (whereClause) dataQuery.where(whereClause);
-  const data = await dataQuery;
+  const queryOptions: any = {
+    where: whereClause,
+    limit,
+    offset,
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  const data = await db.query.services.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

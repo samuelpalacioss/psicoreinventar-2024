@@ -1,7 +1,6 @@
 import db from "@/src/db";
 import {
   persons,
-  places,
   phones,
   appointments,
   payments,
@@ -11,7 +10,7 @@ import {
 } from "@/src/db/schema";
 import { and, count, eq, gte, ilike, lte, or } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 // ============================================================================
 // FILTERS
@@ -23,12 +22,19 @@ export interface PersonFilters {
   isActive?: boolean;
 }
 
+export interface PersonQueryOptions<T = any> extends QueryOptions<T> {
+  includePlace?: boolean;
+}
+
 // ============================================================================
 // CORE
 // ============================================================================
 
-export async function findAllPersons(filters: PersonFilters, pagination: PaginationParams) {
+export async function findAllPersons<
+  const T extends { [K in keyof typeof persons.$inferSelect]?: boolean }
+>(filters: PersonFilters, pagination: PaginationParams, options: PersonQueryOptions<T> = {}) {
   const { page, limit, offset } = pagination;
+  const { columns, includePlace } = options;
 
   const conditions = [];
 
@@ -57,33 +63,28 @@ export async function findAllPersons(filters: PersonFilters, pagination: Paginat
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const dataQuery = db
-    .select({
-      id: persons.id,
-      userId: persons.userId,
-      ci: persons.ci,
-      firstName: persons.firstName,
-      middleName: persons.middleName,
-      firstLastName: persons.firstLastName,
-      secondLastName: persons.secondLastName,
-      birthDate: persons.birthDate,
-      address: persons.address,
-      placeId: persons.placeId,
-      isActive: persons.isActive,
-      createdAt: persons.createdAt,
-      updatedAt: persons.updatedAt,
-      place: {
-        id: places.id,
-        name: places.name,
-      },
-    })
-    .from(persons)
-    .leftJoin(places, eq(persons.placeId, places.id))
-    .limit(limit)
-    .offset(offset);
+  const queryOptions: any = {
+    where: whereClause,
+    limit,
+    offset,
+  };
 
-  if (whereClause) dataQuery.where(whereClause);
-  const data = await dataQuery;
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  if (includePlace) {
+    queryOptions.with = {
+      place: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+    };
+  }
+
+  const data = await db.query.persons.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

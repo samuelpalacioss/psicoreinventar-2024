@@ -2,7 +2,7 @@ import db from "@/src/db";
 import { institutions } from "@/src/db/schema";
 import { and, count, ilike, eq } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 export interface InstitutionFilters {
   search?: string;
@@ -11,11 +11,19 @@ export interface InstitutionFilters {
   isVerified?: boolean;
 }
 
-export async function findAllInstitutions(
+export interface InstitutionQueryOptions<T = any> extends QueryOptions<T> {
+  includePlace?: boolean;
+}
+
+export async function findAllInstitutions<
+  const T extends { [K in keyof typeof institutions.$inferSelect]?: boolean }
+>(
   filters: InstitutionFilters,
-  pagination: PaginationParams
+  pagination: PaginationParams,
+  options: InstitutionQueryOptions<T> = {}
 ) {
   const { page, limit, offset } = pagination;
+  const { columns, includePlace = true } = options;
 
   const conds = [];
   if (filters.search) {
@@ -37,12 +45,21 @@ export async function findAllInstitutions(
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const data = await db.query.institutions.findMany({
+  const queryOptions: any = {
     where: whereClause,
     limit,
     offset,
-    with: { place: true },
-  });
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  if (includePlace) {
+    queryOptions.with = { place: true };
+  }
+
+  const data = await db.query.institutions.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

@@ -86,8 +86,12 @@ export async function GET(request: NextRequest) {
     }
     // Admin sees all (no additional filter)
 
-    // Get doctors using DAL
-    const result = await findAllDoctors(filters, { page, limit, offset }, restrictToIds);
+    // Get doctors using DAL with aggregated data
+    const result = await findAllDoctors(filters, { page, limit, offset }, restrictToIds, {
+      includePlace: true,
+      includeStats: true,
+      includeConditions: true,
+    });
 
     return NextResponse.json(
       {

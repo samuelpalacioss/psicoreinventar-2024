@@ -2,7 +2,7 @@ import db from "@/src/db";
 import { progresses } from "@/src/db/schema";
 import { and, count, eq } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 // ============================================================================
 // FILTERS
@@ -15,15 +15,32 @@ export interface ProgressFilters {
   conditionId?: number;
 }
 
+export interface ProgressQueryOptions<T = any> extends QueryOptions<T> {
+  includePatient?: boolean;
+  includeDoctor?: boolean;
+  includeAppointment?: boolean;
+  includeCondition?: boolean;
+}
+
 // ============================================================================
 // CORE
 // ============================================================================
 
-export async function findAllProgresses(
+export async function findAllProgresses<
+  const T extends { [K in keyof typeof progresses.$inferSelect]?: boolean }
+>(
   filters: ProgressFilters,
-  pagination: PaginationParams
+  pagination: PaginationParams,
+  options: ProgressQueryOptions<T> = {}
 ) {
   const { page, limit, offset } = pagination;
+  const {
+    columns,
+    includePatient = true,
+    includeDoctor = true,
+    includeAppointment = true,
+    includeCondition = true,
+  } = options;
 
   const conditions = [];
 
@@ -46,34 +63,52 @@ export async function findAllProgresses(
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const data = await db.query.progresses.findMany({
+  const queryOptions: any = {
     where: whereClause,
     limit,
     offset,
-    orderBy: (p, { desc }) => [desc(p.createdAt)],
-    with: {
-      person: {
-        columns: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          firstLastName: true,
-          secondLastName: true,
-        },
+    orderBy: (p: any, { desc }: any) => [desc(p.createdAt)],
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  const withOptions: any = {};
+  if (includePatient) {
+    withOptions.person = {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
       },
-      doctor: {
-        columns: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          firstLastName: true,
-          secondLastName: true,
-        },
+    };
+  }
+  if (includeDoctor) {
+    withOptions.doctor = {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
       },
-      appointment: { columns: { id: true, startDateTime: true, status: true } },
-      condition: { columns: { id: true, name: true } },
-    },
-  });
+    };
+  }
+  if (includeAppointment) {
+    withOptions.appointment = { columns: { id: true, startDateTime: true, status: true } };
+  }
+  if (includeCondition) {
+    withOptions.condition = { columns: { id: true, name: true } };
+  }
+
+  if (Object.keys(withOptions).length > 0) {
+    queryOptions.with = withOptions;
+  }
+
+  const data = await db.query.progresses.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

@@ -2,7 +2,7 @@ import db from "@/src/db";
 import { appointments, payments } from "@/src/db/schema";
 import { and, count, eq, gte, isNull, lte, gt, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 // ============================================================================
 // FILTERS
@@ -16,15 +16,32 @@ export interface AppointmentFilters {
   endDate?: string;
 }
 
+export interface AppointmentQueryOptions<T = any> extends QueryOptions<T> {
+  includePatient?: boolean;
+  includeDoctor?: boolean;
+  includeDoctorService?: boolean;
+  includePayment?: boolean;
+}
+
 // ============================================================================
 // CORE
 // ============================================================================
 
-export async function findAllAppointments(
+export async function findAllAppointments<
+  const T extends { [K in keyof typeof appointments.$inferSelect]?: boolean }
+>(
   filters: AppointmentFilters,
-  pagination: PaginationParams
+  pagination: PaginationParams,
+  options: AppointmentQueryOptions<T> = {}
 ) {
   const { page, limit, offset } = pagination;
+  const {
+    columns,
+    includePatient = true,
+    includeDoctor = true,
+    includeDoctorService = true,
+    includePayment = true,
+  } = options;
 
   const conditions = [];
 
@@ -50,34 +67,52 @@ export async function findAllAppointments(
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const data = await db.query.appointments.findMany({
+  const queryOptions: any = {
     where: whereClause,
     limit,
     offset,
-    orderBy: (a, { desc }) => [desc(a.startDateTime)],
-    with: {
-      person: {
-        columns: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          firstLastName: true,
-          secondLastName: true,
-        },
+    orderBy: (a: any, { desc }: any) => [desc(a.startDateTime)],
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  const withOptions: any = {};
+  if (includePatient) {
+    withOptions.person = {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
       },
-      doctor: {
-        columns: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          firstLastName: true,
-          secondLastName: true,
-        },
+    };
+  }
+  if (includeDoctor) {
+    withOptions.doctor = {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
       },
-      doctorService: { with: { service: true } },
-      payment: { columns: { id: true, amount: true, date: true } },
-    },
-  });
+    };
+  }
+  if (includeDoctorService) {
+    withOptions.doctorService = { with: { service: true } };
+  }
+  if (includePayment) {
+    withOptions.payment = { columns: { id: true, amount: true, date: true } };
+  }
+
+  if (Object.keys(withOptions).length > 0) {
+    queryOptions.with = withOptions;
+  }
+
+  const data = await db.query.appointments.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }
@@ -209,10 +244,7 @@ export async function createAppointmentWithPayment(data: {
   });
 }
 
-export async function editAppointment(
-  id: number,
-  data: Partial<typeof appointments.$inferInsert>
-) {
+export async function editAppointment(id: number, data: Partial<typeof appointments.$inferInsert>) {
   const [appointment] = await db
     .update(appointments)
     .set({ ...data, updatedAt: new Date() })

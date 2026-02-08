@@ -2,7 +2,7 @@ import db from "@/src/db";
 import { payments, paymentMethods, appointments } from "@/src/db/schema";
 import { and, count, eq, gte, inArray, lte } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 // ============================================================================
 // FILTERS
@@ -16,16 +16,24 @@ export interface PaymentFilters {
   maxAmount?: number;
 }
 
+export interface PaymentQueryOptions<T = any> extends QueryOptions<T> {
+  includePaymentMethod?: boolean;
+}
+
 // ============================================================================
 // CORE
 // ============================================================================
 
-export async function findAllPayments(
+export async function findAllPayments<
+  const T extends { [K in keyof typeof payments.$inferSelect]?: boolean }
+>(
   filters: PaymentFilters,
   pagination: PaginationParams,
-  restrictToPersonIds?: number[]
+  restrictToPersonIds?: number[],
+  options: PaymentQueryOptions<T> = {}
 ) {
   const { page, limit, offset } = pagination;
+  const { columns, includePaymentMethod = true } = options;
 
   const conditions = [];
 
@@ -57,32 +65,34 @@ export async function findAllPayments(
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const data = await db
-    .select({
-      id: payments.id,
-      personId: payments.personId,
-      paymentMethodId: payments.paymentMethodId,
-      payoutMethodId: payments.payoutMethodId,
-      amount: payments.amount,
-      date: payments.date,
-      createdAt: payments.createdAt,
-      updatedAt: payments.updatedAt,
+  const queryOptions: any = {
+    where: whereClause,
+    limit,
+    offset,
+    orderBy: (p: any, { asc }: any) => [asc(p.date)],
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  if (includePaymentMethod) {
+    queryOptions.with = {
       paymentMethod: {
-        id: paymentMethods.id,
-        type: paymentMethods.type,
-        cardLast4: paymentMethods.cardLast4,
-        cardHolderName: paymentMethods.cardHolderName,
-        cardBrand: paymentMethods.cardBrand,
-        pagoMovilPhone: paymentMethods.pagoMovilPhone,
-        pagoMovilBankCode: paymentMethods.pagoMovilBankCode,
+        columns: {
+          id: true,
+          type: true,
+          cardLast4: true,
+          cardHolderName: true,
+          cardBrand: true,
+          pagoMovilPhone: true,
+          pagoMovilBankCode: true,
+        },
       },
-    })
-    .from(payments)
-    .leftJoin(paymentMethods, eq(payments.paymentMethodId, paymentMethods.id))
-    .where(whereClause)
-    .orderBy(payments.date)
-    .limit(limit)
-    .offset(offset);
+    };
+  }
+
+  const data = await db.query.payments.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

@@ -2,14 +2,19 @@ import db from "@/src/db";
 import { conditions } from "@/src/db/schema";
 import { and, count, ilike, eq } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 export interface ConditionFilters {
   search?: string;
 }
 
-export async function findAllConditions(filters: ConditionFilters, pagination: PaginationParams) {
+export interface ConditionQueryOptions<T = any> extends QueryOptions<T> {}
+
+export async function findAllConditions<
+  const T extends { [K in keyof typeof conditions.$inferSelect]?: boolean }
+>(filters: ConditionFilters, pagination: PaginationParams, options: ConditionQueryOptions<T> = {}) {
   const { page, limit, offset } = pagination;
+  const { columns } = options;
 
   const conds = [];
   if (filters.search) {
@@ -22,9 +27,17 @@ export async function findAllConditions(filters: ConditionFilters, pagination: P
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const dataQuery = db.select().from(conditions).limit(limit).offset(offset);
-  if (whereClause) dataQuery.where(whereClause);
-  const data = await dataQuery;
+  const queryOptions: any = {
+    where: whereClause,
+    limit,
+    offset,
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  const data = await db.query.conditions.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

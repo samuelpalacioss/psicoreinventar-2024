@@ -2,15 +2,20 @@ import db from "@/src/db";
 import { places } from "@/src/db/schema";
 import { and, count, eq, ilike } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 export interface PlaceFilters {
   search?: string;
   type?: string;
 }
 
-export async function findAllPlaces(filters: PlaceFilters, pagination: PaginationParams) {
+export interface PlaceQueryOptions<T = any> extends QueryOptions<T> {}
+
+export async function findAllPlaces<
+  const T extends { [K in keyof typeof places.$inferSelect]?: boolean }
+>(filters: PlaceFilters, pagination: PaginationParams, options: PlaceQueryOptions<T> = {}) {
   const { page, limit, offset } = pagination;
+  const { columns } = options;
 
   const conditions = [];
   if (filters.search) {
@@ -26,9 +31,18 @@ export async function findAllPlaces(filters: PlaceFilters, pagination: Paginatio
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const dataQuery = db.select().from(places).limit(limit).offset(offset);
-  if (whereClause) dataQuery.where(whereClause);
-  const data = await dataQuery;
+  // Use db.query with dynamic columns
+  const queryOptions: any = {
+    where: whereClause,
+    limit,
+    offset,
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  const data = await db.query.places.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }

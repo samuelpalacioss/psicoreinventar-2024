@@ -2,7 +2,7 @@ import db from "@/src/db";
 import { reviews } from "@/src/db/schema";
 import { and, count, eq, gte, lte } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
-import type { PaginationParams } from "./types";
+import type { PaginationParams, QueryOptions } from "./types";
 
 // ============================================================================
 // FILTERS
@@ -15,15 +15,24 @@ export interface ReviewFilters {
   maxScore?: number;
 }
 
+export interface ReviewQueryOptions<T = any> extends QueryOptions<T> {
+  includeDoctor?: boolean;
+  includePatient?: boolean;
+}
+
 // ============================================================================
 // CORE
 // ============================================================================
 
-export async function findAllReviews(
+export async function findAllReviews<
+  const T extends { [K in keyof typeof reviews.$inferSelect]?: boolean }
+>(
   filters: ReviewFilters,
-  pagination: PaginationParams
+  pagination: PaginationParams,
+  options: ReviewQueryOptions<T> = {}
 ) {
   const { page, limit, offset } = pagination;
+  const { columns, includeDoctor = true, includePatient = true } = options;
 
   const conditions = [];
 
@@ -46,32 +55,46 @@ export async function findAllReviews(
   if (whereClause) countQuery.where(whereClause);
   const [{ count: totalCount }] = await countQuery;
 
-  const data = await db.query.reviews.findMany({
+  const queryOptions: any = {
     where: whereClause,
     limit,
     offset,
-    orderBy: (r, { desc }) => [desc(r.createdAt)],
-    with: {
-      doctor: {
-        columns: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          firstLastName: true,
-          secondLastName: true,
-        },
+    orderBy: (r: any, { desc }: any) => [desc(r.createdAt)],
+  };
+
+  if (columns) {
+    queryOptions.columns = columns;
+  }
+
+  const withOptions: any = {};
+  if (includeDoctor) {
+    withOptions.doctor = {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
       },
-      person: {
-        columns: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          firstLastName: true,
-          secondLastName: true,
-        },
+    };
+  }
+  if (includePatient) {
+    withOptions.person = {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
       },
-    },
-  });
+    };
+  }
+
+  if (Object.keys(withOptions).length > 0) {
+    queryOptions.with = withOptions;
+  }
+
+  const data = await db.query.reviews.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }
