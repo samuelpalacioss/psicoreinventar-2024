@@ -3,26 +3,17 @@ import { queryKeys } from '@/lib/queries/query-keys';
 import { apiGet, apiGetList, buildUrl, buildPaginationParams } from '@/lib/queries/api-client';
 import { STALE_TIMES } from '@/lib/queries/stale-times';
 import type { PaginationParams } from '@/src/dal/types';
+import type { InferSelectModel } from 'drizzle-orm';
+import { doctors, places } from '@/src/db/schema';
 
-export interface Doctor {
-  id: number;
-  personId: number;
-  placeId: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  person?: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
+export type Doctor = InferSelectModel<typeof doctors> & {
+  place?: Pick<InferSelectModel<typeof places>, 'id' | 'name'>;
+  stats?: {
+    averageScore: number;
+    totalReviews: number;
   };
-  place?: {
-    id: number;
-    name: string;
-    address: string;
-  };
-}
+  conditions?: string[];
+};
 
 export interface DoctorFilters {
   search?: string;
@@ -133,9 +124,12 @@ export interface DoctorReview {
   id: number;
   doctorId: number;
   personId: number;
-  rating: number;
-  comment: string | null;
+  appointmentId: number | null;
+  score: number;
+  description: string | null;
+  afterSessions: number;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface DoctorAppointmentFilters {

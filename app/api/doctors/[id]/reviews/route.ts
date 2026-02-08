@@ -69,15 +69,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         ? doctorReviews.reduce((sum, review) => sum + review.score, 0) / doctorReviews.length
         : 0;
 
+    // Return paginated list format with additional stats
     return NextResponse.json(
       {
         success: true,
-        data: {
-          reviews: doctorReviews,
-          stats: {
-            totalReviews: doctorReviews.length,
-            averageScore: Math.round(averageScore * 10) / 10, // Round to 1 decimal
-          },
+        data: doctorReviews,
+        pagination: {
+          page: 1,
+          limit: doctorReviews.length,
+          total: doctorReviews.length,
+          totalPages: 1,
+        },
+        stats: {
+          averageScore: Math.round(averageScore * 10) / 10, // Round to 1 decimal
         },
       },
       { status: StatusCodes.OK }

@@ -62,14 +62,12 @@ export default function TherapistCard({
                 {initials}
               </AvatarFallback>
             </Avatar>
-            {averageRating > 0 && (
-              <div className="mt-4 flex items-center gap-1.5">
-                <Icons.star className="w-5 h-5 text-gray-700 fill-gray-700" />
-                <span className="text-md font-medium text-gray-700">
-                  {averageRating.toFixed(1)} ({totalRatings})
-                </span>
-              </div>
-            )}
+            <div className="mt-4 flex items-center gap-1.5">
+              <Icons.star className="w-5 h-5 text-gray-700 fill-gray-700" />
+              <span className="text-md font-medium text-gray-700">
+                {averageRating > 0 ? `${averageRating.toFixed(1)} (${totalRatings})` : "No reviews"}
+              </span>
+            </div>
           </div>
 
           <div className="flex-1 space-y-5">

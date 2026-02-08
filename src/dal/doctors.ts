@@ -13,6 +13,7 @@ import {
   payoutMethods,
   appointments,
   reviews,
+  conditions as conditionsTable,
 } from "@/src/db/schema";
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
@@ -144,7 +145,60 @@ export async function findAllDoctors(
   if (whereClause) dataQuery.where(whereClause);
   const data = await dataQuery;
 
-  return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
+  // If no doctors found, return early
+  if (data.length === 0) {
+    return { data: [], pagination: calculatePaginationMetadata(page, limit, totalCount) };
+  }
+
+  // Fetch aggregated stats for each doctor
+  const doctorIds = data.map((d) => d.id);
+
+  // Get review stats for all doctors
+  const reviewStats = await db
+    .select({
+      doctorId: reviews.doctorId,
+      averageScore: sql<number>`COALESCE(AVG(${reviews.score}), 0)`,
+      totalReviews: count(reviews.id),
+    })
+    .from(reviews)
+    .where(sql`${reviews.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`)
+    .groupBy(reviews.doctorId);
+
+  // Get conditions for all doctors
+  const doctorConditionsData = await db
+    .select({
+      doctorId: doctorConditions.doctorId,
+      conditionId: doctorConditions.conditionId,
+      conditionName: conditionsTable.name,
+    })
+    .from(doctorConditions)
+    .leftJoin(conditionsTable, eq(doctorConditions.conditionId, conditionsTable.id))
+    .where(sql`${doctorConditions.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`);
+
+  // Map stats to doctors
+  const reviewStatsMap = new Map(reviewStats.map((r) => [r.doctorId, r]));
+  const conditionsMap = new Map<number, string[]>();
+
+  doctorConditionsData.forEach((dc) => {
+    if (!conditionsMap.has(dc.doctorId)) {
+      conditionsMap.set(dc.doctorId, []);
+    }
+    if (dc.conditionName) {
+      conditionsMap.get(dc.doctorId)!.push(dc.conditionName);
+    }
+  });
+
+  // Enrich data with stats
+  const enrichedData = data.map((doctor) => ({
+    ...doctor,
+    stats: {
+      averageScore: reviewStatsMap.get(doctor.id)?.averageScore || 0,
+      totalReviews: reviewStatsMap.get(doctor.id)?.totalReviews || 0,
+    },
+    conditions: conditionsMap.get(doctor.id) || [],
+  }));
+
+  return { data: enrichedData, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }
 
 export async function findDoctorById(id: number) {

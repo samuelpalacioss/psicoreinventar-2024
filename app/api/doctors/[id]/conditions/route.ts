@@ -20,7 +20,7 @@ import { StatusCodes } from "http-status-codes";
  * GET /api/doctors/[id]/conditions
  * List all conditions treated by a doctor with type (primary/other)
  * Access:
- * - Patient: All conditions (public for active doctors)
+ * - Public (anyone can view doctor conditions for active doctors)
  * - Doctor: Own conditions only
  * - Admin: All conditions
  */
@@ -29,23 +29,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const rateLimitResponse = await withRateLimit(request, defaultRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Authentication
-  const session = await getAuthSession(request);
-  if (!session?.user) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unauthorized",
-          code: "UNAUTHORIZED",
-        },
-      },
-      { status: StatusCodes.UNAUTHORIZED }
-    );
-  }
-
-  const { id: userId, role } = session.user;
-
   const resolvedParams = await params;
 
   // Validate ID parameter
@@ -53,10 +36,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!paramsValidationResult.success) return paramsValidationResult.error;
 
   const doctorId = parseInt(paramsValidationResult.data.id);
-
-  // Authorization - check access to parent doctor
-  const authzResult = await checkResourceAccess(userId, role, "doctor", "read", doctorId);
-  if (!authzResult.allowed) return authzResult.error;
 
   // Get pagination params
   const { page, limit, offset } = getPaginationParams(request.nextUrl.searchParams);

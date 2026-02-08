@@ -19,6 +19,7 @@ import { StatusCodes } from "http-status-codes";
  * GET /api/doctors
  * Browse doctors with filters (public for discovery, role-based for management)
  * Access:
+ * - Unauthenticated: Active doctors only (public browsing)
  * - Patient: All active doctors (public browsing)
  * - Doctor: Own profile
  * - Admin: All doctors (including inactive)
@@ -28,26 +29,16 @@ export async function GET(request: NextRequest) {
   const rateLimitResponse = await withRateLimit(request, defaultRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  // Authentication
+  // Authentication (optional for public browsing)
   const session = await getAuthSession(request);
-  if (!session?.user) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: "Unauthorized",
-          code: "UNAUTHORIZED",
-        },
-      },
-      { status: StatusCodes.UNAUTHORIZED }
-    );
+  const userId = session?.user?.id;
+  const role = session?.user?.role;
+
+  // Authorization - only check if authenticated
+  if (session?.user) {
+    const authzResult = await checkResourceAccess(userId!, role!, "doctor", "list");
+    if (!authzResult.allowed) return authzResult.error;
   }
-
-  const { id: userId, role } = session.user;
-
-  // Authorization
-  const authzResult = await checkResourceAccess(userId, role, "doctor", "list");
-  if (!authzResult.allowed) return authzResult.error;
 
   // Validate query parameters
   const validationResult = validateSearchParams(request.nextUrl.searchParams, listDoctorsSchema);
@@ -72,12 +63,12 @@ export async function GET(request: NextRequest) {
     let restrictToIds: number[] | undefined = undefined;
 
     // Role-based filtering
-    if (role === Role.PATIENT) {
-      // Patients see only active doctors (public browsing)
+    if (!session?.user || role === Role.PATIENT) {
+      // Unauthenticated users and patients see only active doctors (public browsing)
       filters.isActive = true;
     } else if (role === Role.DOCTOR) {
       // Doctors see only their own profile
-      const doctor = await findDoctorByUserId(userId);
+      const doctor = await findDoctorByUserId(userId!);
 
       if (!doctor) {
         // User is doctor role but has no doctor profile - return empty result
