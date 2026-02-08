@@ -19,6 +19,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
   const averageRating = Number(doctor.stats?.averageScore) || 0;
   const totalRatings = Number(doctor.stats?.totalReviews) || 0;
   const specialties = doctor.conditions || [];
+  const place = doctor.place;
 
   return (
     <TherapistCard
@@ -32,7 +33,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
       yearsInPractice={yearsInPractice}
       averageRating={averageRating}
       totalRatings={totalRatings}
-      isVirtual={true}
+      place={place}
     />
   );
 }
