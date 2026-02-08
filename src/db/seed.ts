@@ -15,6 +15,8 @@ import {
   languages,
   services,
   treatmentMethods,
+  identities,
+  personalityTraits,
   ageGroups,
   educations,
   schedules,
@@ -22,6 +24,8 @@ import {
   doctorTreatmentMethods,
   doctorConditions,
   doctorLanguages,
+  doctorIdentities,
+  doctorPersonalityTraits,
   paymentMethods,
   paymentMethodPersons,
   payoutMethods,
@@ -53,6 +57,8 @@ async function seed() {
     await db.delete(doctorLanguages);
     await db.delete(doctorConditions);
     await db.delete(doctorTreatmentMethods);
+    await db.delete(doctorIdentities);
+    await db.delete(doctorPersonalityTraits);
     await db.delete(doctorServices);
     await db.delete(schedules);
     await db.delete(ageGroups);
@@ -66,6 +72,8 @@ async function seed() {
     await db.delete(users);
     await db.delete(institutions);
     await db.delete(treatmentMethods);
+    await db.delete(identities);
+    await db.delete(personalityTraits);
     await db.delete(services);
     await db.delete(languages);
     await db.delete(conditions);
@@ -202,7 +210,46 @@ async function seed() {
     console.log(`✅ Created ${treatmentMethodsData.length} treatment methods`);
 
     // ============================================================================
-    // 6. INSTITUTIONS
+    // 6. IDENTITIES
+    // ============================================================================
+    console.log("🏳️‍🌈 Seeding identities...");
+    const identitiesData = await db
+      .insert(identities)
+      .values([
+        { name: "LGBTQ+" },
+        { name: "Woman" },
+        { name: "Man" },
+        { name: "Non-binary" },
+        { name: "Latino" },
+        { name: "African American" },
+        { name: "Asian" },
+      ])
+      .returning();
+    console.log(`✅ Created ${identitiesData.length} identities`);
+
+    // ============================================================================
+    // 7. PERSONALITY TRAITS
+    // ============================================================================
+    console.log("✨ Seeding personality traits...");
+    const personalityTraitsData = await db
+      .insert(personalityTraits)
+      .values([
+        { name: "Warm" },
+        { name: "Empathetic" },
+        { name: "Intelligent" },
+        { name: "Patient" },
+        { name: "Solution-oriented" },
+        { name: "Reflective" },
+        { name: "Humorous" },
+        { name: "Spiritual" },
+        { name: "Analytical" },
+        { name: "Creative" },
+      ])
+      .returning();
+    console.log(`✅ Created ${personalityTraitsData.length} personality traits`);
+
+    // ============================================================================
+    // 8. INSTITUTIONS
     // ============================================================================
     console.log("🏛️ Seeding institutions...");
     const institutionsData = await db
@@ -854,7 +901,42 @@ async function seed() {
     console.log("✅ Created doctor languages");
 
     // ============================================================================
-    // 21. PAYMENT METHODS
+    // 21. DOCTOR IDENTITIES (Many-to-Many)
+    // ============================================================================
+    console.log("🏳️‍🌈 Seeding doctor identities...");
+    await db.insert(doctorIdentities).values([
+      { doctorId: doctorsData[0].id, identityId: identitiesData[2].id }, // Roberto - Man
+      { doctorId: doctorsData[0].id, identityId: identitiesData[4].id }, // Roberto - Hispanic/Latino
+      { doctorId: doctorsData[1].id, identityId: identitiesData[1].id }, // Laura - Woman
+      { doctorId: doctorsData[1].id, identityId: identitiesData[4].id }, // Laura - Hispanic/Latino
+      { doctorId: doctorsData[2].id, identityId: identitiesData[2].id }, // Miguel - Man
+      { doctorId: doctorsData[3].id, identityId: identitiesData[1].id }, // Carmen - Woman
+      { doctorId: doctorsData[3].id, identityId: identitiesData[4].id }, // Carmen - Hispanic/Latino
+      { doctorId: doctorsData[4].id, identityId: identitiesData[2].id }, // Fernando - Man
+    ]);
+    console.log("✅ Created doctor identities");
+
+    // ============================================================================
+    // 22. DOCTOR PERSONALITY TRAITS (Many-to-Many)
+    // ============================================================================
+    console.log("✨ Seeding doctor personality traits...");
+    await db.insert(doctorPersonalityTraits).values([
+      { doctorId: doctorsData[0].id, personalityTraitId: personalityTraitsData[0].id }, // Roberto - Warm
+      { doctorId: doctorsData[0].id, personalityTraitId: personalityTraitsData[1].id }, // Roberto - Empathetic
+      { doctorId: doctorsData[0].id, personalityTraitId: personalityTraitsData[4].id }, // Roberto - Solution-oriented
+      { doctorId: doctorsData[1].id, personalityTraitId: personalityTraitsData[1].id }, // Laura - Empathetic
+      { doctorId: doctorsData[1].id, personalityTraitId: personalityTraitsData[8].id }, // Laura - Analytical
+      { doctorId: doctorsData[2].id, personalityTraitId: personalityTraitsData[3].id }, // Miguel - Patient
+      { doctorId: doctorsData[2].id, personalityTraitId: personalityTraitsData[5].id }, // Miguel - Reflective
+      { doctorId: doctorsData[3].id, personalityTraitId: personalityTraitsData[9].id }, // Carmen - Creative
+      { doctorId: doctorsData[3].id, personalityTraitId: personalityTraitsData[0].id }, // Carmen - Warm
+      { doctorId: doctorsData[4].id, personalityTraitId: personalityTraitsData[5].id }, // Fernando - Reflective
+      { doctorId: doctorsData[4].id, personalityTraitId: personalityTraitsData[7].id }, // Fernando - Spiritual
+    ]);
+    console.log("✅ Created doctor personality traits");
+
+    // ============================================================================
+    // 23. PAYMENT METHODS
     // ============================================================================
     console.log("💳 Seeding payment methods...");
     const paymentMethodsData = await db
