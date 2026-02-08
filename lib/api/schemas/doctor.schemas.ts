@@ -44,6 +44,7 @@ export const createDoctorSchema = z.object({
   biography: longTextSchema,
   firstSessionExpectation: longTextSchema,
   biggestStrengths: longTextSchema,
+  practiceStartYear: yearSchema,
 });
 
 export type CreateDoctorInput = z.infer<typeof createDoctorSchema>;

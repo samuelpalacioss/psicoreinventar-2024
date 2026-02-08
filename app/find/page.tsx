@@ -14,7 +14,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
     .filter(Boolean)
     .join(" ");
 
-  const yearsInPractice = new Date().getFullYear() - new Date(doctor.createdAt).getFullYear();
+  const yearsInPractice = new Date().getFullYear() - doctor.practiceStartYear;
 
   const averageRating = Number(doctor.stats?.averageScore) || 0;
   const totalRatings = Number(doctor.stats?.totalReviews) || 0;
@@ -26,7 +26,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
       name={fullName}
       credentials=""
       image=""
-      category={doctor.place?.name || "Therapy"}
+      category="Therapy"
       description={doctor.biography || "No biography available"}
       specialties={specialties}
       yearsInPractice={yearsInPractice}
@@ -40,7 +40,8 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
 export default function Specialists() {
   const { data, isLoading, error } = useDoctors(
     { isActive: true },
-    { page: 1, limit: 20, offset: 0 }
+    { page: 1, limit: 20, offset: 0 },
+    { lite: true }
   );
 
   return (

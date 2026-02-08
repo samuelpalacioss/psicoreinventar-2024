@@ -139,7 +139,11 @@ export interface DoctorAppointmentFilters {
 }
 
 // Main doctor queries
-export function useDoctors(filters?: DoctorFilters, pagination?: PaginationParams) {
+export function useDoctors(
+  filters?: DoctorFilters,
+  pagination?: PaginationParams,
+  options?: { lite?: boolean }
+) {
   return useQuery({
     queryKey: queryKeys.doctors.list(filters, pagination),
     queryFn: () => {
@@ -152,6 +156,7 @@ export function useDoctors(filters?: DoctorFilters, pagination?: PaginationParam
         conditionId: filters?.conditionId,
         languageId: filters?.languageId,
         treatmentMethodId: filters?.treatmentMethodId,
+        lite: options?.lite,
       });
       return apiGetList<Doctor>(url);
     },

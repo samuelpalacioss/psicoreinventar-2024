@@ -477,6 +477,7 @@ async function seed() {
             "En nuestra primera sesión, estableceremos un espacio seguro donde podrás compartir tus preocupaciones. Hablaremos sobre tus objetivos terapéuticos y comenzaremos a trazar un plan de trabajo personalizado.",
           biggestStrengths:
             "Empatía, escucha activa y capacidad para crear un ambiente terapéutico cálido y acogedor. Experiencia sólida en técnicas cognitivo-conductuales.",
+          practiceStartYear: 2007,
           isActive: true,
         },
         {
@@ -495,6 +496,7 @@ async function seed() {
             "Dedicaremos tiempo a conocernos y a que me cuentes qué te trae a consulta. Realizaré una evaluación inicial comprensiva y discutiremos las opciones de tratamiento disponibles.",
           biggestStrengths:
             "Formación sólida en psicofarmacología, capacidad diagnóstica y enfoque holístico del bienestar mental.",
+          practiceStartYear: 2008,
           isActive: true,
         },
         {
@@ -513,6 +515,7 @@ async function seed() {
             "En la primera sesión, todos los miembros de la familia/pareja tendrán espacio para expresar sus perspectivas. Identificaremos patrones de comunicación y estableceremos metas compartidas.",
           biggestStrengths:
             "Experiencia extensa en dinámicas familiares, neutralidad terapéutica y habilidad para facilitar conversaciones difíciles.",
+          practiceStartYear: 2001,
           isActive: true,
         },
         {
@@ -531,6 +534,7 @@ async function seed() {
             "La primera sesión incluirá una entrevista con los padres y un primer acercamiento con el niño/adolescente en un ambiente relajado. Utilizaremos juegos y actividades para establecer rapport.",
           biggestStrengths:
             "Conexión natural con niños y adolescentes, creatividad terapéutica y capacidad para involucrar a las familias en el proceso.",
+          practiceStartYear: 2008,
           isActive: true,
         },
         {
@@ -549,6 +553,7 @@ async function seed() {
             "Exploraremos juntos qué te motiva a buscar terapia. Desde el primer momento, te invitaré a ser protagonista de tu proceso, con respeto profundo por tu experiencia única.",
           biggestStrengths:
             "Enfoque centrado en la persona, profundidad en la reflexión existencial y acompañamiento respetuoso en procesos de autoconocimiento.",
+          practiceStartYear: 2006,
           isActive: true,
         },
       ])

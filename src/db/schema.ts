@@ -198,6 +198,7 @@ export const doctors = pgTable("Doctor", {
   biography: text("biography").notNull(),
   firstSessionExpectation: text("first_session_expectation").notNull(),
   biggestStrengths: text("biggest_strengths").notNull(),
+  practiceStartYear: smallint("practice_start_year").notNull(),
   isActive: boolean("is_active").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

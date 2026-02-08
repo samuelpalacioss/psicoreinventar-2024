@@ -86,8 +86,20 @@ export async function GET(request: NextRequest) {
     }
     // Admin sees all (no additional filter)
 
-    // Get doctors using DAL with aggregated data
+    // Check for lightweight mode (for public listing pages)
+    const isLiteMode = request.nextUrl.searchParams.get('lite') === 'true';
+
+    // Get doctors using DAL with optional column selection
     const result = await findAllDoctors(filters, { page, limit, offset }, restrictToIds, {
+      columns: isLiteMode ? {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
+        practiceStartYear: true,
+        biography: true,
+      } : undefined, // undefined = all columns
       includePlace: true,
       includeStats: true,
       includeConditions: true,

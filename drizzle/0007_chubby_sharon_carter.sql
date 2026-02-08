@@ -1,0 +1,1 @@
+ALTER TABLE "Doctor" ADD COLUMN "practice_start_year" smallint NOT NULL;
