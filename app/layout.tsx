@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/main-nav';
+import { QueryProvider } from '@/lib/providers/query-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,7 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${inter.className} min-h-screen antialised bg-cream`}>{children}</body>
+      <body className={`${inter.className} min-h-screen antialised bg-cream`}>
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }
