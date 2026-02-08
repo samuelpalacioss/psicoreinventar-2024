@@ -28,7 +28,7 @@ export interface TherapistDetailProps {
   yearsInPractice: number;
   averageRating?: number;
   totalRatings?: number;
-  isVirtual?: boolean;
+  place?: { id: number; name: string };
 
   // Extended fields for detail page
   aboutMe: string;
@@ -60,7 +60,7 @@ export default function TherapistDetail({
   yearsInPractice,
   averageRating = 0,
   totalRatings = 0,
-  isVirtual = true,
+  place,
   aboutMe = "",
   sessionPrice,
   getToKnowMe = { firstSession: "", strengths: "" },
@@ -83,11 +83,14 @@ export default function TherapistDetail({
   const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
   const [isSpecialtiesModalOpen, setIsSpecialtiesModalOpen] = useState(false);
 
+  // Calculate isVirtual from place
+  const isVirtual = !place;
+
   const initials = name
     ? name
-        .split(" ")
-        .map((n) => n.charAt(0))
-        .join("")
+      .split(" ")
+      .map((n) => n.charAt(0))
+      .join("")
     : "";
 
   // Determine how many licenses to show
@@ -191,7 +194,12 @@ export default function TherapistDetail({
 
                 <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-700 items-center sm:items-start">
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {isVirtual && (
+                    {place ? (
+                      <div className="flex items-center gap-2">
+                        <Icons.map className="w-4 h-4 text-gray-600" />
+                        <span>{place.name}</span>
+                      </div>
+                    ) : (
                       <div className="flex items-center gap-2">
                         <Video className="w-4 h-4 text-gray-600" />
                         <span>Virtual</span>
@@ -354,7 +362,12 @@ export default function TherapistDetail({
               {/* Location */}
               <section>
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Location</h2>
-                {isVirtual && (
+                {place ? (
+                  <Badge className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3">
+                    <Icons.map className="w-3.5 h-3.5 mr-1.5" />
+                    {place.name}
+                  </Badge>
+                ) : (
                   <div className="flex items-center gap-2 text-gray-600">
                     <Video className="w-4 h-4" />
                     <span>Virtual</span>
@@ -667,132 +680,132 @@ export default function TherapistDetail({
   );
 }
 
-// Sample data for testing
-export const sampleTherapistDetail: TherapistDetailProps = {
-  id: 1,
-  name: "Laura Savage",
-  credentials: "LCSW",
-  image: "/placeholder-therapist.jpg",
-  description:
-    "I work with adolescents, adults, and families, treating childhood trauma, family-related issues, depression, anxiety, and low self-esteem.",
-  specialties: [
-    "ADHD",
-    "Anxiety",
-    "Peer Relationships",
-    "Spirituality",
-    "Trauma and PTSD",
-    "Women's Issues",
-    "Relationship Issues",
-    "Grief and Loss",
-    "Parenting",
-    "Stress Management",
-    "Self Esteem",
-    "Depression",
-    "Family Therapy",
-    "Individual Therapy",
-    "Couple Therapy",
-    "Teen Therapy",
-    "Adult Therapy",
-    "Child Therapy",
-    "Adolescent Therapy",
-    "Family Therapy",
-    "Individual Therapy",
-    "Couple Therapy",
-    "Teen Therapy",
-    "Adult Therapy",
-  ],
-  yearsInPractice: 25,
-  averageRating: 5.0,
-  totalRatings: 3,
-  isVirtual: true,
-  sessionPrice: 100,
-  nextAvailable: "Tue, Nov 25",
-  personalityTraits: ["Intelligent", "Solution oriented", "Warm"],
-  aboutMe: `Hello, my name is Laura Savage, and I have had the privilege of working as a Social Worker since 1997. I earned my undergraduate degree from the University of Delaware and later obtained a Master's in Social Work from Florida International University.
+// // Sample data for testing
+// export const sampleTherapistDetail: TherapistDetailProps = {
+//   id: 1,
+//   name: "Laura Savage",
+//   credentials: "LCSW",
+//   image: "/placeholder-therapist.jpg",
+//   description:
+//     "I work with adolescents, adults, and families, treating childhood trauma, family-related issues, depression, anxiety, and low self-esteem.",
+//   specialties: [
+//     "ADHD",
+//     "Anxiety",
+//     "Peer Relationships",
+//     "Spirituality",
+//     "Trauma and PTSD",
+//     "Women's Issues",
+//     "Relationship Issues",
+//     "Grief and Loss",
+//     "Parenting",
+//     "Stress Management",
+//     "Self Esteem",
+//     "Depression",
+//     "Family Therapy",
+//     "Individual Therapy",
+//     "Couple Therapy",
+//     "Teen Therapy",
+//     "Adult Therapy",
+//     "Child Therapy",
+//     "Adolescent Therapy",
+//     "Family Therapy",
+//     "Individual Therapy",
+//     "Couple Therapy",
+//     "Teen Therapy",
+//     "Adult Therapy",
+//   ],
+//   yearsInPractice: 25,
+//   averageRating: 5.0,
+//   totalRatings: 3,
+//   place: { id: 1, name: "New York" },
+//   sessionPrice: 100,
+//   nextAvailable: "Tue, Nov 25",
+//   personalityTraits: ["Intelligent", "Solution oriented", "Warm"],
+//   aboutMe: `Hello, my name is Laura Savage, and I have had the privilege of working as a Social Worker since 1997. I earned my undergraduate degree from the University of Delaware and later obtained a Master's in Social Work from Florida International University.
 
-Throughout my career, I have had the opportunity to work with diverse populations across a range of settings, including an adolescent residential treatment facility, a hospital, and a nonprofit organization supporting children affected by cancer and their families. Currently, I am employed within a school district, where I provide school-based counseling services to middle and high school students.`,
-  getToKnowMe: {
-    firstSession: `The initial session will focus on establishing a strong therapeutic relationship; I want you to feel comfortable, seen, and valued. I also want to get to know your story and hear what brought you to therapy. I encourage clients to prioritize what they would like to work on first. We establish therapeutic goals together early on in the treatment process. As we continue to work together, we reflect on those goals to maximize the client's experience, track progress and growth, and adjust goals as needed.`,
-    strengths: `I approach my work with clients through a lens of understanding and compassion; there is no judgment or shame in our shared space, and my clients feel heard, seen, and valued. I am here to act as a trusting guide to help you navigate whatever murky waters you are experiencing. In our work together, I will hold space for you and challenge you. I aim to find the balance between cheering you on from the sidelines and coaching you to reach your goals. Clients have described me as warm, empathetic, and someone willing to invest the effort needed to make meaningful change. They understand that transformation happens through consistent, small steps and are dedicated to doing the work to get there.`,
-  },
-  otherSpecialties: ["Spirituality", "Trauma and PTSD", "Women's Issues"],
-  identities: ["Jewish", "Woman"],
-  agesServed: ["Adults (18 to 64)", "Teenagers (13 to 17)"],
-  treatmentMethods: [
-    {
-      name: "Attachment-based",
-      description: `Attachment-based therapy is a form of psychotherapy that helps individuals build healthier, more secure relationships. I work with clients to recognize their relationship patterns and develop new ways of fostering strong emotional connections.`,
-    },
-    {
-      name: "Cognitive Behavioral Therapy (CBT)",
-      description: `CBT is a structured, goal-oriented approach that helps identify and change negative thought patterns and behaviors. Through practical techniques, clients learn to reframe unhelpful thinking and develop healthier coping mechanisms that enable them to lead positive and productive lives.`,
-    },
-  ],
-  licensedIn: ["New York", "New Jersey"],
-  accepts: [
-    "Cash - $150 per session",
-    "Cigna",
-    "EAP-Cigna",
-    "EAP-Evernorth",
-    "Evernorth",
-    "GTEB",
-    "Tufts Health/Cigna",
-    "Aetna",
-    "Blue Cross Blue Shield",
-    "United Healthcare",
-  ],
-  availableSlots: [
-    {
-      date: "lun, nov. 24",
-      times: [
-        "8:00 a. m.",
-        "8:30 a. m.",
-        "9:00 a. m.",
-        "9:30 a. m.",
-        "10:00 a. m.",
-        "10:30 a. m.",
-        "11:00 a. m.",
-        "3:00 p. m.",
-        "3:30 p. m.",
-        "4:00 p. m.",
-      ],
-    },
-    {
-      date: "mar, nov. 25",
-      times: ["6:00 p. m.", "7:00 p. m."],
-    },
-    {
-      date: "mie, nov. 26",
-      times: ["8:00 a. m.", "9:00 a. m.", "10:00 a. m.", "11:00 a. m.", "3:00 p. m.", "4:00 p. m."],
-    },
-  ],
-  reviews: [
-    {
-      clientInfo: "Verified client, age 45-54",
-      sessionNumber: 26,
-      therapistName: "Laura Savage",
-      rating: 5,
-      date: "April 2, 2025",
-      content:
-        "Laura has been incredibly supportive and understanding. Her approach to therapy is warm and professional. I've made significant progress in just a few months. She really listens and helps me see things from different perspectives.",
-    },
-    {
-      clientInfo: "Verified client, age 35-44",
-      sessionNumber: 12,
-      therapistName: "Laura Savage",
-      rating: 5,
-      date: "March 18, 2025",
-      content:
-        "I appreciate how Laura creates a safe space for me to express myself. Her expertise in trauma work has been invaluable. She's patient, empathetic, and always well-prepared for our sessions.",
-    },
-    {
-      clientInfo: "Verified client, age 25-34",
-      sessionNumber: 8,
-      therapistName: "Laura Savage",
-      rating: 4,
-      date: "March 5, 2025",
-      content:
-        "Good experience overall. Laura is knowledgeable and caring. Sometimes I wish the sessions were a bit longer, but the quality of care is excellent.",
-    },
-  ],
-};
+// Throughout my career, I have had the opportunity to work with diverse populations across a range of settings, including an adolescent residential treatment facility, a hospital, and a nonprofit organization supporting children affected by cancer and their families. Currently, I am employed within a school district, where I provide school-based counseling services to middle and high school students.`,
+//   getToKnowMe: {
+//     firstSession: `The initial session will focus on establishing a strong therapeutic relationship; I want you to feel comfortable, seen, and valued. I also want to get to know your story and hear what brought you to therapy. I encourage clients to prioritize what they would like to work on first. We establish therapeutic goals together early on in the treatment process. As we continue to work together, we reflect on those goals to maximize the client's experience, track progress and growth, and adjust goals as needed.`,
+//     strengths: `I approach my work with clients through a lens of understanding and compassion; there is no judgment or shame in our shared space, and my clients feel heard, seen, and valued. I am here to act as a trusting guide to help you navigate whatever murky waters you are experiencing. In our work together, I will hold space for you and challenge you. I aim to find the balance between cheering you on from the sidelines and coaching you to reach your goals. Clients have described me as warm, empathetic, and someone willing to invest the effort needed to make meaningful change. They understand that transformation happens through consistent, small steps and are dedicated to doing the work to get there.`,
+//   },
+//   otherSpecialties: ["Spirituality", "Trauma and PTSD", "Women's Issues"],
+//   identities: ["Jewish", "Woman"],
+//   agesServed: ["Adults (18 to 64)", "Teenagers (13 to 17)"],
+//   treatmentMethods: [
+//     {
+//       name: "Attachment-based",
+//       description: `Attachment-based therapy is a form of psychotherapy that helps individuals build healthier, more secure relationships. I work with clients to recognize their relationship patterns and develop new ways of fostering strong emotional connections.`,
+//     },
+//     {
+//       name: "Cognitive Behavioral Therapy (CBT)",
+//       description: `CBT is a structured, goal-oriented approach that helps identify and change negative thought patterns and behaviors. Through practical techniques, clients learn to reframe unhelpful thinking and develop healthier coping mechanisms that enable them to lead positive and productive lives.`,
+//     },
+//   ],
+//   licensedIn: ["New York", "New Jersey"],
+//   accepts: [
+//     "Cash - $150 per session",
+//     "Cigna",
+//     "EAP-Cigna",
+//     "EAP-Evernorth",
+//     "Evernorth",
+//     "GTEB",
+//     "Tufts Health/Cigna",
+//     "Aetna",
+//     "Blue Cross Blue Shield",
+//     "United Healthcare",
+//   ],
+//   availableSlots: [
+//     {
+//       date: "lun, nov. 24",
+//       times: [
+//         "8:00 a. m.",
+//         "8:30 a. m.",
+//         "9:00 a. m.",
+//         "9:30 a. m.",
+//         "10:00 a. m.",
+//         "10:30 a. m.",
+//         "11:00 a. m.",
+//         "3:00 p. m.",
+//         "3:30 p. m.",
+//         "4:00 p. m.",
+//       ],
+//     },
+//     {
+//       date: "mar, nov. 25",
+//       times: ["6:00 p. m.", "7:00 p. m."],
+//     },
+//     {
+//       date: "mie, nov. 26",
+//       times: ["8:00 a. m.", "9:00 a. m.", "10:00 a. m.", "11:00 a. m.", "3:00 p. m.", "4:00 p. m."],
+//     },
+//   ],
+//   reviews: [
+//     {
+//       clientInfo: "Verified client, age 45-54",
+//       sessionNumber: 26,
+//       therapistName: "Laura Savage",
+//       rating: 5,
+//       date: "April 2, 2025",
+//       content:
+//         "Laura has been incredibly supportive and understanding. Her approach to therapy is warm and professional. I've made significant progress in just a few months. She really listens and helps me see things from different perspectives.",
+//     },
+//     {
+//       clientInfo: "Verified client, age 35-44",
+//       sessionNumber: 12,
+//       therapistName: "Laura Savage",
+//       rating: 5,
+//       date: "March 18, 2025",
+//       content:
+//         "I appreciate how Laura creates a safe space for me to express myself. Her expertise in trauma work has been invaluable. She's patient, empathetic, and always well-prepared for our sessions.",
+//     },
+//     {
+//       clientInfo: "Verified client, age 25-34",
+//       sessionNumber: 8,
+//       therapistName: "Laura Savage",
+//       rating: 4,
+//       date: "March 5, 2025",
+//       content:
+//         "Good experience overall. Laura is knowledgeable and caring. Sometimes I wish the sessions were a bit longer, but the quality of care is excellent.",
+//     },
+//   ],
+// };
