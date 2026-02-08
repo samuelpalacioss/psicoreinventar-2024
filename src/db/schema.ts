@@ -254,6 +254,18 @@ export const treatmentMethods = pgTable("Treatment_Method", {
   description: text("description").notNull(),
 });
 
+// Identity
+export const identities = pgTable("Identity", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+});
+
+// Personality Trait
+export const personalityTraits = pgTable("Personality_Trait", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+});
+
 // Age Group
 export const ageGroups = pgTable("Age_Group", {
   id: serial("id").primaryKey(),
@@ -341,6 +353,34 @@ export const doctorTreatmentMethods = pgTable(
       .references(() => treatmentMethods.id, { onDelete: "cascade" }),
   },
   (table) => [primaryKey({ columns: [table.doctorId, table.treatmentMethodId] })]
+);
+
+// Doctor - Identity (Many-to-Many)
+export const doctorIdentities = pgTable(
+  "Doctor_Identity",
+  {
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    identityId: integer("identity_id")
+      .notNull()
+      .references(() => identities.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.doctorId, table.identityId] })]
+);
+
+// Doctor - Personality Trait (Many-to-Many)
+export const doctorPersonalityTraits = pgTable(
+  "Doctor_Personality_Trait",
+  {
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    personalityTraitId: integer("personality_trait_id")
+      .notNull()
+      .references(() => personalityTraits.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.doctorId, table.personalityTraitId] })]
 );
 
 // Doctor - Condition (Many-to-Many)
@@ -585,6 +625,8 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   doctorTreatmentMethods: many(doctorTreatmentMethods),
   doctorConditions: many(doctorConditions),
   doctorLanguages: many(doctorLanguages),
+  doctorIdentities: many(doctorIdentities),
+  doctorPersonalityTraits: many(doctorPersonalityTraits),
   ageGroups: many(ageGroups),
   appointments: many(appointments),
   payoutMethods: many(payoutMethods),
@@ -688,6 +730,36 @@ export const doctorTreatmentMethodsRelations = relations(doctorTreatmentMethods,
   treatmentMethod: one(treatmentMethods, {
     fields: [doctorTreatmentMethods.treatmentMethodId],
     references: [treatmentMethods.id],
+  }),
+}));
+
+export const identitiesRelations = relations(identities, ({ many }) => ({
+  doctorIdentities: many(doctorIdentities),
+}));
+
+export const personalityTraitsRelations = relations(personalityTraits, ({ many }) => ({
+  doctorPersonalityTraits: many(doctorPersonalityTraits),
+}));
+
+export const doctorIdentitiesRelations = relations(doctorIdentities, ({ one }) => ({
+  doctor: one(doctors, {
+    fields: [doctorIdentities.doctorId],
+    references: [doctors.id],
+  }),
+  identity: one(identities, {
+    fields: [doctorIdentities.identityId],
+    references: [identities.id],
+  }),
+}));
+
+export const doctorPersonalityTraitsRelations = relations(doctorPersonalityTraits, ({ one }) => ({
+  doctor: one(doctors, {
+    fields: [doctorPersonalityTraits.doctorId],
+    references: [doctors.id],
+  }),
+  personalityTrait: one(personalityTraits, {
+    fields: [doctorPersonalityTraits.personalityTraitId],
+    references: [personalityTraits.id],
   }),
 }));
 
