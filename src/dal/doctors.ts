@@ -13,6 +13,10 @@ import {
   appointments,
   reviews,
   conditions as conditionsTable,
+  identities,
+  personalityTraits,
+  doctorIdentities,
+  doctorPersonalityTraits,
 } from "@/src/db/schema";
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
@@ -812,4 +816,148 @@ export async function findDoctorReviews(doctorId: number, pagination: Pagination
   });
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
+}
+
+// ============================================================================
+// IDENTITIES (M2M)
+// ============================================================================
+
+export async function findDoctorIdentities(doctorId: number, pagination: PaginationParams) {
+  const { page, limit, offset } = pagination;
+  const whereClause = eq(doctorIdentities.doctorId, doctorId);
+
+  const [{ count: totalCount }] = await db
+    .select({ count: count() })
+    .from(doctorIdentities)
+    .where(whereClause);
+
+  const data = await db.query.doctorIdentities.findMany({
+    where: whereClause,
+    limit,
+    offset,
+    with: { identity: true },
+  });
+
+  return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
+}
+
+export async function findDoctorIdentity(doctorId: number, identityId: number) {
+  return db.query.doctorIdentities.findFirst({
+    where: and(
+      eq(doctorIdentities.doctorId, doctorId),
+      eq(doctorIdentities.identityId, identityId)
+    ),
+  });
+}
+
+export async function createDoctorIdentity(doctorId: number, identityId: number) {
+  const [row] = await db
+    .insert(doctorIdentities)
+    .values({ doctorId, identityId })
+    .returning();
+  return row;
+}
+
+export async function deleteDoctorIdentity(doctorId: number, identityId: number) {
+  await db
+    .delete(doctorIdentities)
+    .where(
+      and(eq(doctorIdentities.doctorId, doctorId), eq(doctorIdentities.identityId, identityId))
+    );
+}
+
+// ============================================================================
+// PERSONALITY TRAITS (M2M)
+// ============================================================================
+
+export async function findDoctorPersonalityTraits(
+  doctorId: number,
+  pagination: PaginationParams
+) {
+  const { page, limit, offset } = pagination;
+  const whereClause = eq(doctorPersonalityTraits.doctorId, doctorId);
+
+  const [{ count: totalCount }] = await db
+    .select({ count: count() })
+    .from(doctorPersonalityTraits)
+    .where(whereClause);
+
+  const data = await db.query.doctorPersonalityTraits.findMany({
+    where: whereClause,
+    limit,
+    offset,
+    with: { personalityTrait: true },
+  });
+
+  return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
+}
+
+export async function findDoctorPersonalityTrait(
+  doctorId: number,
+  personalityTraitId: number
+) {
+  return db.query.doctorPersonalityTraits.findFirst({
+    where: and(
+      eq(doctorPersonalityTraits.doctorId, doctorId),
+      eq(doctorPersonalityTraits.personalityTraitId, personalityTraitId)
+    ),
+  });
+}
+
+export async function createDoctorPersonalityTrait(
+  doctorId: number,
+  personalityTraitId: number
+) {
+  const [row] = await db
+    .insert(doctorPersonalityTraits)
+    .values({ doctorId, personalityTraitId })
+    .returning();
+  return row;
+}
+
+export async function deleteDoctorPersonalityTrait(
+  doctorId: number,
+  personalityTraitId: number
+) {
+  await db
+    .delete(doctorPersonalityTraits)
+    .where(
+      and(
+        eq(doctorPersonalityTraits.doctorId, doctorId),
+        eq(doctorPersonalityTraits.personalityTraitId, personalityTraitId)
+      )
+    );
+}
+
+// ============================================================================
+// DETAIL VIEW
+// ============================================================================
+
+export async function findDoctorDetailById(id: number) {
+  return db.query.doctors.findFirst({
+    where: eq(doctors.id, id),
+    with: {
+      user: {
+        columns: { id: true, name: true, image: true },
+      },
+      place: true,
+      educations: {
+        with: {
+          institution: {
+            with: {
+              place: true
+            }
+          }
+        }
+      },
+      ageGroups: true,
+      schedules: true,
+      doctorServices: { with: { service: true } },
+      doctorTreatmentMethods: { with: { treatmentMethod: true } },
+      doctorConditions: { with: { condition: true } },
+      doctorLanguages: { with: { language: true } },
+      doctorIdentities: { with: { identity: true } },
+      doctorPersonalityTraits: { with: { personalityTrait: true } },
+    },
+  });
 }
