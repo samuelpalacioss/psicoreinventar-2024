@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Container from "./container";
 import { Icons } from "./icons";
 import Newsletter from "./newsletter";
+import CopyrightYear from "./copyright-year";
 import { Mail, Phone, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -116,8 +118,11 @@ export default function Footer() {
               <Icons.heart className="h-4 w-4 animate-pulse" />
               <span>for mental well-being</span>
             </div>
+
             <p className="mt-8 md:order-1 md:mt-0">
-              &copy; {new Date().getFullYear()} Psicoreinventar. All rights reserved.
+              <Suspense fallback="Psicoreinventar. All rights reserved.">
+                <CopyrightYear />
+              </Suspense>
             </p>
           </div>
         </div>
