@@ -1,6 +1,8 @@
 import { findAllDoctors } from "@/src/dal";
 import SearchTherapistsBar from "@/components/search-therapists-bar";
 import TherapistCard from "@/components/therapist-card";
+import { cacheLife, cacheTag } from "next/cache";
+import { STALE_TIMES } from "@/lib/queries/stale-times";
 
 type Doctor = Awaited<ReturnType<typeof findAllDoctors>>["data"][number];
 
@@ -39,6 +41,16 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
 }
 
 export default async function Specialists() {
+  "use cache";
+
+  cacheLife({
+    stale: STALE_TIMES.DOCTORS / 1000, // Convert from ms to seconds (30 min)
+    revalidate: 3600, // 1 hour - check for updates every hour in background
+    expire: 86400, // 1 day - purge after 1 day
+  });
+
+  cacheTag("doctors-list");
+
   const result = await findAllDoctors(
     { isActive: true },
     { page: 1, limit: 20, offset: 0 },
