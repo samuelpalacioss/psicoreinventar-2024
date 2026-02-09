@@ -192,7 +192,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             <span className="text-sm font-medium text-gray-700">Therapists in</span>
 
             <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="w-auto h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
+              <SelectTrigger className="w-auto min-w-[120px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent
@@ -210,7 +210,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             <span className="text-sm font-medium text-gray-700">accepting</span>
 
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-              <SelectTrigger className="w-auto h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
+              <SelectTrigger className="w-auto min-w-[110px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -236,7 +236,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             />
 
             <Select value={selectedSessionType} onValueChange={setSelectedSessionType}>
-              <SelectTrigger className="w-auto h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
+              <SelectTrigger className="w-auto min-w-[140px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
