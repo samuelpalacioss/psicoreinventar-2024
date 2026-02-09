@@ -2,15 +2,38 @@ import { notFound } from "next/navigation";
 import { findDoctorDetailById, findDoctorReviews } from "@/src/dal/doctors";
 import TherapistDetail, { type TherapistDetailProps } from "@/components/therapist-detail";
 import { type ReviewCardProps } from "@/components/review-card";
+import { Suspense } from "react";
+import { cacheLife, cacheTag } from "next/cache";
+import { STALE_TIMES } from "@/lib/queries/stale-times";
 
 interface PageProps {
   params: Promise<{ doctorId: string }>;
 }
 
-export default async function TherapistDetailPage({ params }: PageProps) {
+export default function TherapistDetailPage({ params }: PageProps) {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={<div>Loading therapist detail...</div>}>
+        <TherapistDetailContent params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function TherapistDetailContent({ params }: PageProps) {
+  "use cache";
+
   const { doctorId } = await params;
   const id = parseInt(doctorId, 10);
   if (!id || id < 1) notFound();
+
+  cacheLife({
+    stale: STALE_TIMES.DOCTORS / 1000, // Convert from ms to seconds (30 min)
+    revalidate: 3600, // 1 hour - check for updates every hour in background
+    expire: 86400, // 1 day - purge after 1 day
+  });
+
+  cacheTag(`doctor-${id}`);
 
   const doctor = await findDoctorDetailById(id);
 
@@ -170,8 +193,6 @@ export default async function TherapistDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <TherapistDetail {...therapistDetailProps} />
-    </div>
+    <TherapistDetail {...therapistDetailProps} />
   );
 }
