@@ -531,7 +531,7 @@ async function seed() {
           userId: doctorUsersData[1].id,
           ci: 14987654,
           firstName: "Laura",
-          middleName: "Patricia",
+          middleName: "Valentina",
           firstLastName: "Pérez",
           secondLastName: "Castillo",
           birthDate: "1982-09-25",

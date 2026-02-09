@@ -48,8 +48,7 @@ export default function Specialists() {
   return (
     <>
       <SearchTherapistsBar />
-      <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32">
-        <h1 className="font-light text-3xl md:text-7xl mb-8">Therapists</h1>
+      <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-24">
 
         {isLoading && (
           <div className="text-center py-12">

@@ -154,7 +154,11 @@ export const institutions = pgTable("Institution", {
     .notNull()
     .references(() => places.id),
   isVerified: boolean("is_verified").default(false),
-});
+}, (table) => [
+  index("institution_type_idx").on(table.type),
+  index("institution_placeId_idx").on(table.placeId),
+  index("institution_isVerified_idx").on(table.isVerified),
+]);
 
 // Person (Patient)
 export const persons = pgTable("Person", {
@@ -176,7 +180,10 @@ export const persons = pgTable("Person", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("person_placeId_idx").on(table.placeId),
+  index("person_isActive_idx").on(table.isActive),
+]);
 
 // Doctor (Therapist)
 export const doctors = pgTable("Doctor", {
@@ -202,7 +209,10 @@ export const doctors = pgTable("Doctor", {
   isActive: boolean("is_active").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("doctor_isActive_idx").on(table.isActive),
+  index("doctor_placeId_idx").on(table.placeId),
+]);
 
 // Phone
 export const phones = pgTable(
@@ -220,6 +230,8 @@ export const phones = pgTable(
       "phone_owner_check",
       sql`(${table.personId} IS NOT NULL AND ${table.doctorId} IS NULL) OR (${table.personId} IS NULL AND ${table.doctorId} IS NOT NULL)`
     ),
+    index("phone_personId_idx").on(table.personId),
+    index("phone_doctorId_idx").on(table.doctorId),
   ]
 );
 
@@ -275,7 +287,9 @@ export const ageGroups = pgTable("Age_Group", {
   name: varchar("name", { length: 50 }).notNull(), // Children, Teenagers, Adults
   minAge: integer("min_age").notNull(),
   maxAge: integer("max_age").notNull(),
-});
+}, (table) => [
+  index("age_group_doctorId_idx").on(table.doctorId),
+]);
 
 // Education
 export const educations = pgTable("Education", {
@@ -290,7 +304,10 @@ export const educations = pgTable("Education", {
   specialization: varchar("specialization", { length: 255 }).notNull(), // Clinical Psychology, Psychiatry, etc.
   startYear: smallint("start_year").notNull(),
   endYear: smallint("end_year").notNull(),
-});
+}, (table) => [
+  index("education_doctorId_idx").on(table.doctorId),
+  index("education_institutionId_idx").on(table.institutionId),
+]);
 
 // Progress
 export const progresses = pgTable("Progress", {
@@ -309,7 +326,12 @@ export const progresses = pgTable("Progress", {
   level: varchar("level", { length: 100 }),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("progress_personId_idx").on(table.personId),
+  index("progress_doctorId_idx").on(table.doctorId),
+  index("progress_appointmentId_idx").on(table.appointmentId),
+  index("progress_conditionId_idx").on(table.conditionId),
+]);
 
 // Schedule
 export const schedules = pgTable("Schedule", {
@@ -320,7 +342,10 @@ export const schedules = pgTable("Schedule", {
   day: dayOfWeekEnum("day").notNull(),
   startTime: time("start_time").notNull(),
   endTime: time("end_time").notNull(),
-});
+}, (table) => [
+  index("schedule_doctorId_idx").on(table.doctorId),
+  index("schedule_day_idx").on(table.day),
+]);
 
 // ============================================================================
 // Many to Many TABLES
@@ -338,7 +363,10 @@ export const doctorServices = pgTable(
       .references(() => services.id, { onDelete: "cascade" }),
     amount: integer("amount").notNull(), // Price for this service
   },
-  (table) => [primaryKey({ columns: [table.doctorId, table.serviceId] })]
+  (table) => [
+    primaryKey({ columns: [table.doctorId, table.serviceId] }),
+    index("doctor_service_serviceId_idx").on(table.serviceId),
+  ]
 );
 
 // Doctor - Treatment Method (Many-to-Many)
@@ -352,7 +380,10 @@ export const doctorTreatmentMethods = pgTable(
       .notNull()
       .references(() => treatmentMethods.id, { onDelete: "cascade" }),
   },
-  (table) => [primaryKey({ columns: [table.doctorId, table.treatmentMethodId] })]
+  (table) => [
+    primaryKey({ columns: [table.doctorId, table.treatmentMethodId] }),
+    index("doctor_treatment_method_treatmentMethodId_idx").on(table.treatmentMethodId),
+  ]
 );
 
 // Doctor - Identity (Many-to-Many)
@@ -395,7 +426,10 @@ export const doctorConditions = pgTable(
       .references(() => conditions.id, { onDelete: "cascade" }),
     type: conditionTypeEnum("type").notNull(),
   },
-  (table) => [primaryKey({ columns: [table.doctorId, table.conditionId] })]
+  (table) => [
+    primaryKey({ columns: [table.doctorId, table.conditionId] }),
+    index("doctor_condition_conditionId_idx").on(table.conditionId),
+  ]
 );
 
 // Doctor - Language (Many-to-Many)
@@ -410,7 +444,10 @@ export const doctorLanguages = pgTable(
       .references(() => languages.id, { onDelete: "cascade" }),
     type: languageTypeEnum("type").notNull(),
   },
-  (table) => [primaryKey({ columns: [table.doctorId, table.languageId] })]
+  (table) => [
+    primaryKey({ columns: [table.doctorId, table.languageId] }),
+    index("doctor_language_languageId_idx").on(table.languageId),
+  ]
 );
 
 // ============================================================================
@@ -453,7 +490,11 @@ export const paymentMethodPersons = pgTable("Payment_Method_Person", {
   nickname: varchar("nickname", { length: 100 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("payment_method_person_personId_idx").on(table.personId),
+  index("payment_method_person_paymentMethodId_idx").on(table.paymentMethodId),
+  index("payment_method_person_isPreferred_idx").on(table.isPreferred),
+]);
 
 // ============================================================================
 // PAYOUT METHOD - SUPERTYPE (Single Table Inheritance)
@@ -480,7 +521,10 @@ export const payoutMethods = pgTable("Payout_Method", {
   nickname: varchar("nickname", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("payout_method_doctorId_idx").on(table.doctorId),
+  index("payout_method_isPreferred_idx").on(table.isPreferred),
+]);
 
 // ============================================================================
 // APPOINTMENT & PAYMENT & RATING
@@ -509,7 +553,12 @@ export const appointments = pgTable("Appointment", {
   deletedAt: timestamp("deleted_at"), // Soft-delete timestamp
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("appointment_personId_idx").on(table.personId),
+  index("appointment_doctorId_idx").on(table.doctorId),
+  index("appointment_status_idx").on(table.status),
+  index("appointment_startDateTime_idx").on(table.startDateTime),
+]);
 
 // Payment
 export const payments = pgTable("Payment", {
@@ -527,7 +576,12 @@ export const payments = pgTable("Payment", {
   date: date("date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("payment_personId_idx").on(table.personId),
+  index("payment_paymentMethodId_idx").on(table.paymentMethodId),
+  index("payment_payoutMethodId_idx").on(table.payoutMethodId),
+  index("payment_date_idx").on(table.date),
+]);
 
 // Review - One review per doctor per patient
 export const reviews = pgTable(
@@ -552,13 +606,14 @@ export const reviews = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => ({
+  (table) => [
     // Unique constraint: one review per doctor per patient
-    reviewDoctorPersonIdx: uniqueIndex("review_doctor_person_idx").on(
+    uniqueIndex("review_doctor_person_idx").on(
       table.doctorId,
       table.personId
     ),
-  })
+    index("review_score_idx").on(table.score),
+  ]
 );
 
 // ============================================================================
