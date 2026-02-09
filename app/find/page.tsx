@@ -3,6 +3,7 @@
 import { useDoctors, type Doctor } from "@/lib/hooks";
 import SearchTherapistsBar from "@/components/search-therapists-bar";
 import TherapistCard from "@/components/therapist-card";
+import TherapistCardSkeleton from "@/components/therapist-card-skeleton";
 
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   const fullName = [
@@ -51,8 +52,10 @@ export default function Specialists() {
       <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-24">
 
         {isLoading && (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading therapists...</p>
+          <div className="space-y-6">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <TherapistCardSkeleton key={index} />
+            ))}
           </div>
         )}
 
