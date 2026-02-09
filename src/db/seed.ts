@@ -749,7 +749,7 @@ async function seed() {
         { doctorId: doctorsData[0].id, name: "Adultos", minAge: 18, maxAge: 65 },
         { doctorId: doctorsData[0].id, name: "Adolescentes", minAge: 13, maxAge: 17 },
         { doctorId: doctorsData[1].id, name: "Adultos", minAge: 25, maxAge: 45 },
-        { doctorId: doctorsData[2].id, name: "Parejas", minAge: 15, maxAge: 60 },
+        { doctorId: doctorsData[2].id, name: "Adolescentes", minAge: 13, maxAge: 16 },
         { doctorId: doctorsData[3].id, name: "Niños", minAge: 6, maxAge: 12 },
         {
           doctorId: doctorsData[3].id,

@@ -71,8 +71,8 @@ export default async function TherapistDetailPage({ params }: PageProps) {
       description: dtm.treatmentMethod.description,
     })) || [];
 
-  // Get age groups
-  const agesServed = doctor.ageGroups?.map((ag) => ag.name) || [];
+  // Get age groups with age ranges
+  const agesServed = doctor.ageGroups?.map((ag) => `${ag.name} (${ag.minAge}-${ag.maxAge})`) || [];
 
   // Get licensed states from education institutions (unique places)
   const licensedStates = Array.from(
