@@ -1,9 +1,8 @@
-"use client";
-
-import { useDoctors, type Doctor } from "@/lib/hooks";
+import { findAllDoctors } from "@/src/dal";
 import SearchTherapistsBar from "@/components/search-therapists-bar";
 import TherapistCard from "@/components/therapist-card";
-import TherapistCardSkeleton from "@/components/therapist-card-skeleton";
+
+type Doctor = Awaited<ReturnType<typeof findAllDoctors>>["data"][number];
 
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   const fullName = [
@@ -39,52 +38,47 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
   );
 }
 
-export default function Specialists() {
-  const { data, isLoading, error } = useDoctors(
+export default async function Specialists() {
+  const result = await findAllDoctors(
     { isActive: true },
     { page: 1, limit: 20, offset: 0 },
-    { lite: true }
+    undefined,
+    {
+      columns: {
+        id: true,
+        firstName: true,
+        middleName: true,
+        firstLastName: true,
+        secondLastName: true,
+        practiceStartYear: true,
+        biography: true,
+      },
+      includePlace: true,
+      includeStats: true,
+      includeConditions: true,
+    }
   );
 
   return (
     <>
       <SearchTherapistsBar />
       <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-24">
+        <div className="space-y-6">
+          {result.data.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
+        </div>
 
-        {isLoading && (
-          <div className="space-y-6">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <TherapistCardSkeleton key={index} />
-            ))}
-          </div>
-        )}
-
-        {error && (
+        {result.data.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-red-600">Error loading therapists: {error.message}</p>
+            <p className="text-gray-600">No therapists found</p>
           </div>
         )}
 
-        {data && (
-          <>
-            <div className="space-y-6">
-              {data.data.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} />
-              ))}
-            </div>
-
-            {data.data.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No therapists found</p>
-              </div>
-            )}
-
-            {data.pagination.total > 0 && (
-              <div className="text-center text-sm text-gray-600 mt-8">
-                Showing {data.data.length} of {data.pagination.total} therapists
-              </div>
-            )}
-          </>
+        {result.pagination.totalCount > 0 && (
+          <div className="text-center text-sm text-gray-600 mt-8">
+            Showing {result.data.length} of {result.pagination.totalCount} therapists
+          </div>
         )}
       </main>
     </>

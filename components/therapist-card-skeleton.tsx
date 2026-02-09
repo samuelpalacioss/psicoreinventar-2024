@@ -58,9 +58,9 @@ export default function TherapistCardSkeleton({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Skeleton className="h-10 flex-1" />
-            <Skeleton className="h-10 w-full sm:w-10" />
+          <div className="flex gap-3 pt-2">
+            <Skeleton className="flex-1 md:flex-initial h-11 w-34 px-7 py-3" />
+            <Skeleton className="flex-1 md:flex-initial h-11 w-34 px-7 py-3" />
           </div>
         </div>
       </CardContent>
