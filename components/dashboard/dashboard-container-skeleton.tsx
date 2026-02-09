@@ -1,9 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/**
- * Skeleton that matches DashboardContainer layout so loading fallback
- * looks identical (header + content area) but with pulse placeholders.
- */
+
 export function DashboardContainerSkeleton() {
   return (
     <div className="@container/main flex flex-1 flex-col">
