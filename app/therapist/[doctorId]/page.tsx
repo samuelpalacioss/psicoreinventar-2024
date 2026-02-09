@@ -10,10 +10,7 @@ interface PageProps {
 export default async function TherapistDetailPage({ params }: PageProps) {
   const { doctorId } = await params;
   const id = parseInt(doctorId, 10);
-
-  if (isNaN(id)) {
-    notFound();
-  }
+  if (!id || id < 1) notFound();
 
   const doctor = await findDoctorDetailById(id);
 

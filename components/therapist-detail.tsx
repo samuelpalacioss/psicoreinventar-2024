@@ -117,14 +117,12 @@ export default function TherapistDetail({
                   {specialty}
                 </Badge>
               ))}
-              {specialties.length > 3 && (
-                <button
-                  onClick={() => setIsSpecialtiesModalOpen(true)}
-                  className="text-gray-600 ml-1 hover:text-indigo-600 font-medium underline cursor-pointer"
-                >
-                  +{specialties.length - 3}
-                </button>
-              )}
+              <button
+                onClick={() => setIsSpecialtiesModalOpen(true)}
+                className="text-gray-600 ml-1 hover:text-indigo-600 font-medium underline cursor-pointer"
+              >
+                {specialties.length > 3 ? `+${specialties.length - 3}` : "View all"}
+              </button>
             </div>
           </div>
         </Container>
