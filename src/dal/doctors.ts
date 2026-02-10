@@ -13,12 +13,15 @@ import {
   appointments,
   reviews,
   conditions as conditionsTable,
+  services as servicesTable,
+  treatmentMethods as treatmentMethodsTable,
+  places,
   identities,
   personalityTraits,
   doctorIdentities,
   doctorPersonalityTraits,
 } from "@/src/db/schema";
-import { and, count, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
 
@@ -29,11 +32,15 @@ import type { PaginationParams, QueryOptions } from "./types";
 export interface DoctorFilters {
   search?: string;
   placeId?: number;
+  placeState?: string;
   isActive?: boolean;
   serviceId?: number;
+  serviceNames?: string[];
   conditionId?: number;
+  conditionNames?: string[];
   languageId?: number;
   treatmentMethodId?: number;
+  treatmentMethodNames?: string[];
 }
 
 export interface DoctorQueryOptions<T = any> extends QueryOptions<T> {
@@ -76,7 +83,14 @@ export async function findAllDoctors<
     );
   }
 
-  if (filters.placeId) {
+  if (filters.placeState) {
+    const placeRows = await db
+      .select({ id: places.id })
+      .from(places)
+      .where(ilike(places.state, filters.placeState));
+    if (placeRows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(sql`${doctors.placeId} IN (${sql.join(placeRows.map((r) => r.id), sql.raw(","))})`);
+  } else if (filters.placeId) {
     conditions.push(eq(doctors.placeId, filters.placeId));
   }
 
@@ -85,7 +99,15 @@ export async function findAllDoctors<
   }
 
   // M2M filters: resolve doctor IDs from junction tables
-  if (filters.serviceId) {
+  if (filters.serviceNames?.length) {
+    const rows = await db
+      .selectDistinct({ doctorId: doctorServices.doctorId })
+      .from(doctorServices)
+      .innerJoin(servicesTable, eq(doctorServices.serviceId, servicesTable.id))
+      .where(inArray(servicesTable.name, filters.serviceNames));
+    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+  } else if (filters.serviceId) {
     const rows = await db
       .selectDistinct({ doctorId: doctorServices.doctorId })
       .from(doctorServices)
@@ -94,7 +116,15 @@ export async function findAllDoctors<
     conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
   }
 
-  if (filters.conditionId) {
+  if (filters.conditionNames?.length) {
+    const rows = await db
+      .selectDistinct({ doctorId: doctorConditions.doctorId })
+      .from(doctorConditions)
+      .innerJoin(conditionsTable, eq(doctorConditions.conditionId, conditionsTable.id))
+      .where(inArray(conditionsTable.name, filters.conditionNames));
+    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+  } else if (filters.conditionId) {
     const rows = await db
       .selectDistinct({ doctorId: doctorConditions.doctorId })
       .from(doctorConditions)
@@ -112,7 +142,15 @@ export async function findAllDoctors<
     conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
   }
 
-  if (filters.treatmentMethodId) {
+  if (filters.treatmentMethodNames?.length) {
+    const rows = await db
+      .selectDistinct({ doctorId: doctorTreatmentMethods.doctorId })
+      .from(doctorTreatmentMethods)
+      .innerJoin(treatmentMethodsTable, eq(doctorTreatmentMethods.treatmentMethodId, treatmentMethodsTable.id))
+      .where(inArray(treatmentMethodsTable.name, filters.treatmentMethodNames));
+    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+  } else if (filters.treatmentMethodId) {
     const rows = await db
       .selectDistinct({ doctorId: doctorTreatmentMethods.doctorId })
       .from(doctorTreatmentMethods)
@@ -143,7 +181,7 @@ export async function findAllDoctors<
       place: {
         columns: {
           id: true,
-          name: true,
+          displayPlace: true,
         },
       },
     };

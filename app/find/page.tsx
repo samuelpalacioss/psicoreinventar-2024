@@ -1,8 +1,8 @@
 import { findAllDoctors } from "@/src/dal";
 import SearchTherapistsBar from "@/components/search-therapists-bar";
 import TherapistCard from "@/components/therapist-card";
-import { cacheLife, cacheTag } from "next/cache";
-import { STALE_TIMES } from "@/lib/queries/stale-times";
+import { Suspense } from "react";
+import type { DoctorFilters } from "@/src/dal/doctors";
 
 type Doctor = Awaited<ReturnType<typeof findAllDoctors>>["data"][number];
 
@@ -40,19 +40,29 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
   );
 }
 
-export default async function Specialists() {
-  "use cache";
+export default async function Specialists({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
 
-  cacheLife({
-    stale: STALE_TIMES.DOCTORS / 1000, // Convert from ms to seconds (30 min)
-    revalidate: 3600, // 1 hour - check for updates every hour in background
-    expire: 86400, // 1 day - purge after 1 day
-  });
+  const filters: DoctorFilters = { isActive: true };
 
-  cacheTag("doctors-list");
+  if (params.q) filters.search = params.q;
+  if (params.state) filters.placeState = params.state;
+
+  const specialties = params.specialties?.split(",").filter(Boolean);
+  if (specialties?.length) filters.conditionNames = specialties;
+
+  const therapy = params.therapy?.split(",").filter(Boolean);
+  if (therapy?.length) filters.serviceNames = therapy;
+
+  const methods = params.method?.split(",").filter(Boolean);
+  if (methods?.length) filters.treatmentMethodNames = methods;
 
   const result = await findAllDoctors(
-    { isActive: true },
+    filters,
     { page: 1, limit: 20, offset: 0 },
     undefined,
     {
@@ -73,7 +83,9 @@ export default async function Specialists() {
 
   return (
     <>
-      <SearchTherapistsBar />
+      <Suspense>
+        <SearchTherapistsBar />
+      </Suspense>
       <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-24">
         <div className="space-y-6">
           {result.data.map((doctor) => (

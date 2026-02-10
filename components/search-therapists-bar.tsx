@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, MagnifyingGlassIcon, ArrowLeftIcon, XMarkIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
@@ -28,30 +29,57 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const locations = placesData?.data?.map(place => place.displayPlace) || [];
   const defaultLocation = locations[0] || "";
 
-  const [location, setLocation] = useState<string>(defaultLocation);
-  const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
-  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isFiltersModalOpen, setIsFiltersModalOpen] = useState<boolean>(false);
-  const [isFindProviderModalOpen, setIsFindProviderModalOpen] = useState<boolean>(false);
-  const [isNavigatingBetweenModals, setIsNavigatingBetweenModals] = useState<boolean>(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // Individual field modals
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
-  const [isSpecialtiesModalOpen, setIsSpecialtiesModalOpen] = useState<boolean>(false);
+  // Helper to update URL search params (reads latest URL to avoid stale state)
+  function updateParams(updates: Record<string, string | null>) {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null) {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    }
+    const query = params.toString();
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+  }
 
-  // Search states for each modal
-  const [locationSearch, setLocationSearch] = useState<string>("");
-  const [paymentSearch, setPaymentSearch] = useState<string>("");
-  const [specialtiesSearch, setSpecialtiesSearch] = useState<string>("");
+  // Filter state derived from URL search params
+  const location = searchParams.get("state") || defaultLocation;
+  const paymentMethod = searchParams.get("payment") || "Cash";
+  const selectedSessionType = searchParams.get("session") || "Virtual";
+  const selectedTherapyTypes = searchParams.get("therapy")?.split(",").filter(Boolean) ?? [];
+  const selectedSpecialties = searchParams.get("specialties")?.split(",").filter(Boolean) ?? [];
+  const selectedTreatmentMethods = searchParams.get("method")?.split(",").filter(Boolean) ?? [];
 
-  // State for checkbox filters in modal
-  const [selectedSessionType, setSelectedSessionType] = useState<string>("Virtual");
-  const [selectedTherapyTypes, setSelectedTherapyTypes] = useState<string[]>(["Talk therapy"]);
-  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(["ADHD"]);
-  const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>(["ADHD"]);
-  const [selectedTreatmentMethods, setSelectedTreatmentMethods] = useState<string[]>([]);
+  // Search query: local state, synced to URL on blur/Enter
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+
+  // URL state setters
+  function setLocation(value: string) { updateParams({ state: value || null }); }
+  function setPaymentMethod(value: string) { updateParams({ payment: value || null }); }
+  function setSelectedSessionType(value: string) { updateParams({ session: value || null }); }
+  function setSelectedTherapyTypes(values: string[]) { updateParams({ therapy: values.length ? values.join(",") : null }); }
+  function setSelectedSpecialties(values: string[]) { updateParams({ specialties: values.length ? values.join(",") : null }); }
+  function setSelectedTreatmentMethods(values: string[]) { updateParams({ method: values.length ? values.join(",") : null }); }
+
+  // UI state (not persisted in URL)
+  const [isSearchOpen, setIsSearchOpen] = useState(!!searchParams.get("q"));
+  const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
+  const [isFindProviderModalOpen, setIsFindProviderModalOpen] = useState(false);
+  const [isNavigatingBetweenModals, setIsNavigatingBetweenModals] = useState(false);
+
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isSpecialtiesModalOpen, setIsSpecialtiesModalOpen] = useState(false);
+
+  const [locationSearch, setLocationSearch] = useState("");
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [specialtiesSearch, setSpecialtiesSearch] = useState("");
+  const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>([]);
 
   const paymentMethods = ["Cash", "Zelle", "Bank transfer", "Pago Movil"];
   const specialtiesList = ["ADHD", "Anxiety", "Depression", "Trauma", "Stress", "Relationship issues", "Grief", "Coping Skills", "Addiction", "Bipolar Disorder", "Eating Disorders", "OCD", "PTSD", "Self Esteem"];
@@ -111,7 +139,11 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onBlur={() => {
+                        updateParams({ q: searchQuery || null });
                         if (!searchQuery) setIsSearchOpen(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") updateParams({ q: searchQuery || null });
                       }}
                       className="bg-white pl-10 pr-4 h-10 text-sm border-2 border-indigo-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-64"
                       autoFocus
@@ -147,12 +179,17 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   placeholder="Search by name"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onBlur={() => updateParams({ q: searchQuery || null })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") updateParams({ q: searchQuery || null });
+                  }}
                   className="bg-white pl-10 pr-10 h-10 text-sm border-2 border-indigo-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
                   autoFocus
                 />
                 <button
                   onClick={() => {
                     setSearchQuery("");
+                    updateParams({ q: null });
                     setIsSearchOpen(false);
                   }}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2"
@@ -366,10 +403,12 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               variant="outline"
               className="flex-1 h-12 rounded-full"
               onClick={() => {
-                setSelectedSessionType("Virtual");
-                setSelectedTherapyTypes([]);
-                setSelectedSpecialties([]);
-                setSelectedTreatmentMethods([]);
+                updateParams({
+                  session: null,
+                  therapy: null,
+                  specialties: null,
+                  method: null,
+                });
               }}
             >
               Clear all
