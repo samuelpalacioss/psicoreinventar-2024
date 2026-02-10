@@ -57,7 +57,7 @@ export default function PsicoreinventarDoctorRegisterEmail({
               Complete Your Registration
             </Button>
             <Text style={text}>
-              You have 7 days to register. If you don&apos;t, you will need to request a new
+              You have 7 days to register. If you don't, you will need to request a new
               register link.
             </Text>
             <Text style={text}>

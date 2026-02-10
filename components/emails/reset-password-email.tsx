@@ -49,7 +49,7 @@ export default function PsicoreinventarResetPasswordEmail({
             </Button>
             <Text style={text}>This link will expire in one hour.</Text>
             <Text style={text}>
-              If you don&apos;t want to change your password or didn&apos;t request this, just
+              If you don't want to change your password or didn't request this, just
               ignore and feel free to delete this message.
             </Text>
             <Text style={text}>All the best, </Text>

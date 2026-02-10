@@ -199,20 +199,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify place exists
-    const place = await findPlaceById(validatedData.placeId);
+    // Verify place exists if provided
+    if (validatedData.placeId !== undefined) {
+      const place = await findPlaceById(validatedData.placeId);
 
-    if (!place) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Place not found",
-            code: "NOT_FOUND",
+      if (!place) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message: "Place not found",
+              code: "NOT_FOUND",
+            },
           },
-        },
-        { status: StatusCodes.NOT_FOUND }
-      );
+          { status: StatusCodes.NOT_FOUND }
+        );
+      }
     }
 
     // Create doctor profile (isActive defaults to false - requires admin approval)

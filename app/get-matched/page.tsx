@@ -19,7 +19,7 @@ export default function GetMatchedPage() {
               Find your perfect match
             </h1>
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              Answer a few questions and we&apos;ll connect you with therapists who understand your
+              Answer a few questions and we'll connect you with therapists who understand your
               unique needs.
             </p>
           </div>

@@ -811,7 +811,7 @@ export function CrisisResourcesBanner() {
     <div className="bg-rose-50/80 border border-rose-200 rounded-lg p-5 mb-8">
       <h3 className="font-medium text-rose-900 mb-2">Need immediate support?</h3>
       <p className="text-rose-800 text-sm leading-relaxed mb-3">
-        If you&apos;re in crisis or having thoughts of self-harm, please reach out:
+        If you're in crisis or having thoughts of self-harm, please reach out:
       </p>
       <ul className="text-sm text-rose-700 space-y-1">
         <li>

@@ -102,7 +102,7 @@ export default function MarketingPage() {
               Start where you are
             </h2>
             <p className="text-base leading-relaxed text-gray-600">
-              Share what brings you here, and we&apos;ll connect you with a therapist who can help.
+              Share what brings you here, and we'll connect you with a therapist who can help.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12">
@@ -112,9 +112,8 @@ export default function MarketingPage() {
               return (
                 <div
                   key={index}
-                  className={`space-y-4 ${
-                    index > 0 ? "md:border-l md:border-gray-300 md:pl-10 lg:pl-12" : ""
-                  }`}
+                  className={`space-y-4 ${index > 0 ? "md:border-l md:border-gray-300 md:pl-10 lg:pl-12" : ""
+                    }`}
                 >
                   <div className="text-6xl  font-normal text-gray-900 leading-none mb-2">
                     {stepNumber}
@@ -142,8 +141,8 @@ export default function MarketingPage() {
             </div>
             <div className="flex-1 max-w-xl flex flex-col md:items-start md:self-start">
               <p className="text-base sm:text-lg leading-relaxed text-gray-600 mb-2">
-                Our therapists specialize in a wide range of specialties. Whatever you&apos;re
-                navigating, we&apos;re here to support you.
+                Our therapists specialize in a wide range of specialties. Whatever you're
+                navigating, we're here to support you.
               </p>
               <Link
                 href="/find"
@@ -170,7 +169,7 @@ export default function MarketingPage() {
         <Container>
           <div className="max-w-3xl mb-12">
             <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4">
-              You&apos;re in good hands
+              You're in good hands
             </h2>
             <p className="text-base leading-relaxed text-gray-600">
               Join thousands who've already found the right support for their mental health journey.
@@ -204,7 +203,7 @@ export default function MarketingPage() {
                 Start Your Journey to Emotional Well-Being Today
               </h6>
               <p className="mt-4 text-base text-slate-200">
-                Ready to take a step towards a brighter tomorrow? Let&apos;s embark on this journey
+                Ready to take a step towards a brighter tomorrow? Let's embark on this journey
                 together! Click below to start your path towards healing and happiness.
               </p>
               <Link href="/" className={cn(buttonVariants({ variant: "outline" }), "mt-4 gap-x-1")}>

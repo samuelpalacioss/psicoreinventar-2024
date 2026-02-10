@@ -124,10 +124,10 @@ export default function AboutPage() {
             <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
               <div>
                 <h2 className="text-4xl md:text-5xl font-normal tracking-tight text-gray-900 mb-4 sm:mb-5">
-                  We&apos;re building a better way
+                  We're building a better way
                 </h2>
                 <p className="text-base leading-relaxed text-gray-600">
-                  Technology should eliminate barriers, not create them. We&apos;re reimagining
+                  Technology should eliminate barriers, not create them. We're reimagining
                   mental healthcare from the ground up.
                 </p>
               </div>

@@ -138,16 +138,14 @@ export default function FeatureShowcase() {
                     >
                       <h3 className="relative inline-block mb-2">
                         <span
-                          className={`text-xl font-medium text-gray-900 transition-colors duration-300 ${
-                            isActive ? "text-gray-900" : "text-gray-700"
-                          }`}
+                          className={`text-xl font-medium text-gray-900 transition-colors duration-300 ${isActive ? "text-gray-900" : "text-gray-700"
+                            }`}
                         >
                           {feature.title}
                         </span>
                         <span
-                          className={`absolute -bottom-1 left-0 h-0.5 transition-all duration-300 ${feature.accentColor} ${
-                            isActive ? "w-full" : "w-0"
-                          }`}
+                          className={`absolute -bottom-1 left-0 h-0.5 transition-all duration-300 ${feature.accentColor} ${isActive ? "w-full" : "w-0"
+                            }`}
                         />
                       </h3>
                       <p className="text-base leading-7 text-gray-600">{feature.description}</p>
@@ -162,7 +160,7 @@ export default function FeatureShowcase() {
                             <div className="space-y-6">
                               <div>
                                 <h3 className="relative inline-block text-xl sm:text-2xl font-light text-gray-900 mb-2">
-                                  How you&apos;re{" "}
+                                  How you're{" "}
                                   <span className="relative inline-block">
                                     <span className="relative z-10">doing</span>
                                     <span className="absolute -bottom-0.5 left-0 w-full h-2 bg-rose-200/40 -rotate-1 -z-10" />
@@ -245,11 +243,10 @@ export default function FeatureShowcase() {
                                   return (
                                     <div
                                       key={idx}
-                                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                                        msg.sender === "You"
+                                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${msg.sender === "You"
                                           ? "bg-white text-gray-900 border border-gray-300"
                                           : "bg-gray-100 text-gray-900"
-                                      } ${marginClasses}`}
+                                        } ${marginClasses}`}
                                     >
                                       <p className="text-xs text-gray-600 font-medium mb-1">{msg.sender}</p>
                                       <p className={`text-sm leading-relaxed font-light ${msg.sender === "You" ? "text-gray-600" : "text-gray-900"}`}>
@@ -285,20 +282,18 @@ export default function FeatureShowcase() {
                     key={feature.id}
                     onClick={() => setActiveFeature(index)}
                     className={`w-full text-left transition-all duration-300 cursor-pointer max-w-md`}
-                    // className={`w-full text-left transition-all duration-300 cursor-pointer max-w-md ${marginClasses}`}
+                  // className={`w-full text-left transition-all duration-300 cursor-pointer max-w-md ${marginClasses}`}
                   >
                     <h3 className="relative inline-block mb-2">
                       <span
-                        className={`text-2xl font-medium transition-colors duration-300 ${
-                          isActive ? "text-gray-900" : "text-gray-700"
-                        }`}
+                        className={`text-2xl font-medium transition-colors duration-300 ${isActive ? "text-gray-900" : "text-gray-700"
+                          }`}
                       >
                         {feature.title}
                       </span>
                       <span
-                        className={`absolute -bottom-1 left-0 h-0.5 transition-all duration-300 ${feature.accentColor} ${
-                          isActive ? "w-full" : "w-0"
-                        }`}
+                        className={`absolute -bottom-1 left-0 h-0.5 transition-all duration-300 ${feature.accentColor} ${isActive ? "w-full" : "w-0"
+                          }`}
                       />
                     </h3>
                     <p className="text-base leading-7 text-gray-600">{feature.description}</p>
@@ -315,11 +310,10 @@ export default function FeatureShowcase() {
                       onClick={() => setActiveFeature(index)}
                       onMouseEnter={stopAutoRotation}
                       onMouseLeave={startAutoRotation}
-                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                        index === activeFeature
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${index === activeFeature
                           ? "w-6 bg-gray-700"
                           : "w-1.5 bg-gray-300 hover:bg-gray-400"
-                      }`}
+                        }`}
                       aria-label={`Go to feature ${index + 1}`}
                     />
                   ))}
@@ -336,7 +330,7 @@ export default function FeatureShowcase() {
                 <div className="space-y-8">
                   <div>
                     <h3 className="relative inline-block text-2xl sm:text-3xl font-light text-gray-900 mb-2">
-                      How you&apos;re{" "}
+                      How you're{" "}
                       <span className="relative inline-block">
                         <span className="relative z-10">doing</span>
                         <span className="absolute -bottom-0.5 left-0 w-full h-2 bg-rose-200/40 -rotate-1 -z-10" />
@@ -425,17 +419,15 @@ export default function FeatureShowcase() {
                       return (
                         <div
                           key={index}
-                          className={`max-w-xs px-4 py-2 rounded-lg ${
-                            msg.sender === "You"
+                          className={`max-w-xs px-4 py-2 rounded-lg ${msg.sender === "You"
                               ? "bg-white text-gray-900 border border-gray-300"
                               : "bg-gray-100 text-gray-900"
-                          } ${marginClasses}`}
+                            } ${marginClasses}`}
                         >
                           <p className="text-sm text-gray-600 font-medium mb-1">{msg.sender}</p>
                           <p
-                            className={`text-base leading-relaxed font-light ${
-                              msg.sender === "You" ? "text-gray-600" : "text-gray-900"
-                            }`}
+                            className={`text-base leading-relaxed font-light ${msg.sender === "You" ? "text-gray-600" : "text-gray-900"
+                              }`}
                           >
                             {msg.sender === "Dr. Mitchell" && index === 0 ? (
                               <>How are you feeling after our last session?</>

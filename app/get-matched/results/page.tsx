@@ -26,8 +26,8 @@ export default function ResultsPage() {
             </h1>
 
             <p className="text-lg sm:text-xl text-gray-600 leading-relaxed mb-8">
-              We&apos;re analyzing your responses to find therapists who match
-              your needs. You&apos;ll receive your personalized matches via
+              We're analyzing your responses to find therapists who match
+              your needs. You'll receive your personalized matches via
               email shortly.
             </p>
 
@@ -57,7 +57,7 @@ export default function ResultsPage() {
                     3
                   </span>
                   <p className="text-gray-600 leading-relaxed">
-                    Book a free consultation to see if it&apos;s the right fit
+                    Book a free consultation to see if it's the right fit
                   </p>
                 </div>
               </div>
@@ -73,7 +73,7 @@ export default function ResultsPage() {
             </div>
 
             <p className="text-sm text-gray-500 mt-8">
-              Didn&apos;t receive an email? Check your spam folder or{" "}
+              Didn't receive an email? Check your spam folder or{" "}
               <Link href="/contact" className="text-indigo-600 hover:underline">
                 contact us
               </Link>
