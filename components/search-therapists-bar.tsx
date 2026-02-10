@@ -11,13 +11,24 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { MultiSelectDropdown } from "./multi-select-dropdown";
 import Link from "next/link";
+import { usePlaces } from "@/lib/hooks/use-places";
 
 interface SearchTherapistsBarProps {
   className?: string;
 }
 
 export default function SearchTherapistsBar({ className }: SearchTherapistsBarProps) {
-  const [location, setLocation] = useState<string>("Alaska");
+  // Fetch places from database
+  const { data: placesData } = usePlaces(
+    { type: "state" }, // Filter for states only
+    { page: 1, limit: 100, offset: 0 }
+  );
+
+  // Data lists from database or fallback
+  const locations = placesData?.data?.map(place => place.displayPlace) || [];
+  const defaultLocation = locations[0] || "";
+
+  const [location, setLocation] = useState<string>(defaultLocation);
   const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -42,8 +53,6 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>(["ADHD"]);
   const [selectedTreatmentMethods, setSelectedTreatmentMethods] = useState<string[]>([]);
 
-  // Data lists
-  const locations = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York, USA", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
   const paymentMethods = ["Cash", "Zelle", "Bank transfer", "Pago Movil"];
   const specialtiesList = ["ADHD", "Anxiety", "Depression", "Trauma", "Stress", "Relationship issues", "Grief", "Coping Skills", "Addiction", "Bipolar Disorder", "Eating Disorders", "OCD", "PTSD", "Self Esteem"];
 

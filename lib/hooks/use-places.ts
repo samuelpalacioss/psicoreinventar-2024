@@ -6,14 +6,29 @@ import type { PaginationParams } from '@/src/dal/types';
 
 export interface Place {
   id: number;
-  name: string;
-  address: string;
+  osmId: string;
+  osmType: string;
+  displayName: string;
+  displayPlace: string;
+  displayAddress: string | null;
+  class: string | null;
+  type: string;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  postcode: string | null;
+  lat: string;
+  lon: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface PlaceFilters {
   search?: string;
+  type?: string;
+  city?: string;
+  state?: string;
+  country?: string;
 }
 
 export function usePlaces(filters?: PlaceFilters, pagination?: PaginationParams) {
@@ -23,6 +38,10 @@ export function usePlaces(filters?: PlaceFilters, pagination?: PaginationParams)
       const url = buildUrl('/api/places', {
         ...buildPaginationParams(pagination),
         search: filters?.search,
+        type: filters?.type,
+        city: filters?.city,
+        state: filters?.state,
+        country: filters?.country,
       });
       return apiGetList<Place>(url);
     },

@@ -138,11 +138,36 @@ export const verifications = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)]
 );
 
-// Place (Based on search API)
+// Place (Based on LocationIQ API)
 export const places = pgTable("Place", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  type: varchar("type", { length: 100 }).notNull(), // city, state, country, etc.
+
+  // LocationIQ / OSM identifiers (for deduplication)
+  osmId: varchar("osm_id", { length: 50 }).notNull(),
+  osmType: varchar("osm_type", { length: 20 }).notNull(), // "node", "way", "relation"
+
+  // Display fields (directly from LocationIQ response)
+  displayName: varchar("display_name", { length: 500 }).notNull(),   // Full: "Caracas, Distrito Capital, Venezuela"
+  displayPlace: varchar("display_place", { length: 255 }).notNull(), // Short: "Caracas"
+  displayAddress: varchar("display_address", { length: 500 }),       // Rest: "Distrito Capital, Venezuela"
+
+  // Classification (from LocationIQ)
+  class: varchar("class", { length: 100 }),   // "place", "boundary", "tourism"
+  type: varchar("type", { length: 100 }).notNull(), // "city", "state", "country"
+
+  // Address components (from LocationIQ address object)
+  city: varchar("city", { length: 255 }),
+  state: varchar("state", { length: 255 }),
+  country: varchar("country", { length: 255 }),
+  postcode: varchar("postcode", { length: 20 }),
+
+  // Coordinates
+  lat: decimal("lat", { precision: 10, scale: 7 }).notNull(),
+  lon: decimal("lon", { precision: 10, scale: 7 }).notNull(),
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Institution

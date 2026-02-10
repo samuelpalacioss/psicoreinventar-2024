@@ -21,7 +21,7 @@ export interface TherapistCardProps {
   yearsInPractice: number;
   averageRating?: number;
   totalRatings?: number;
-  place?: Pick<InferSelectModel<typeof places>, 'id' | 'name'>;
+  place?: Pick<InferSelectModel<typeof places>, 'id' | 'displayPlace'>;
   className?: string;
 }
 
@@ -131,7 +131,7 @@ export default function TherapistCard({
               ) : (
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Icons.map className="w-4 h-4 text-gray-500" />
-                  <span>{place.name || "In-person"}</span>
+                  <span>{place.displayPlace || "In-person"}</span>
                 </div>
               )}
 

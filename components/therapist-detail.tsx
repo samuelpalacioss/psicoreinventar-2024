@@ -28,7 +28,7 @@ export interface TherapistDetailProps {
   yearsInPractice: number;
   averageRating?: number;
   totalRatings?: number;
-  place?: { id: number; name: string };
+  place?: { id: number; displayPlace: string };
 
   // Extended fields for detail page
   aboutMe: string;
@@ -195,7 +195,7 @@ export default function TherapistDetail({
                     {place ? (
                       <div className="flex items-center gap-2">
                         <Icons.map className="w-4 h-4 text-gray-600" />
-                        <span>{place.name}</span>
+                        <span>{place.displayPlace}</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
@@ -363,7 +363,7 @@ export default function TherapistDetail({
                 {place ? (
                   <Badge className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3">
                     <Icons.map className="w-3.5 h-3.5 mr-1.5" />
-                    {place.name}
+                    {place.displayPlace}
                   </Badge>
                 ) : (
                   <div className="flex items-center gap-2 text-gray-600">

@@ -141,11 +141,22 @@ export type ListLanguagesInput = z.infer<typeof listLanguagesSchema>;
 // ============================================================================
 
 /**
- * Schema for creating a place
+ * Schema for creating a place (LocationIQ format)
  */
 export const createPlaceSchema = z.object({
-  name: shortTextSchema,
-  type: z.string().min(1).max(100), // city, state, country, etc.
+  osmId: z.string().min(1).max(50),
+  osmType: z.enum(["node", "way", "relation"]),
+  displayName: z.string().min(1).max(500),
+  displayPlace: z.string().min(1).max(255),
+  displayAddress: z.string().max(500).optional(),
+  class: z.string().max(100).optional(),
+  type: z.string().min(1).max(100),
+  city: z.string().max(255).optional(),
+  state: z.string().max(255).optional(),
+  country: z.string().max(255).optional(),
+  postcode: z.string().max(20).optional(),
+  lat: z.string().regex(/^-?\d+\.?\d*$/), // Decimal string
+  lon: z.string().regex(/^-?\d+\.?\d*$/),
 });
 
 export type CreatePlaceInput = z.infer<typeof createPlaceSchema>;
@@ -163,6 +174,9 @@ export type UpdatePlaceInput = z.infer<typeof updatePlaceSchema>;
 export const listPlacesSchema = paginationSchema.extend({
   search: searchQuerySchema,
   type: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
 });
 
 export type ListPlacesInput = z.infer<typeof listPlacesSchema>;

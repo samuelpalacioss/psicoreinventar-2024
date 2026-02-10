@@ -104,17 +104,87 @@ async function seed() {
     console.log(`✅ Reset ${sequences.length} sequences`);
 
     // ============================================================================
-    // 1. PLACES (Venezuelan states and cities)
+    // 1. PLACES (Venezuelan states with LocationIQ format)
     // ============================================================================
     console.log("📍 Seeding places...");
     const placesData = await db
       .insert(places)
       .values([
-        { name: "Distrito Capital", type: "state" },
-        { name: "Miranda", type: "state" },
-        { name: "Zulia", type: "state" },
-        { name: "Carabobo", type: "state" },
-        { name: "Lara", type: "state" },
+        {
+          osmId: "272646",
+          osmType: "relation",
+          displayName: "Distrito Capital, Venezuela",
+          displayPlace: "Distrito Capital",
+          displayAddress: "Venezuela",
+          class: "boundary",
+          type: "state",
+          city: null,
+          state: "Distrito Capital",
+          country: "Venezuela",
+          postcode: null,
+          lat: "10.4880",
+          lon: "-66.8792",
+        },
+        {
+          osmId: "272644",
+          osmType: "relation",
+          displayName: "Miranda, Venezuela",
+          displayPlace: "Miranda",
+          displayAddress: "Venezuela",
+          class: "boundary",
+          type: "state",
+          city: null,
+          state: "Miranda",
+          country: "Venezuela",
+          postcode: null,
+          lat: "10.2442",
+          lon: "-66.5897",
+        },
+        {
+          osmId: "272648",
+          osmType: "relation",
+          displayName: "Zulia, Venezuela",
+          displayPlace: "Zulia",
+          displayAddress: "Venezuela",
+          class: "boundary",
+          type: "state",
+          city: null,
+          state: "Zulia",
+          country: "Venezuela",
+          postcode: null,
+          lat: "10.6316",
+          lon: "-72.1430",
+        },
+        {
+          osmId: "272645",
+          osmType: "relation",
+          displayName: "Carabobo, Venezuela",
+          displayPlace: "Carabobo",
+          displayAddress: "Venezuela",
+          class: "boundary",
+          type: "state",
+          city: null,
+          state: "Carabobo",
+          country: "Venezuela",
+          postcode: null,
+          lat: "10.1800",
+          lon: "-68.0050",
+        },
+        {
+          osmId: "272647",
+          osmType: "relation",
+          displayName: "Lara, Venezuela",
+          displayPlace: "Lara",
+          displayAddress: "Venezuela",
+          class: "boundary",
+          type: "state",
+          city: null,
+          state: "Lara",
+          country: "Venezuela",
+          postcode: null,
+          lat: "10.0647",
+          lon: "-69.3228",
+        },
       ])
       .returning();
     console.log(`✅ Created ${placesData.length} places`);

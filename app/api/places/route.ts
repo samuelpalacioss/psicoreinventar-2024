@@ -5,8 +5,7 @@ import { validateBody, validateSearchParams } from "@/utils/api/middleware/valid
 import { withRateLimit, defaultRateLimit, strictRateLimit } from "@/utils/api/middleware/ratelimit";
 import { getPaginationParams } from "@/utils/api/pagination/paginate";
 import { createPlaceSchema, listPlacesSchema } from "@/lib/api/schemas/simple.schemas";
-import { Role } from "@/src/types";
-import { findAllPlaces, findPlaceByNameAndType, createPlace } from "@/src/dal";
+import { findAllPlaces, findPlaceByOsmId, createPlace } from "@/src/dal";
 import { StatusCodes } from "http-status-codes";
 
 /**
@@ -26,7 +25,16 @@ export async function GET(request: NextRequest) {
   const pagination = getPaginationParams(request.nextUrl.searchParams);
 
   try {
-    const result = await findAllPlaces({ search: params.search, type: params.type }, pagination);
+    const result = await findAllPlaces(
+      {
+        search: params.search,
+        type: params.type,
+        city: params.city,
+        state: params.state,
+        country: params.country,
+      },
+      pagination
+    );
 
     return NextResponse.json({ success: true, ...result }, { status: StatusCodes.OK });
   } catch (error) {
@@ -66,14 +74,15 @@ export async function POST(request: NextRequest) {
   const validatedData = bodyValidationResult.data;
 
   try {
-    const existing = await findPlaceByNameAndType(validatedData.name, validatedData.type);
+    // Check for duplicate by OSM ID (more reliable than name)
+    const existing = await findPlaceByOsmId(validatedData.osmId, validatedData.osmType);
 
     if (existing) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Place with this name and type already exists",
+            message: "Place with this OSM ID already exists",
             code: "DUPLICATE_ENTRY",
           },
         },

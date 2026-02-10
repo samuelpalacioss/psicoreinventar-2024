@@ -7,7 +7,7 @@ import type { InferSelectModel } from 'drizzle-orm';
 import { doctors, places } from '@/src/db/schema';
 
 export type Doctor = InferSelectModel<typeof doctors> & {
-  place?: Pick<InferSelectModel<typeof places>, 'id' | 'name'>;
+  place?: Pick<InferSelectModel<typeof places>, 'id' | 'displayPlace'>;
   stats?: {
     averageScore: number;
     totalReviews: number;

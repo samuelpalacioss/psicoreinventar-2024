@@ -99,7 +99,7 @@ async function TherapistDetailContent({ params }: PageProps) {
   const licensedStates = Array.from(
     new Set(
       doctor.educations
-        ?.map((edu) => edu.institution?.place?.name)
+        ?.map((edu) => edu.institution?.place?.displayPlace)
         .filter(Boolean) as string[]
     )
   );
