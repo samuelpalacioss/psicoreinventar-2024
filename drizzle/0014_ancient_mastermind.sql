@@ -1,0 +1,2 @@
+CREATE TYPE "public"."service_type" AS ENUM('talk_therapy', 'couples_therapy', 'teen_therapy');--> statement-breakpoint
+ALTER TABLE "Service" ALTER COLUMN "name" SET DATA TYPE "public"."service_type" USING "name"::"public"."service_type";
