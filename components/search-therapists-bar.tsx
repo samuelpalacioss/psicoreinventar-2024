@@ -14,6 +14,7 @@ import { MultiSelectDropdown } from "./multi-select-dropdown";
 import Link from "next/link";
 import { usePlaces } from "@/lib/hooks/use-places";
 import { payoutTypeEnum } from "@/src/db/schema";
+import { Conditions } from "@/src/types";
 
 interface SearchTherapistsBarProps {
   className?: string;
@@ -106,7 +107,26 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>([]);
   const [payoutSearch, setPayoutSearch] = useState("");
   const payoutMethods = payoutTypeEnum.enumValues;
-  const specialtiesList = ["ADHD", "Anxiety", "Depression", "Trauma", "Stress", "Relationship issues", "Grief", "Coping Skills", "Addiction", "Bipolar Disorder", "Eating Disorders", "OCD", "PTSD", "Self Esteem"];
+  const specialtiesList = Object.values(Conditions);
+
+  // Helper to get a shorter display label for conditions based on their keys
+  const getConditionDisplayLabel = (conditionValue: string): string => {
+    // Find the key for this value
+    const entry = Object.entries(Conditions).find(([_, value]) => value === conditionValue);
+    if (!entry) return conditionValue;
+
+    const [key, value] = entry;
+
+    // If the value is long (> 20 chars), use a formatted version of the key
+    if (value.length > 20) {
+      // Convert key format: "OBS_COMP_DISORDER" -> "OCD"
+      // For now, just use the initials of the key parts
+      const parts = key.split('_');
+      return parts.map(part => part[0]).join('');
+    }
+
+    return value;
+  };
 
   const toggleCheckbox = (value: string, selectedValues: string[], setter: (values: string[]) => void) => {
     if (selectedValues.includes(value)) {
@@ -304,12 +324,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 selectedSpecialties.length === 0
                   ? "Specialties"
                   : selectedSpecialties.length === 1
-                    ? selectedSpecialties[0]
-                    : `${selectedSpecialties[0]} +${selectedSpecialties.length - 1}`
+                    ? getConditionDisplayLabel(selectedSpecialties[0])
+                    : `${getConditionDisplayLabel(selectedSpecialties[0])} +${selectedSpecialties.length - 1}`
               }
               options={specialtiesList}
               selectedValues={selectedSpecialties}
               onChange={setSelectedSpecialties}
+              formatLabel={getConditionDisplayLabel}
             />
 
             <Select value={selectedSessionType} onValueChange={setSelectedSessionType}>
@@ -770,7 +791,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                         checked={tempSelectedSpecialties.includes(spec)}
                         onCheckedChange={() => toggleCheckbox(spec, tempSelectedSpecialties, setTempSelectedSpecialties)}
                       />
-                      <span className="text-sm text-gray-900">{spec}</span>
+                      <span className="text-sm text-gray-900">{getConditionDisplayLabel(spec)}</span>
                     </label>
                   </li>
                 ))}

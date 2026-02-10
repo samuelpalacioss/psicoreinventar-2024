@@ -92,3 +92,26 @@ export const Role = {
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];
+
+// =============================================================================
+// CONDITIONS
+// =============================================================================
+// Single source of truth for mental health conditions used across the app.
+// - Keys are stable identifiers safe to use in code
+export const Conditions = {
+  AHD: "ADHD",
+  ADDICTION: "Addiction",
+  ANXIETY: "Anxiety",
+  AUTISM: "Autism",
+  BIPOLAR_DISORDER: "Bipolar Disorder",
+  COPING_SKILLS: "Coping Skills",
+  DEPRESSION: "Depression",
+  GRIEF: "Grief",
+  LIFE_TRANSITIONS: "Life Transitions",
+  OBS_COMP_DISORDER: "Obsessive-Compulsive Disorder",
+  RELATIONSHIP_ISSUES: "Relationship Issues",
+  SELF_ESTEEM: "Self-Esteem",
+  TRAUMA_PTSD: "Trauma & PTSD",
+} as const;
+
+export type Conditions = (typeof Conditions)[keyof typeof Conditions];

@@ -9,9 +9,10 @@ interface MultiSelectDropdownProps {
   options: string[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
+  formatLabel?: (value: string) => string;
 }
 
-export function MultiSelectDropdown({ label, options, selectedValues, onChange }: MultiSelectDropdownProps) {
+export function MultiSelectDropdown({ label, options, selectedValues, onChange, formatLabel }: MultiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOption = (option: string) => {
@@ -49,7 +50,7 @@ export function MultiSelectDropdown({ label, options, selectedValues, onChange }
                     checked={selectedValues.includes(option)}
                     onCheckedChange={() => toggleOption(option)}
                   />
-                  <span className="text-sm">{option}</span>
+                  <span className="text-sm">{formatLabel ? formatLabel(option) : option}</span>
                 </label>
               ))}
             </div>

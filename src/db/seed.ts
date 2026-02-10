@@ -11,7 +11,7 @@ import {
   persons,
   doctors,
   phones,
-  conditions,
+  conditions as conditionsTable,
   languages,
   services,
   treatmentMethods,
@@ -36,6 +36,7 @@ import {
 } from "./schema";
 import { randomUUID } from "crypto";
 import { hashPassword } from "@/utils/bcrypt";
+import { Conditions } from "@/src/types";
 
 async function seed() {
   console.log("🌱 Seeding database...");
@@ -76,7 +77,7 @@ async function seed() {
     await db.delete(personalityTraits);
     await db.delete(services);
     await db.delete(languages);
-    await db.delete(conditions);
+    await db.delete(conditionsTable);
     await db.delete(places);
 
     console.log("✅ Cleanup complete");
@@ -190,20 +191,25 @@ async function seed() {
     console.log(`✅ Created ${placesData.length} places`);
 
     // ============================================================================
-    // 2. CONDITIONS (Mental health conditions - NO TYPE)
+    // 2. CONDITIONS (Mental health conditions - derived from typed config)
     // ============================================================================
     console.log("🧠 Seeding conditions...");
     const conditionsData = await db
-      .insert(conditions)
-      .values([
-        { name: "Ansiedad" },
-        { name: "Depresión" },
-        { name: "Trastorno Bipolar" },
-        { name: "TDAH" },
-        { name: "Estrés Postraumático" },
-      ])
+      .insert(conditionsTable)
+      // Use single source of truth from `@/src/types`
+      .values(Object.values(Conditions).map((name) => ({ name })))
       .returning();
     console.log(`✅ Created ${conditionsData.length} conditions`);
+
+    // Helper map so we don't rely on array index ordering
+    const conditionIdByName = new Map(conditionsData.map((c) => [c.name, c.id]));
+    const getConditionId = (name: Conditions) => {
+      const id = conditionIdByName.get(name);
+      if (!id) {
+        throw new Error(`Condition not found for name: ${name}`);
+      }
+      return id;
+    };
 
     // ============================================================================
     // 3. LANGUAGES (NO TYPE)
@@ -923,40 +929,40 @@ async function seed() {
     // ============================================================================
     console.log("🧠 Seeding doctor conditions...");
     await db.insert(doctorConditions).values([
-      // Doctor 0 (Roberto - TCC, anxiety/depression specialist) - 3 primary, 2 other
-      { doctorId: doctorsData[0].id, conditionId: conditionsData[0].id, type: "primary" }, // Ansiedad
-      { doctorId: doctorsData[0].id, conditionId: conditionsData[1].id, type: "primary" }, // Depresión
-      { doctorId: doctorsData[0].id, conditionId: conditionsData[4].id, type: "primary" }, // Estrés Postraumático
-      { doctorId: doctorsData[0].id, conditionId: conditionsData[2].id, type: "other" }, // Trastorno Bipolar
-      { doctorId: doctorsData[0].id, conditionId: conditionsData[3].id, type: "other" }, // TDAH
+      // Doctor 0 (Roberto - TCC, anxiety/depression specialist) - mood & self-esteem focus
+      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.ANXIETY), type: "primary" },
+      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.DEPRESSION), type: "primary" },
+      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "primary" },
+      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.COPING_SKILLS), type: "other" },
+      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.GRIEF), type: "other" },
 
-      // Doctor 1 (Laura - Psychiatrist, EMDR, mood disorders) - 3 primary, 2 other
-      { doctorId: doctorsData[1].id, conditionId: conditionsData[1].id, type: "primary" }, // Depresión
-      { doctorId: doctorsData[1].id, conditionId: conditionsData[2].id, type: "primary" }, // Trastorno Bipolar
-      { doctorId: doctorsData[1].id, conditionId: conditionsData[4].id, type: "primary" }, // Estrés Postraumático
-      { doctorId: doctorsData[1].id, conditionId: conditionsData[0].id, type: "other" }, // Ansiedad
-      { doctorId: doctorsData[1].id, conditionId: conditionsData[3].id, type: "other" }, // TDAH
+      // Doctor 1 (Laura - Psychiatrist, trauma & mood disorders) - trauma, bipolar, OCD
+      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.TRAUMA_PTSD), type: "primary" },
+      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.BIPOLAR_DISORDER), type: "primary" },
+      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.DEPRESSION), type: "primary" },
+      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.ANXIETY), type: "other" },
+      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.OBS_COMP_DISORDER), type: "other" },
 
-      // Doctor 2 (Miguel - Family therapy) - 3 primary, 2 other
-      { doctorId: doctorsData[2].id, conditionId: conditionsData[1].id, type: "primary" }, // Depresión
-      { doctorId: doctorsData[2].id, conditionId: conditionsData[0].id, type: "primary" }, // Ansiedad
-      { doctorId: doctorsData[2].id, conditionId: conditionsData[2].id, type: "primary" }, // Trastorno Bipolar
-      { doctorId: doctorsData[2].id, conditionId: conditionsData[4].id, type: "other" }, // Estrés Postraumático
-      { doctorId: doctorsData[2].id, conditionId: conditionsData[3].id, type: "other" }, // TDAH
+      // Doctor 2 (Miguel - Family / relationships) - couples, transitions, self-esteem
+      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.RELATIONSHIP_ISSUES), type: "primary" },
+      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.LIFE_TRANSITIONS), type: "primary" },
+      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "primary" },
+      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.GRIEF), type: "other" },
+      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.COPING_SKILLS), type: "other" },
 
-      // Doctor 3 (Carmen - Child/adolescent, TDAH specialist) - 3 primary, 2 other
-      { doctorId: doctorsData[3].id, conditionId: conditionsData[3].id, type: "primary" }, // TDAH
-      { doctorId: doctorsData[3].id, conditionId: conditionsData[0].id, type: "primary" }, // Ansiedad
-      { doctorId: doctorsData[3].id, conditionId: conditionsData[1].id, type: "primary" }, // Depresión
-      { doctorId: doctorsData[3].id, conditionId: conditionsData[2].id, type: "other" }, // Trastorno Bipolar
-      { doctorId: doctorsData[3].id, conditionId: conditionsData[4].id, type: "other" }, // Estrés Postraumático
+      // Doctor 3 (Carmen - Child/adolescent, ADHD/autism specialist)
+      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.AHD), type: "primary" },
+      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.AUTISM), type: "primary" },
+      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.ANXIETY), type: "primary" },
+      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.COPING_SKILLS), type: "other" },
+      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "other" },
 
-      // Doctor 4 (Fernando - Humanist, existential) - 3 primary, 2 other
-      { doctorId: doctorsData[4].id, conditionId: conditionsData[0].id, type: "primary" }, // Ansiedad
-      { doctorId: doctorsData[4].id, conditionId: conditionsData[1].id, type: "primary" }, // Depresión
-      { doctorId: doctorsData[4].id, conditionId: conditionsData[4].id, type: "primary" }, // Estrés Postraumático
-      { doctorId: doctorsData[4].id, conditionId: conditionsData[2].id, type: "other" }, // Trastorno Bipolar
-      { doctorId: doctorsData[4].id, conditionId: conditionsData[3].id, type: "other" }, // TDAH
+      // Doctor 4 (Fernando - Humanist, existential) - addiction, life transitions, grief
+      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.ADDICTION), type: "primary" },
+      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.LIFE_TRANSITIONS), type: "primary" },
+      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.GRIEF), type: "primary" },
+      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.DEPRESSION), type: "other" },
+      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "other" },
     ]);
     console.log("✅ Created doctor conditions");
 
