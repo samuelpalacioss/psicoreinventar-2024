@@ -499,10 +499,9 @@ export default function TherapistDetail({
                 </a>
 
                 {totalRatings === 0 ? (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-md">
+                  <div className="mt-2 mb-4 bg-gray-50 rounded-md">
                     <p className="text-sm text-gray-600">
-                      This provider hasn&apos;t received any written reviews yet. We started
-                      collecting written reviews January 1, 2025.
+                      This provider hasn&apos;t received any written reviews yet.
                     </p>
                   </div>
                 ) : (
