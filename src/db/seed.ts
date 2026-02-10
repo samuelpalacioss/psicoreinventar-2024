@@ -1157,6 +1157,8 @@ async function seed() {
           pagoMovilPhone: null,
           pagoMovilBankCode: null,
           pagoMovilCi: null,
+          zelleEmail: null,
+          zellePhone: null,
           isPreferred: true,
           nickname: "Cuenta Principal Banesco",
         },
@@ -1169,10 +1171,26 @@ async function seed() {
           pagoMovilPhone: "04149871234",
           pagoMovilBankCode: "0102",
           pagoMovilCi: 15123456,
+          zelleEmail: null,
+          zellePhone: null,
           isPreferred: false,
           nickname: "Pago Móvil Backup",
         },
-        // Doctor 1 (Laura) - Pago Movil only
+        // Doctor 1 (Laura) - Zelle (preferred) + Pago Movil
+        {
+          doctorId: doctorsData[1].id,
+          type: "zelle",
+          bankName: null,
+          accountNumber: null,
+          accountType: null,
+          pagoMovilPhone: null,
+          pagoMovilBankCode: null,
+          pagoMovilCi: null,
+          zelleEmail: "draperez@email.com",
+          zellePhone: "04129871234",
+          isPreferred: true,
+          nickname: "Zelle Principal",
+        },
         {
           doctorId: doctorsData[1].id,
           type: "pago_movil",
@@ -1182,8 +1200,10 @@ async function seed() {
           pagoMovilPhone: "04129871234",
           pagoMovilBankCode: "0102",
           pagoMovilCi: 14987654,
-          isPreferred: true,
-          nickname: "Pago Móvil Principal",
+          zelleEmail: null,
+          zellePhone: null,
+          isPreferred: false,
+          nickname: "Pago Móvil Backup",
         },
         // Doctor 2 (Miguel) - Bank Transfer only
         {
@@ -1195,10 +1215,26 @@ async function seed() {
           pagoMovilPhone: null,
           pagoMovilBankCode: null,
           pagoMovilCi: null,
+          zelleEmail: null,
+          zellePhone: null,
           isPreferred: true,
           nickname: "Ahorro Banesco",
         },
-        // Doctor 3 (Carmen) - Pago Movil only
+        // Doctor 3 (Carmen) - Cash (preferred) + Pago Movil
+        {
+          doctorId: doctorsData[3].id,
+          type: "cash",
+          bankName: null,
+          accountNumber: null,
+          accountType: null,
+          pagoMovilPhone: null,
+          pagoMovilBankCode: null,
+          pagoMovilCi: null,
+          zelleEmail: null,
+          zellePhone: null,
+          isPreferred: true,
+          nickname: "Efectivo en consultorio",
+        },
         {
           doctorId: doctorsData[3].id,
           type: "pago_movil",
@@ -1208,7 +1244,9 @@ async function seed() {
           pagoMovilPhone: "04149873456",
           pagoMovilBankCode: "0134",
           pagoMovilCi: 17456789,
-          isPreferred: true,
+          zelleEmail: null,
+          zellePhone: null,
+          isPreferred: false,
           nickname: "Pago Móvil Provincial",
         },
         // Doctor 4 (Fernando) - Bank Transfer only
@@ -1221,6 +1259,8 @@ async function seed() {
           pagoMovilPhone: null,
           pagoMovilBankCode: null,
           pagoMovilCi: null,
+          zelleEmail: null,
+          zellePhone: null,
           isPreferred: true,
           nickname: "Cuenta Corriente Mercantil",
         },
@@ -1245,14 +1285,14 @@ async function seed() {
         {
           personId: personsData[1].id,
           paymentMethodId: paymentMethodsData[2].id,
-          payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's pago movil
+          payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's Zelle (preferred)
           amount: "80.00",
           date: "2025-12-16",
         },
         {
           personId: personsData[2].id,
           paymentMethodId: paymentMethodsData[4].id,
-          payoutMethodId: payoutMethodsData[3].id, // Dr. Miguel's bank
+          payoutMethodId: payoutMethodsData[4].id, // Dr. Miguel's bank
           amount: "100.00",
           date: "2025-12-17",
         },
@@ -1266,7 +1306,7 @@ async function seed() {
         {
           personId: personsData[3].id,
           paymentMethodId: paymentMethodsData[3].id,
-          payoutMethodId: payoutMethodsData[4].id, // Dra. Carmen's pago movil
+          payoutMethodId: payoutMethodsData[5].id, // Dra. Carmen's cash (preferred)
           amount: "60.00",
           date: "2025-12-22",
         },
@@ -1280,7 +1320,7 @@ async function seed() {
         {
           personId: personsData[3].id,
           paymentMethodId: paymentMethodsData[5].id, // José's Mastercard
-          payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's pago movil
+          payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's Zelle (preferred)
           amount: "80.00",
           date: "2026-01-07",
         },

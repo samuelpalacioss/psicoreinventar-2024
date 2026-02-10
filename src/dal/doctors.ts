@@ -36,6 +36,7 @@ export interface DoctorFilters {
   placeState?: string;
   isActive?: boolean;
   consultationType?: typeof consultationTypeEnum.enumValues[number];
+  payoutType?: string;
   serviceId?: number;
   serviceNames?: string[];
   conditionId?: number;
@@ -121,6 +122,15 @@ export async function findAllDoctors<
       // For "both", only show doctors who explicitly offer both
       conditions.push(eq(doctors.consultationType, filters.consultationType));
     }
+  }
+
+  if (filters.payoutType) {
+    const rows = await db
+      .selectDistinct({ doctorId: payoutMethods.doctorId })
+      .from(payoutMethods)
+      .where(eq(payoutMethods.type, filters.payoutType as any));
+    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
   }
 
   // M2M filters: resolve doctor IDs from junction tables

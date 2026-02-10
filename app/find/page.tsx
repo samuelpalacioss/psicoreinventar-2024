@@ -56,6 +56,7 @@ export default async function Specialists({
   if (params.session) {
     filters.consultationType = params.session as typeof consultationTypeEnum.enumValues[number];
   }
+  if (params.payment) filters.payoutType = params.payment;
 
   const specialties = params.specialties?.split(",").filter(Boolean);
   if (specialties?.length) filters.conditionNames = specialties;
@@ -92,7 +93,13 @@ export default async function Specialists({
       <Suspense>
         <SearchTherapistsBar />
       </Suspense>
-      <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-24">
+
+      <main className="mx-auto max-w-7xl px-6 lg:px-8 space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-20">
+        {result.pagination.totalCount > 0 && (
+          <div className="text-md font-medium text-gray-700">
+            {result.data.length} therapist{result.data.length === 1 ? "" : "s"} match your criteria
+          </div>
+        )}
         <div className="space-y-6">
           {result.data.map((doctor) => (
             <DoctorCard key={doctor.id} doctor={doctor} />
@@ -105,11 +112,7 @@ export default async function Specialists({
           </div>
         )}
 
-        {result.pagination.totalCount > 0 && (
-          <div className="text-center text-sm text-gray-600 mt-8">
-            Showing {result.data.length} of {result.pagination.totalCount} therapists
-          </div>
-        )}
+
       </main>
     </>
   );

@@ -41,7 +41,12 @@ export const institutionTypeEnum = pgEnum("institution_type", [
 
 export const paymentMethodTypeEnum = pgEnum("payment_method_type", ["card", "pago_movil"]);
 
-export const payoutTypeEnum = pgEnum("payout_type", ["bank_transfer", "pago_movil"]);
+export const payoutTypeEnum = pgEnum("payout_type", [
+  "cash",
+  "zelle",
+  "pago_movil",
+  "bank_transfer",
+]);
 
 export const dayOfWeekEnum = pgEnum("day_of_week", [
   "monday",
@@ -153,12 +158,12 @@ export const places = pgTable("Place", {
   osmType: varchar("osm_type", { length: 20 }).notNull(), // "node", "way", "relation"
 
   // Display fields (directly from LocationIQ response)
-  displayName: varchar("display_name", { length: 500 }).notNull(),   // Full: "Caracas, Distrito Capital, Venezuela"
+  displayName: varchar("display_name", { length: 500 }).notNull(), // Full: "Caracas, Distrito Capital, Venezuela"
   displayPlace: varchar("display_place", { length: 255 }).notNull(), // Short: "Caracas"
-  displayAddress: varchar("display_address", { length: 500 }),       // Rest: "Distrito Capital, Venezuela"
+  displayAddress: varchar("display_address", { length: 500 }), // Rest: "Distrito Capital, Venezuela"
 
   // Classification (from LocationIQ)
-  class: varchar("class", { length: 100 }),   // "place", "boundary", "tourism"
+  class: varchar("class", { length: 100 }), // "place", "boundary", "tourism"
   type: varchar("type", { length: 100 }).notNull(), // "city", "state", "country"
 
   // Address components (from LocationIQ address object)
@@ -177,73 +182,85 @@ export const places = pgTable("Place", {
 });
 
 // Institution
-export const institutions = pgTable("Institution", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  type: institutionTypeEnum("type").notNull(),
-  placeId: integer("place_id")
-    .notNull()
-    .references(() => places.id),
-  isVerified: boolean("is_verified").default(false),
-}, (table) => [
-  index("institution_type_idx").on(table.type),
-  index("institution_placeId_idx").on(table.placeId),
-  index("institution_isVerified_idx").on(table.isVerified),
-]);
+export const institutions = pgTable(
+  "Institution",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    type: institutionTypeEnum("type").notNull(),
+    placeId: integer("place_id")
+      .notNull()
+      .references(() => places.id),
+    isVerified: boolean("is_verified").default(false),
+  },
+  (table) => [
+    index("institution_type_idx").on(table.type),
+    index("institution_placeId_idx").on(table.placeId),
+    index("institution_isVerified_idx").on(table.isVerified),
+  ]
+);
 
 // Person (Patient)
-export const persons = pgTable("Person", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: "cascade" }),
-  ci: integer("ci").notNull().unique(), // Cédula
-  firstName: varchar("first_name", { length: 100 }).notNull(),
-  middleName: varchar("middle_name", { length: 100 }),
-  firstLastName: varchar("first_last_name", { length: 100 }).notNull(),
-  secondLastName: varchar("second_last_name", { length: 100 }),
-  birthDate: date("birth_date").notNull(),
-  address: varchar("address", { length: 500 }).notNull(),
-  placeId: integer("place_id")
-    .notNull()
-    .references(() => places.id),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("person_placeId_idx").on(table.placeId),
-  index("person_isActive_idx").on(table.isActive),
-]);
+export const persons = pgTable(
+  "Person",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    ci: integer("ci").notNull().unique(), // Cédula
+    firstName: varchar("first_name", { length: 100 }).notNull(),
+    middleName: varchar("middle_name", { length: 100 }),
+    firstLastName: varchar("first_last_name", { length: 100 }).notNull(),
+    secondLastName: varchar("second_last_name", { length: 100 }),
+    birthDate: date("birth_date").notNull(),
+    address: varchar("address", { length: 500 }).notNull(),
+    placeId: integer("place_id")
+      .notNull()
+      .references(() => places.id),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("person_placeId_idx").on(table.placeId),
+    index("person_isActive_idx").on(table.isActive),
+  ]
+);
 
 // Doctor (Therapist)
-export const doctors = pgTable("Doctor", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: "cascade" }),
-  ci: integer("ci").notNull().unique(), // Cédula
-  firstName: varchar("first_name", { length: 100 }).notNull(),
-  middleName: varchar("middle_name", { length: 100 }),
-  firstLastName: varchar("first_last_name", { length: 100 }).notNull(),
-  secondLastName: varchar("second_last_name", { length: 100 }),
-  birthDate: date("birth_date").notNull(),
-  address: varchar("address", { length: 500 }).notNull(),
-  placeId: integer("place_id").references(() => places.id),
-  consultationType: consultationTypeEnum("consultation_type").notNull().default("virtual_only"),
-  biography: text("biography").notNull(),
-  firstSessionExpectation: text("first_session_expectation").notNull(),
-  biggestStrengths: text("biggest_strengths").notNull(),
-  practiceStartYear: smallint("practice_start_year").notNull(),
-  isActive: boolean("is_active").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("doctor_isActive_idx").on(table.isActive),
-  index("doctor_placeId_idx").on(table.placeId),
-  index("doctor_consultationType_idx").on(table.consultationType),
-]);
+export const doctors = pgTable(
+  "Doctor",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    ci: integer("ci").notNull().unique(), // Cédula
+    firstName: varchar("first_name", { length: 100 }).notNull(),
+    middleName: varchar("middle_name", { length: 100 }),
+    firstLastName: varchar("first_last_name", { length: 100 }).notNull(),
+    secondLastName: varchar("second_last_name", { length: 100 }),
+    birthDate: date("birth_date").notNull(),
+    address: varchar("address", { length: 500 }).notNull(),
+    placeId: integer("place_id").references(() => places.id),
+    consultationType: consultationTypeEnum("consultation_type").notNull().default("virtual_only"),
+    biography: text("biography").notNull(),
+    firstSessionExpectation: text("first_session_expectation").notNull(),
+    biggestStrengths: text("biggest_strengths").notNull(),
+    practiceStartYear: smallint("practice_start_year").notNull(),
+    isActive: boolean("is_active").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("doctor_isActive_idx").on(table.isActive),
+    index("doctor_placeId_idx").on(table.placeId),
+    index("doctor_consultationType_idx").on(table.consultationType),
+  ]
+);
 
 // Phone
 export const phones = pgTable(
@@ -310,73 +327,87 @@ export const personalityTraits = pgTable("Personality_Trait", {
 });
 
 // Age Group
-export const ageGroups = pgTable("Age_Group", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctors.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 50 }).notNull(), // Children, Teenagers, Adults
-  minAge: integer("min_age").notNull(),
-  maxAge: integer("max_age").notNull(),
-}, (table) => [
-  index("age_group_doctorId_idx").on(table.doctorId),
-]);
+export const ageGroups = pgTable(
+  "Age_Group",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 50 }).notNull(), // Children, Teenagers, Adults
+    minAge: integer("min_age").notNull(),
+    maxAge: integer("max_age").notNull(),
+  },
+  (table) => [index("age_group_doctorId_idx").on(table.doctorId)]
+);
 
 // Education
-export const educations = pgTable("Education", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctors.id, { onDelete: "cascade" }),
-  institutionId: integer("institution_id")
-    .notNull()
-    .references(() => institutions.id),
-  degree: varchar("degree", { length: 100 }).notNull(), // MSc, PhD, Diploma, etc.
-  specialization: varchar("specialization", { length: 255 }).notNull(), // Clinical Psychology, Psychiatry, etc.
-  startYear: smallint("start_year").notNull(),
-  endYear: smallint("end_year").notNull(),
-}, (table) => [
-  index("education_doctorId_idx").on(table.doctorId),
-  index("education_institutionId_idx").on(table.institutionId),
-]);
+export const educations = pgTable(
+  "Education",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    institutionId: integer("institution_id")
+      .notNull()
+      .references(() => institutions.id),
+    degree: varchar("degree", { length: 100 }).notNull(), // MSc, PhD, Diploma, etc.
+    specialization: varchar("specialization", { length: 255 }).notNull(), // Clinical Psychology, Psychiatry, etc.
+    startYear: smallint("start_year").notNull(),
+    endYear: smallint("end_year").notNull(),
+  },
+  (table) => [
+    index("education_doctorId_idx").on(table.doctorId),
+    index("education_institutionId_idx").on(table.institutionId),
+  ]
+);
 
 // Progress
-export const progresses = pgTable("Progress", {
-  id: serial("id").primaryKey(),
-  personId: integer("person_id")
-    .notNull()
-    .references(() => persons.id, { onDelete: "cascade" }),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctors.id, { onDelete: "cascade" }),
-  appointmentId: integer("appointment_id").references(() => appointments.id, {
-    onDelete: "set null",
-  }),
-  conditionId: integer("condition_id").references(() => conditions.id, { onDelete: "set null" }),
-  title: varchar("title", { length: 255 }).notNull(),
-  level: varchar("level", { length: 100 }),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => [
-  index("progress_personId_idx").on(table.personId),
-  index("progress_doctorId_idx").on(table.doctorId),
-  index("progress_appointmentId_idx").on(table.appointmentId),
-  index("progress_conditionId_idx").on(table.conditionId),
-]);
+export const progresses = pgTable(
+  "Progress",
+  {
+    id: serial("id").primaryKey(),
+    personId: integer("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    appointmentId: integer("appointment_id").references(() => appointments.id, {
+      onDelete: "set null",
+    }),
+    conditionId: integer("condition_id").references(() => conditions.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    level: varchar("level", { length: 100 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("progress_personId_idx").on(table.personId),
+    index("progress_doctorId_idx").on(table.doctorId),
+    index("progress_appointmentId_idx").on(table.appointmentId),
+    index("progress_conditionId_idx").on(table.conditionId),
+  ]
+);
 
 // Schedule
-export const schedules = pgTable("Schedule", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctors.id, { onDelete: "cascade" }),
-  day: dayOfWeekEnum("day").notNull(),
-  startTime: time("start_time").notNull(),
-  endTime: time("end_time").notNull(),
-}, (table) => [
-  index("schedule_doctorId_idx").on(table.doctorId),
-  index("schedule_day_idx").on(table.day),
-]);
+export const schedules = pgTable(
+  "Schedule",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    day: dayOfWeekEnum("day").notNull(),
+    startTime: time("start_time").notNull(),
+    endTime: time("end_time").notNull(),
+  },
+  (table) => [
+    index("schedule_doctorId_idx").on(table.doctorId),
+    index("schedule_day_idx").on(table.day),
+  ]
+);
 
 // ============================================================================
 // Many to Many TABLES
@@ -509,110 +540,132 @@ export const paymentMethods = pgTable("Payment_Method", {
 });
 
 // Payment Method - Person (Association with preferences)
-export const paymentMethodPersons = pgTable("Payment_Method_Person", {
-  id: serial("id").primaryKey(),
-  personId: integer("person_id")
-    .notNull()
-    .references(() => persons.id, { onDelete: "cascade" }),
-  paymentMethodId: integer("payment_method_id")
-    .notNull()
-    .references(() => paymentMethods.id, { onDelete: "cascade" }),
-  isPreferred: boolean("is_preferred").default(false),
-  nickname: varchar("nickname", { length: 100 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("payment_method_person_personId_idx").on(table.personId),
-  index("payment_method_person_paymentMethodId_idx").on(table.paymentMethodId),
-  index("payment_method_person_isPreferred_idx").on(table.isPreferred),
-]);
+export const paymentMethodPersons = pgTable(
+  "Payment_Method_Person",
+  {
+    id: serial("id").primaryKey(),
+    personId: integer("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+    paymentMethodId: integer("payment_method_id")
+      .notNull()
+      .references(() => paymentMethods.id, { onDelete: "cascade" }),
+    isPreferred: boolean("is_preferred").default(false),
+    nickname: varchar("nickname", { length: 100 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("payment_method_person_personId_idx").on(table.personId),
+    index("payment_method_person_paymentMethodId_idx").on(table.paymentMethodId),
+    index("payment_method_person_isPreferred_idx").on(table.isPreferred),
+  ]
+);
 
 // ============================================================================
 // PAYOUT METHOD - SUPERTYPE (Single Table Inheritance)
 // ============================================================================
 
-export const payoutMethods = pgTable("Payout_Method", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctors.id, { onDelete: "cascade" }),
-  type: payoutTypeEnum("type").notNull(),
+export const payoutMethods = pgTable(
+  "Payout_Method",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    type: payoutTypeEnum("type").notNull(),
 
-  // Bank Transfer subtype fields
-  bankName: varchar("bank_name", { length: 255 }),
-  accountNumber: varchar("account_number", { length: 50 }),
-  accountType: varchar("account_type", { length: 50 }), // checking, savings
+    // Bank Transfer subtype fields
+    bankName: varchar("bank_name", { length: 255 }),
+    accountNumber: varchar("account_number", { length: 50 }),
+    accountType: varchar("account_type", { length: 50 }), // checking, savings
 
-  // Pago Movil subtype fields
-  pagoMovilPhone: varchar("pago_movil_phone", { length: 20 }),
-  pagoMovilBankCode: varchar("pago_movil_bank_code", { length: 10 }),
-  pagoMovilCi: integer("pago_movil_ci"),
+    // Pago Movil subtype fields
+    pagoMovilPhone: varchar("pago_movil_phone", { length: 20 }),
+    pagoMovilBankCode: varchar("pago_movil_bank_code", { length: 10 }),
+    pagoMovilCi: integer("pago_movil_ci"),
 
-  isPreferred: boolean("is_preferred").default(false),
-  nickname: varchar("nickname", { length: 100 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("payout_method_doctorId_idx").on(table.doctorId),
-  index("payout_method_isPreferred_idx").on(table.isPreferred),
-]);
+    // Zelle subtype fields
+    zelleEmail: varchar("zelle_email", { length: 255 }),
+    zellePhone: varchar("zelle_phone", { length: 20 }),
+
+    // Cash subtype - no additional fields needed
+
+    isPreferred: boolean("is_preferred").default(false),
+    nickname: varchar("nickname", { length: 100 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("payout_method_doctorId_idx").on(table.doctorId),
+    index("payout_method_isPreferred_idx").on(table.isPreferred),
+  ]
+);
 
 // ============================================================================
 // APPOINTMENT & PAYMENT & RATING
 // ============================================================================
 
 // Appointment
-export const appointments = pgTable("Appointment", {
-  id: serial("id").primaryKey(),
-  personId: integer("person_id")
-    .notNull()
-    .references(() => persons.id, { onDelete: "cascade" }),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctors.id, { onDelete: "cascade" }),
-  doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(), // doctorService.doctorId
-  doctorServiceServiceId: integer("doctor_service_service_id").notNull(), // doctorService.serviceId
-  paymentId: integer("payment_id")
-    .notNull()
-    .unique()
-    .references(() => payments.id),
-  startDateTime: timestamp("start_date_time").notNull(),
-  endDateTime: timestamp("end_date_time").notNull(),
-  status: appointmentStatusEnum("status").notNull(),
-  cancellationReason: text("cancellation_reason"),
-  notes: text("notes"),
-  deletedAt: timestamp("deleted_at"), // Soft-delete timestamp
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("appointment_personId_idx").on(table.personId),
-  index("appointment_doctorId_idx").on(table.doctorId),
-  index("appointment_status_idx").on(table.status),
-  index("appointment_startDateTime_idx").on(table.startDateTime),
-]);
+export const appointments = pgTable(
+  "Appointment",
+  {
+    id: serial("id").primaryKey(),
+    personId: integer("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(), // doctorService.doctorId
+    doctorServiceServiceId: integer("doctor_service_service_id").notNull(), // doctorService.serviceId
+    paymentId: integer("payment_id")
+      .notNull()
+      .unique()
+      .references(() => payments.id),
+    startDateTime: timestamp("start_date_time").notNull(),
+    endDateTime: timestamp("end_date_time").notNull(),
+    status: appointmentStatusEnum("status").notNull(),
+    cancellationReason: text("cancellation_reason"),
+    notes: text("notes"),
+    deletedAt: timestamp("deleted_at"), // Soft-delete timestamp
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("appointment_personId_idx").on(table.personId),
+    index("appointment_doctorId_idx").on(table.doctorId),
+    index("appointment_status_idx").on(table.status),
+    index("appointment_startDateTime_idx").on(table.startDateTime),
+  ]
+);
 
 // Payment
-export const payments = pgTable("Payment", {
-  id: serial("id").primaryKey(),
-  personId: integer("person_id")
-    .notNull()
-    .references(() => persons.id, { onDelete: "cascade" }),
-  paymentMethodId: integer("payment_method_id")
-    .notNull()
-    .references(() => paymentMethods.id),
-  payoutMethodId: integer("payout_method_id")
-    .notNull()
-    .references(() => payoutMethods.id),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  date: date("date").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("payment_personId_idx").on(table.personId),
-  index("payment_paymentMethodId_idx").on(table.paymentMethodId),
-  index("payment_payoutMethodId_idx").on(table.payoutMethodId),
-  index("payment_date_idx").on(table.date),
-]);
+export const payments = pgTable(
+  "Payment",
+  {
+    id: serial("id").primaryKey(),
+    personId: integer("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+    paymentMethodId: integer("payment_method_id")
+      .notNull()
+      .references(() => paymentMethods.id),
+    payoutMethodId: integer("payout_method_id")
+      .notNull()
+      .references(() => payoutMethods.id),
+    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    date: date("date").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("payment_personId_idx").on(table.personId),
+    index("payment_paymentMethodId_idx").on(table.paymentMethodId),
+    index("payment_payoutMethodId_idx").on(table.payoutMethodId),
+    index("payment_date_idx").on(table.date),
+  ]
+);
 
 // Review - One review per doctor per patient
 export const reviews = pgTable(
@@ -639,10 +692,7 @@ export const reviews = pgTable(
   },
   (table) => [
     // Unique constraint: one review per doctor per patient
-    uniqueIndex("review_doctor_person_idx").on(
-      table.doctorId,
-      table.personId
-    ),
+    uniqueIndex("review_doctor_person_idx").on(table.doctorId, table.personId),
     index("review_score_idx").on(table.score),
   ]
 );

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { MultiSelectDropdown } from "./multi-select-dropdown";
 import Link from "next/link";
 import { usePlaces } from "@/lib/hooks/use-places";
+import { payoutTypeEnum } from "@/src/db/schema";
 
 interface SearchTherapistsBarProps {
   className?: string;
@@ -38,7 +39,15 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     { label: "Virtual", value: "virtual_only" },
     { label: "In-person", value: "in_person" },
     { label: "Virtual & In-person", value: "both" },
-  ];
+  ] as const;
+
+  // Payout method mapping: database enum values to UI labels
+  const payoutMethodWithLabels = {
+    cash: "Cash",
+    zelle: "Zelle",
+    pago_movil: "Pago Movil",
+    bank_transfer: "Bank transfer",
+  } as const satisfies Record<typeof payoutTypeEnum.enumValues[number], string>;
 
   // Helper to update URL search params (reads latest URL to avoid stale state)
   function updateParams(updates: Record<string, string | null>) {
@@ -56,7 +65,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
   // Filter state derived from URL search params
   const location = searchParams.get("state") || defaultLocation;
-  const paymentMethod = searchParams.get("payment") || "Cash";
+  const paymentMethod = searchParams.get("payment") || "cash";
+  const paymentMethodLabel = payoutMethodWithLabels[paymentMethod as keyof typeof payoutMethodWithLabels] || "Cash";
   const selectedSessionType = searchParams.get("session") || "virtual_only";
   const selectedTherapyTypes = searchParams.get("therapy")?.split(",").filter(Boolean) ?? [];
   const selectedSpecialties = searchParams.get("specialties")?.split(",").filter(Boolean) ?? [];
@@ -87,8 +97,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [paymentSearch, setPaymentSearch] = useState("");
   const [specialtiesSearch, setSpecialtiesSearch] = useState("");
   const [tempSelectedSpecialties, setTempSelectedSpecialties] = useState<string[]>([]);
-
-  const paymentMethods = ["Cash", "Zelle", "Bank transfer", "Pago Movil"];
+  const [payoutSearch, setPayoutSearch] = useState("");
+  const payoutMethods = payoutTypeEnum.enumValues;
   const specialtiesList = ["ADHD", "Anxiety", "Depression", "Trauma", "Stress", "Relationship issues", "Grief", "Coping Skills", "Addiction", "Bipolar Disorder", "Eating Disorders", "OCD", "PTSD", "Self Esteem"];
 
   const toggleCheckbox = (value: string, selectedValues: string[], setter: (values: string[]) => void) => {
@@ -221,7 +231,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 <span className="truncate">
                   {location.length > 8 ? `${location.substring(0, 8)}...` : location}
                   {' • '}
-                  {paymentMethod.length > 5 ? `${paymentMethod.substring(0, 6)}...` : paymentMethod}
+                  {paymentMethodLabel.length > 5 ? `${paymentMethodLabel.substring(0, 6)}...` : paymentMethodLabel}
                   {selectedSpecialties.length > 0 && (
                     <> • Specialties ({selectedSpecialties.length})</>
                   )}
@@ -264,12 +274,14 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
               <SelectTrigger className="w-auto min-w-[110px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                <SelectValue />
+                <SelectValue>
+                  {paymentMethodLabel}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {paymentMethods.map((method) => (
+                {payoutMethods.map((method) => (
                   <SelectItem key={method} value={method}>
-                    {method}
+                    {payoutMethodWithLabels[method as keyof typeof payoutMethodWithLabels]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -280,8 +292,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 selectedSpecialties.length === 0
                   ? "Specialties"
                   : selectedSpecialties.length === 1
-                  ? selectedSpecialties[0]
-                  : `${selectedSpecialties[0]} +${selectedSpecialties.length - 1}`
+                    ? selectedSpecialties[0]
+                    : `${selectedSpecialties[0]} +${selectedSpecialties.length - 1}`
               }
               options={specialtiesList}
               selectedValues={selectedSpecialties}
@@ -308,8 +320,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 selectedTherapyTypes.length === 0
                   ? "Therapy type"
                   : selectedTherapyTypes.length === 1
-                  ? selectedTherapyTypes[0]
-                  : `${selectedTherapyTypes[0]} +${selectedTherapyTypes.length - 1}`
+                    ? selectedTherapyTypes[0]
+                    : `${selectedTherapyTypes[0]} +${selectedTherapyTypes.length - 1}`
               }
               options={["Talk therapy", "Couples therapy", "Teen therapy"]}
               selectedValues={selectedTherapyTypes}
@@ -321,8 +333,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 selectedTreatmentMethods.length === 0
                   ? "Treatment method"
                   : selectedTreatmentMethods.length === 1
-                  ? selectedTreatmentMethods[0]
-                  : `${selectedTreatmentMethods[0]} +${selectedTreatmentMethods.length - 1}`
+                    ? selectedTreatmentMethods[0]
+                    : `${selectedTreatmentMethods[0]} +${selectedTreatmentMethods.length - 1}`
               }
               options={["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"]}
               selectedValues={selectedTreatmentMethods}
@@ -488,7 +500,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 }}
                 className="w-full rounded-full border border-gray-300 bg-white px-6 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
               >
-                <span>{paymentMethod}</span>
+                <span>{paymentMethodLabel}</span>
                 <ChevronDownIcon className="h-5 w-5 text-gray-500" />
               </button>
             </div>
@@ -632,8 +644,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 <Input
                   type="text"
                   placeholder="Search"
-                  value={paymentSearch}
-                  onChange={(e) => setPaymentSearch(e.target.value)}
+                  value={payoutSearch}
+                  onChange={(e) => setPayoutSearch(e.target.value)}
                   className="pl-10 rounded-lg border-gray-300"
                 />
               </div>
@@ -641,8 +653,12 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             {/* List */}
             <ul className="flex-1 overflow-y-auto">
-              {paymentMethods
-                .filter((method) => method.toLowerCase().includes(paymentSearch.toLowerCase()))
+              {payoutMethods
+                .filter((method) =>
+                  payoutMethodWithLabels[method as keyof typeof payoutMethodWithLabels]
+                    .toLowerCase()
+                    .includes(payoutSearch.toLowerCase())
+                )
                 .map((method) => (
                   <li
                     key={method}
@@ -651,7 +667,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       setPaymentMethod(method);
                       setIsPaymentModalOpen(false);
                       setIsFindProviderModalOpen(true);
-                      setPaymentSearch("");
+                      setPayoutSearch("");
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -660,7 +676,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                         setPaymentMethod(method);
                         setIsPaymentModalOpen(false);
                         setIsFindProviderModalOpen(true);
-                        setPaymentSearch("");
+                        setPayoutSearch("");
                       }
                     }}
                     role="button"
@@ -670,7 +686,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       paymentMethod === method ? "bg-indigo-100 text-gray-900" : "text-gray-700"
                     )}
                   >
-                    {method}
+                    {payoutMethodWithLabels[method as keyof typeof payoutMethodWithLabels]}
                   </li>
                 ))}
             </ul>
