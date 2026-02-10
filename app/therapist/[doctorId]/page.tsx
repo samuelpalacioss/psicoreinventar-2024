@@ -5,6 +5,7 @@ import { type ReviewCardProps } from "@/components/review-card";
 import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
 import { STALE_TIMES } from "@/lib/queries/stale-times";
+import TherapistDetailSkeleton from "@/components/therapist-detail-skeleton";
 
 interface PageProps {
   params: Promise<{ doctorId: string }>;
@@ -13,7 +14,7 @@ interface PageProps {
 export default function TherapistDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Suspense fallback={<div>Loading therapist detail...</div>}>
+      <Suspense fallback={<TherapistDetailSkeleton />}>
         <TherapistDetailContent params={params} />
       </Suspense>
     </div>
