@@ -49,36 +49,6 @@ export const listServicesSchema = paginationSchema.extend({
 export type ListServicesInput = z.infer<typeof listServicesSchema>;
 
 // ============================================================================
-// TREATMENT METHOD
-// ============================================================================
-
-/**
- * Schema for creating a treatment method
- */
-export const createTreatmentMethodSchema = z.object({
-  name: shortTextSchema,
-  description: longTextSchema,
-});
-
-export type CreateTreatmentMethodInput = z.infer<typeof createTreatmentMethodSchema>;
-
-/**
- * Schema for updating a treatment method
- */
-export const updateTreatmentMethodSchema = createTreatmentMethodSchema.partial();
-
-export type UpdateTreatmentMethodInput = z.infer<typeof updateTreatmentMethodSchema>;
-
-/**
- * Schema for listing treatment methods
- */
-export const listTreatmentMethodsSchema = paginationSchema.extend({
-  search: searchQuerySchema,
-});
-
-export type ListTreatmentMethodsInput = z.infer<typeof listTreatmentMethodsSchema>;
-
-// ============================================================================
 // CONDITION
 // ============================================================================
 

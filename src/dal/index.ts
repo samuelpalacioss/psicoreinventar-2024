@@ -3,7 +3,6 @@ export * from "./places";
 export * from "./conditions";
 export * from "./languages";
 export * from "./services";
-export * from "./treatment-methods";
 export * from "./institutions";
 export * from "./doctors";
 export * from "./persons";

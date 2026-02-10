@@ -307,13 +307,6 @@ export const services = pgTable("Service", {
   duration: integer("duration").default(45).notNull(), // In minutes
 });
 
-// Treatment Method
-export const treatmentMethods = pgTable("Treatment_Method", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description").notNull(),
-});
-
 // Identity
 export const identities = pgTable("Identity", {
   id: serial("id").primaryKey(),
@@ -428,23 +421,6 @@ export const doctorServices = pgTable(
   (table) => [
     primaryKey({ columns: [table.doctorId, table.serviceId] }),
     index("doctor_service_serviceId_idx").on(table.serviceId),
-  ]
-);
-
-// Doctor - Treatment Method (Many-to-Many)
-export const doctorTreatmentMethods = pgTable(
-  "Doctor_Treatment_Method",
-  {
-    doctorId: integer("doctor_id")
-      .notNull()
-      .references(() => doctors.id, { onDelete: "cascade" }),
-    treatmentMethodId: integer("treatment_method_id")
-      .notNull()
-      .references(() => treatmentMethods.id, { onDelete: "cascade" }),
-  },
-  (table) => [
-    primaryKey({ columns: [table.doctorId, table.treatmentMethodId] }),
-    index("doctor_treatment_method_treatmentMethodId_idx").on(table.treatmentMethodId),
   ]
 );
 
@@ -758,7 +734,6 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   educations: many(educations),
   schedules: many(schedules),
   doctorServices: many(doctorServices),
-  doctorTreatmentMethods: many(doctorTreatmentMethods),
   doctorConditions: many(doctorConditions),
   doctorLanguages: many(doctorLanguages),
   doctorIdentities: many(doctorIdentities),
@@ -797,10 +772,6 @@ export const institutionsRelations = relations(institutions, ({ one, many }) => 
 
 export const servicesRelations = relations(services, ({ many }) => ({
   doctorServices: many(doctorServices),
-}));
-
-export const treatmentMethodsRelations = relations(treatmentMethods, ({ many }) => ({
-  doctorTreatmentMethods: many(doctorTreatmentMethods),
 }));
 
 export const ageGroupsRelations = relations(ageGroups, ({ one }) => ({
@@ -855,17 +826,6 @@ export const doctorServicesRelations = relations(doctorServices, ({ one }) => ({
   service: one(services, {
     fields: [doctorServices.serviceId],
     references: [services.id],
-  }),
-}));
-
-export const doctorTreatmentMethodsRelations = relations(doctorTreatmentMethods, ({ one }) => ({
-  doctor: one(doctors, {
-    fields: [doctorTreatmentMethods.doctorId],
-    references: [doctors.id],
-  }),
-  treatmentMethod: one(treatmentMethods, {
-    fields: [doctorTreatmentMethods.treatmentMethodId],
-    references: [treatmentMethods.id],
   }),
 }));
 

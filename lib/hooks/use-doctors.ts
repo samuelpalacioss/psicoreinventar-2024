@@ -1,13 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/lib/queries/query-keys';
-import { apiGet, apiGetList, buildUrl, buildPaginationParams } from '@/lib/queries/api-client';
-import { STALE_TIMES } from '@/lib/queries/stale-times';
-import type { PaginationParams } from '@/src/dal/types';
-import type { InferSelectModel } from 'drizzle-orm';
-import { doctors, places } from '@/src/db/schema';
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queries/query-keys";
+import { apiGet, apiGetList, buildUrl, buildPaginationParams } from "@/lib/queries/api-client";
+import { STALE_TIMES } from "@/lib/queries/stale-times";
+import type { PaginationParams } from "@/src/dal/types";
+import type { InferSelectModel } from "drizzle-orm";
+import { consultationTypeEnum, doctors, places } from "@/src/db/schema";
 
 export type Doctor = InferSelectModel<typeof doctors> & {
-  place?: Pick<InferSelectModel<typeof places>, 'id' | 'displayPlace'>;
+  place?: Pick<InferSelectModel<typeof places>, "id" | "displayPlace">;
   stats?: {
     averageScore: number;
     totalReviews: number;
@@ -19,11 +19,10 @@ export interface DoctorFilters {
   search?: string;
   placeId?: number;
   isActive?: boolean;
-  consultationType?: string;
+  consultationType?: (typeof consultationTypeEnum.enumValues)[number] | undefined;
   serviceId?: number;
   conditionId?: number;
   languageId?: number;
-  treatmentMethodId?: number;
 }
 
 export interface DoctorService {
@@ -66,16 +65,6 @@ export interface DoctorLanguage {
   doctorId: number;
   languageId: number;
   language?: {
-    id: number;
-    name: string;
-  };
-}
-
-export interface DoctorTreatmentMethod {
-  id: number;
-  doctorId: number;
-  treatmentMethodId: number;
-  treatmentMethod?: {
     id: number;
     name: string;
   };
@@ -148,7 +137,7 @@ export function useDoctors(
   return useQuery({
     queryKey: queryKeys.doctors.list(filters, pagination),
     queryFn: () => {
-      const url = buildUrl('/api/doctors', {
+      const url = buildUrl("/api/doctors", {
         ...buildPaginationParams(pagination),
         search: filters?.search,
         placeId: filters?.placeId,
@@ -157,7 +146,6 @@ export function useDoctors(
         serviceId: filters?.serviceId,
         conditionId: filters?.conditionId,
         languageId: filters?.languageId,
-        treatmentMethodId: filters?.treatmentMethodId,
         lite: options?.lite,
       });
       return apiGetList<Doctor>(url);
@@ -216,7 +204,10 @@ export function useDoctorConditions(doctorId: number, pagination?: PaginationPar
   return useQuery({
     queryKey: queryKeys.doctors.conditions(doctorId, pagination),
     queryFn: () => {
-      const url = buildUrl(`/api/doctors/${doctorId}/conditions`, buildPaginationParams(pagination));
+      const url = buildUrl(
+        `/api/doctors/${doctorId}/conditions`,
+        buildPaginationParams(pagination)
+      );
       return apiGetList<DoctorCondition>(url);
     },
     staleTime: STALE_TIMES.DOCTOR_CONDITIONS,
@@ -236,23 +227,14 @@ export function useDoctorLanguages(doctorId: number, pagination?: PaginationPara
   });
 }
 
-export function useDoctorTreatmentMethods(doctorId: number, pagination?: PaginationParams) {
-  return useQuery({
-    queryKey: queryKeys.doctors.treatmentMethods(doctorId, pagination),
-    queryFn: () => {
-      const url = buildUrl(`/api/doctors/${doctorId}/treatment-methods`, buildPaginationParams(pagination));
-      return apiGetList<DoctorTreatmentMethod>(url);
-    },
-    staleTime: STALE_TIMES.DOCTOR_TREATMENT_METHODS,
-    enabled: !!doctorId,
-  });
-}
-
 export function useDoctorAgeGroups(doctorId: number, pagination?: PaginationParams) {
   return useQuery({
     queryKey: queryKeys.doctors.ageGroups(doctorId, pagination),
     queryFn: () => {
-      const url = buildUrl(`/api/doctors/${doctorId}/age-groups`, buildPaginationParams(pagination));
+      const url = buildUrl(
+        `/api/doctors/${doctorId}/age-groups`,
+        buildPaginationParams(pagination)
+      );
       return apiGetList<DoctorAgeGroup>(url);
     },
     staleTime: STALE_TIMES.DOCTOR_AGE_GROUPS,
@@ -264,7 +246,10 @@ export function useDoctorEducations(doctorId: number, pagination?: PaginationPar
   return useQuery({
     queryKey: queryKeys.doctors.educations(doctorId, pagination),
     queryFn: () => {
-      const url = buildUrl(`/api/doctors/${doctorId}/educations`, buildPaginationParams(pagination));
+      const url = buildUrl(
+        `/api/doctors/${doctorId}/educations`,
+        buildPaginationParams(pagination)
+      );
       return apiGetList<DoctorEducation>(url);
     },
     staleTime: STALE_TIMES.DOCTOR_EDUCATIONS,
@@ -276,7 +261,10 @@ export function useDoctorPayoutMethods(doctorId: number, pagination?: Pagination
   return useQuery({
     queryKey: queryKeys.doctors.payoutMethods(doctorId, pagination),
     queryFn: () => {
-      const url = buildUrl(`/api/doctors/${doctorId}/payout-methods`, buildPaginationParams(pagination));
+      const url = buildUrl(
+        `/api/doctors/${doctorId}/payout-methods`,
+        buildPaginationParams(pagination)
+      );
       return apiGetList<DoctorPayoutMethod>(url);
     },
     staleTime: STALE_TIMES.DOCTOR_PAYOUT_METHODS,

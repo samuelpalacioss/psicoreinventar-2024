@@ -14,14 +14,12 @@ import {
   conditions as conditionsTable,
   languages,
   services,
-  treatmentMethods,
   identities,
   personalityTraits,
   ageGroups,
   educations,
   schedules,
   doctorServices,
-  doctorTreatmentMethods,
   doctorConditions,
   doctorLanguages,
   doctorIdentities,
@@ -57,7 +55,6 @@ async function seed() {
     await db.delete(paymentMethods);
     await db.delete(doctorLanguages);
     await db.delete(doctorConditions);
-    await db.delete(doctorTreatmentMethods);
     await db.delete(doctorIdentities);
     await db.delete(doctorPersonalityTraits);
     await db.delete(doctorServices);
@@ -72,7 +69,6 @@ async function seed() {
     await db.delete(verifications);
     await db.delete(users);
     await db.delete(institutions);
-    await db.delete(treatmentMethods);
     await db.delete(identities);
     await db.delete(personalityTraits);
     await db.delete(services);
@@ -252,38 +248,6 @@ async function seed() {
       ])
       .returning();
     console.log(`✅ Created ${servicesData.length} services`);
-
-    // ============================================================================
-    // 5. TREATMENT METHODS
-    // ============================================================================
-    console.log("🔬 Seeding treatment methods...");
-    const treatmentMethodsData = await db
-      .insert(treatmentMethods)
-      .values([
-        {
-          name: "Terapia Cognitivo-Conductual (TCC)",
-          description:
-            "Enfoque terapéutico centrado en modificar patrones de pensamiento y comportamiento",
-        },
-        {
-          name: "Terapia Psicodinámica",
-          description: "Exploración de conflictos inconscientes y patrones relacionales",
-        },
-        {
-          name: "Terapia Humanista",
-          description: "Enfoque centrado en el crecimiento personal y la autorrealización",
-        },
-        {
-          name: "Terapia Sistémica",
-          description: "Trabajo terapéutico enfocado en sistemas familiares y relacionales",
-        },
-        {
-          name: "EMDR",
-          description: "Desensibilización y Reprocesamiento por Movimientos Oculares para trauma",
-        },
-      ])
-      .returning();
-    console.log(`✅ Created ${treatmentMethodsData.length} treatment methods`);
 
     // ============================================================================
     // 6. IDENTITIES
@@ -889,85 +853,137 @@ async function seed() {
     console.log(`✅ Created ${doctorServicesData.length} doctor services`);
 
     // ============================================================================
-    // 18. DOCTOR TREATMENT METHODS (Many-to-Many)
-    // ============================================================================
-    console.log("🔬 Seeding doctor treatment methods...");
-    await db.insert(doctorTreatmentMethods).values([
-      {
-        doctorId: doctorsData[0].id,
-        treatmentMethodId: treatmentMethodsData[0].id, // TCC
-      },
-      {
-        doctorId: doctorsData[0].id,
-        treatmentMethodId: treatmentMethodsData[1].id, // Terapia Psicodinámica
-      },
-      {
-        doctorId: doctorsData[0].id,
-        treatmentMethodId: treatmentMethodsData[2].id, // Terapia Humanista
-      },
-      {
-        doctorId: doctorsData[1].id,
-        treatmentMethodId: treatmentMethodsData[4].id,
-      },
-      {
-        doctorId: doctorsData[2].id,
-        treatmentMethodId: treatmentMethodsData[3].id,
-      },
-      {
-        doctorId: doctorsData[3].id,
-        treatmentMethodId: treatmentMethodsData[0].id,
-      },
-      {
-        doctorId: doctorsData[4].id,
-        treatmentMethodId: treatmentMethodsData[2].id,
-      },
-    ]);
-    console.log("✅ Created doctor treatment methods");
-
-    // ============================================================================
-    // 19. DOCTOR CONDITIONS (Many-to-Many with type: primary/other)
+    // 18. DOCTOR CONDITIONS (Many-to-Many with type: primary/other)
     // ============================================================================
     console.log("🧠 Seeding doctor conditions...");
     await db.insert(doctorConditions).values([
       // Doctor 0 (Roberto - TCC, anxiety/depression specialist) - mood & self-esteem focus
-      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.ANXIETY), type: "primary" },
-      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.DEPRESSION), type: "primary" },
-      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "primary" },
-      { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.COPING_SKILLS), type: "other" },
+      {
+        doctorId: doctorsData[0].id,
+        conditionId: getConditionId(Conditions.ANXIETY),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[0].id,
+        conditionId: getConditionId(Conditions.DEPRESSION),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[0].id,
+        conditionId: getConditionId(Conditions.SELF_ESTEEM),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[0].id,
+        conditionId: getConditionId(Conditions.COPING_SKILLS),
+        type: "other",
+      },
       { doctorId: doctorsData[0].id, conditionId: getConditionId(Conditions.GRIEF), type: "other" },
 
       // Doctor 1 (Laura - Psychiatrist, trauma & mood disorders) - trauma, bipolar, OCD
-      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.TRAUMA_PTSD), type: "primary" },
-      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.BIPOLAR_DISORDER), type: "primary" },
-      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.DEPRESSION), type: "primary" },
-      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.ANXIETY), type: "other" },
-      { doctorId: doctorsData[1].id, conditionId: getConditionId(Conditions.OBS_COMP_DISORDER), type: "other" },
+      {
+        doctorId: doctorsData[1].id,
+        conditionId: getConditionId(Conditions.TRAUMA_PTSD),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[1].id,
+        conditionId: getConditionId(Conditions.BIPOLAR_DISORDER),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[1].id,
+        conditionId: getConditionId(Conditions.DEPRESSION),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[1].id,
+        conditionId: getConditionId(Conditions.ANXIETY),
+        type: "other",
+      },
+      {
+        doctorId: doctorsData[1].id,
+        conditionId: getConditionId(Conditions.OBS_COMP_DISORDER),
+        type: "other",
+      },
 
       // Doctor 2 (Miguel - Family / relationships) - couples, transitions, self-esteem
-      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.RELATIONSHIP_ISSUES), type: "primary" },
-      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.LIFE_TRANSITIONS), type: "primary" },
-      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "primary" },
+      {
+        doctorId: doctorsData[2].id,
+        conditionId: getConditionId(Conditions.RELATIONSHIP_ISSUES),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[2].id,
+        conditionId: getConditionId(Conditions.LIFE_TRANSITIONS),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[2].id,
+        conditionId: getConditionId(Conditions.SELF_ESTEEM),
+        type: "primary",
+      },
       { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.GRIEF), type: "other" },
-      { doctorId: doctorsData[2].id, conditionId: getConditionId(Conditions.COPING_SKILLS), type: "other" },
+      {
+        doctorId: doctorsData[2].id,
+        conditionId: getConditionId(Conditions.COPING_SKILLS),
+        type: "other",
+      },
 
       // Doctor 3 (Carmen - Child/adolescent, ADHD/autism specialist)
       { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.AHD), type: "primary" },
-      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.AUTISM), type: "primary" },
-      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.ANXIETY), type: "primary" },
-      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.COPING_SKILLS), type: "other" },
-      { doctorId: doctorsData[3].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "other" },
+      {
+        doctorId: doctorsData[3].id,
+        conditionId: getConditionId(Conditions.AUTISM),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[3].id,
+        conditionId: getConditionId(Conditions.ANXIETY),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[3].id,
+        conditionId: getConditionId(Conditions.COPING_SKILLS),
+        type: "other",
+      },
+      {
+        doctorId: doctorsData[3].id,
+        conditionId: getConditionId(Conditions.SELF_ESTEEM),
+        type: "other",
+      },
 
       // Doctor 4 (Fernando - Humanist, existential) - addiction, life transitions, grief
-      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.ADDICTION), type: "primary" },
-      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.LIFE_TRANSITIONS), type: "primary" },
-      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.GRIEF), type: "primary" },
-      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.DEPRESSION), type: "other" },
-      { doctorId: doctorsData[4].id, conditionId: getConditionId(Conditions.SELF_ESTEEM), type: "other" },
+      {
+        doctorId: doctorsData[4].id,
+        conditionId: getConditionId(Conditions.ADDICTION),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[4].id,
+        conditionId: getConditionId(Conditions.LIFE_TRANSITIONS),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[4].id,
+        conditionId: getConditionId(Conditions.GRIEF),
+        type: "primary",
+      },
+      {
+        doctorId: doctorsData[4].id,
+        conditionId: getConditionId(Conditions.DEPRESSION),
+        type: "other",
+      },
+      {
+        doctorId: doctorsData[4].id,
+        conditionId: getConditionId(Conditions.SELF_ESTEEM),
+        type: "other",
+      },
     ]);
     console.log("✅ Created doctor conditions");
 
     // ============================================================================
-    // 20. DOCTOR LANGUAGES (Many-to-Many with type: native/foreign)
+    // 19. DOCTOR LANGUAGES (Many-to-Many with type: native/foreign)
     // ============================================================================
     console.log("🗣️ Seeding doctor languages...");
     await db.insert(doctorLanguages).values([
@@ -982,7 +998,7 @@ async function seed() {
     console.log("✅ Created doctor languages");
 
     // ============================================================================
-    // 21. DOCTOR IDENTITIES (Many-to-Many)
+    // 20. DOCTOR IDENTITIES (Many-to-Many)
     // ============================================================================
     console.log("🏳️‍🌈 Seeding doctor identities...");
     await db.insert(doctorIdentities).values([
@@ -998,7 +1014,7 @@ async function seed() {
     console.log("✅ Created doctor identities");
 
     // ============================================================================
-    // 22. DOCTOR PERSONALITY TRAITS (Many-to-Many)
+    // 21. DOCTOR PERSONALITY TRAITS (Many-to-Many)
     // ============================================================================
     console.log("✨ Seeding doctor personality traits...");
     await db.insert(doctorPersonalityTraits).values([
@@ -1017,7 +1033,7 @@ async function seed() {
     console.log("✅ Created doctor personality traits");
 
     // ============================================================================
-    // 23. PAYMENT METHODS
+    // 22. PAYMENT METHODS
     // ============================================================================
     console.log("💳 Seeding payment methods...");
     const paymentMethodsData = await db
@@ -1100,7 +1116,7 @@ async function seed() {
     console.log(`✅ Created ${paymentMethodsData.length} payment methods`);
 
     // ============================================================================
-    // 22. PAYMENT METHOD PERSONS
+    // 23. PAYMENT METHOD PERSONS
     // ============================================================================
     console.log("🔗 Seeding payment method persons...");
     const paymentMethodPersonsData = await db
@@ -1147,7 +1163,7 @@ async function seed() {
     console.log(`✅ Created ${paymentMethodPersonsData.length} payment method persons`);
 
     // ============================================================================
-    // 23. PAYOUT METHODS (Doctor's saved payout accounts)
+    // 24. PAYOUT METHODS (Doctor's saved payout accounts)
     // ============================================================================
     console.log("🏦 Seeding payout methods...");
     const payoutMethodsData = await db
@@ -1275,7 +1291,7 @@ async function seed() {
     console.log(`✅ Created ${payoutMethodsData.length} payout methods`);
 
     // ============================================================================
-    // 24. PAYMENTS
+    // 25. PAYMENTS
     // ============================================================================
     console.log("💰 Seeding payments...");
     const paymentsData = await db
@@ -1335,7 +1351,7 @@ async function seed() {
     console.log(`✅ Created ${paymentsData.length} payments`);
 
     // ============================================================================
-    // 25. APPOINTMENTS
+    // 26. APPOINTMENTS
     // ============================================================================
     console.log("📅 Seeding appointments...");
     const appointmentsData = await db
@@ -1422,7 +1438,7 @@ async function seed() {
     console.log(`✅ Created ${appointmentsData.length} appointments`);
 
     // ============================================================================
-    // 26. REVIEWS (One review per doctor per patient)
+    // 27. REVIEWS (One review per doctor per patient)
     // ============================================================================
     console.log("⭐ Seeding reviews...");
     const reviewsData = await db
@@ -1458,7 +1474,7 @@ async function seed() {
     console.log(`✅ Created ${reviewsData.length} reviews`);
 
     // ============================================================================
-    // 27. PROGRESSES
+    // 28. PROGRESSES
     // ============================================================================
     console.log("📈 Seeding progresses...");
     const progressesData = await db
@@ -1520,7 +1536,6 @@ async function seed() {
     console.log(`   Conditions: ${conditionsData.length}`);
     console.log(`   Languages: ${languagesData.length}`);
     console.log(`   Services: ${servicesData.length}`);
-    console.log(`   Treatment Methods: ${treatmentMethodsData.length}`);
     console.log(`   Institutions: ${institutionsData.length}`);
     console.log(`   Users (Patients): ${patientUsersData.length}`);
     console.log(`   Users (Doctors): ${doctorUsersData.length}`);

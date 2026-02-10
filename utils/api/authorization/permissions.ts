@@ -18,14 +18,12 @@ export type Resource =
   | "language"
   | "place"
   | "institution"
-  | "treatment-method"
   | "progress"
   | "phone"
   | "education"
   | "schedule"
   | "age-group"
   | "doctor-service"
-  | "doctor-treatment-method"
   | "doctor-condition"
   | "doctor-language";
 
@@ -123,10 +121,6 @@ export const PERMISSIONS: PermissionMatrix = {
       read: "all",
       list: "all",
     },
-    "treatment-method": {
-      read: "all",
-      list: "all",
-    },
     progress: {
       read: "own",
       list: "own",
@@ -194,10 +188,6 @@ export const PERMISSIONS: PermissionMatrix = {
       read: "all",
       list: "all",
     },
-    "treatment-method": {
-      read: "all",
-      list: "all",
-    },
     progress: {
       create: "assigned",
       read: "assigned",
@@ -234,13 +224,6 @@ export const PERMISSIONS: PermissionMatrix = {
       list: "own",
     },
     "doctor-service": {
-      create: "own",
-      read: "own",
-      update: "own",
-      delete: "own",
-      list: "own",
-    },
-    "doctor-treatment-method": {
       create: "own",
       read: "own",
       update: "own",
@@ -339,13 +322,6 @@ export const PERMISSIONS: PermissionMatrix = {
       delete: "all",
       list: "all",
     },
-    "treatment-method": {
-      create: "all",
-      read: "all",
-      update: "all",
-      delete: "all",
-      list: "all",
-    },
     progress: {
       // Sensitive data, only patients and doctors can see it
       create: "none",
@@ -383,13 +359,6 @@ export const PERMISSIONS: PermissionMatrix = {
       list: "all",
     },
     "doctor-service": {
-      create: "all",
-      read: "all",
-      update: "all",
-      delete: "all",
-      list: "all",
-    },
-    "doctor-treatment-method": {
       create: "all",
       read: "all",
       update: "all",

@@ -301,7 +301,6 @@ async function checkOwnership(
       }
 
       case "doctor-service":
-      case "doctor-treatment-method":
       case "doctor-condition":
       case "doctor-language": {
         // For junction tables and doctor-owned resources, check if the doctor belongs to the user

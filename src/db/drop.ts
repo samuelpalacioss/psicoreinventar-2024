@@ -21,7 +21,6 @@ async function dropAll() {
     await db.execute(sql`DROP TABLE IF EXISTS "Payment_Method" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Doctor_Language" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Doctor_Condition" CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS "Doctor_Treatment_Method" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Doctor_Service" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Schedule" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Age_Group" CASCADE`);
@@ -34,7 +33,6 @@ async function dropAll() {
     await db.execute(sql`DROP TABLE IF EXISTS "Verification" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "User" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Institution" CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS "Treatment_Method" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Service" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Language" CASCADE`);
     await db.execute(sql`DROP TABLE IF EXISTS "Condition" CASCADE`);

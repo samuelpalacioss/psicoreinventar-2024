@@ -83,13 +83,6 @@ async function TherapistDetailContent({ params }: PageProps) {
       ?.filter((dc) => dc.condition && dc.type === "other")
       .map((dc) => dc.condition!.name) || [];
 
-  // Get treatment methods with descriptions
-  const treatmentMethods =
-    doctor.doctorTreatmentMethods?.map((dtm) => ({
-      name: dtm.treatmentMethod.name,
-      description: dtm.treatmentMethod.description,
-    })) || [];
-
   // Get age groups with age ranges
   const agesServed = doctor.ageGroups?.map((ag) => `${ag.name} (${ag.minAge}-${ag.maxAge})`) || [];
 
@@ -184,7 +177,6 @@ async function TherapistDetailContent({ params }: PageProps) {
     otherSpecialties,
     identities: identitiesArray,
     agesServed,
-    treatmentMethods,
     licensedIn: licensedStates,
     accepts,
     availableSlots,

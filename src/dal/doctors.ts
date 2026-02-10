@@ -8,13 +8,11 @@ import {
   doctorServices,
   doctorConditions,
   doctorLanguages,
-  doctorTreatmentMethods,
   payoutMethods,
   appointments,
   reviews,
   conditions as conditionsTable,
   services as servicesTable,
-  treatmentMethods as treatmentMethodsTable,
   places,
   identities,
   personalityTraits,
@@ -35,15 +33,13 @@ export interface DoctorFilters {
   placeId?: number;
   placeState?: string;
   isActive?: boolean;
-  consultationType?: typeof consultationTypeEnum.enumValues[number];
+  consultationType?: (typeof consultationTypeEnum.enumValues)[number];
   payoutType?: string;
   serviceId?: number;
   serviceNames?: string[];
   conditionId?: number;
   conditionNames?: string[];
   languageId?: number;
-  treatmentMethodId?: number;
-  treatmentMethodNames?: string[];
 }
 
 export interface DoctorQueryOptions<T = any> extends QueryOptions<T> {
@@ -70,7 +66,8 @@ export async function findAllDoctors<
   const conditions = [];
 
   if (restrictToIds) {
-    if (restrictToIds.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    if (restrictToIds.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
     conditions.push(sql`${doctors.id} IN (${sql.join(restrictToIds, sql.raw(","))})`);
   }
 
@@ -91,8 +88,14 @@ export async function findAllDoctors<
       .select({ id: places.id })
       .from(places)
       .where(ilike(places.state, filters.placeState));
-    if (placeRows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.placeId} IN (${sql.join(placeRows.map((r) => r.id), sql.raw(","))})`);
+    if (placeRows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.placeId} IN (${sql.join(
+        placeRows.map((r) => r.id),
+        sql.raw(",")
+      )})`
+    );
   } else if (filters.placeId) {
     conditions.push(eq(doctors.placeId, filters.placeId));
   }
@@ -106,17 +109,11 @@ export async function findAllDoctors<
     // also show doctors who offer "both" options
     if (filters.consultationType === "virtual_only") {
       conditions.push(
-        or(
-          eq(doctors.consultationType, "virtual_only"),
-          eq(doctors.consultationType, "both")
-        )
+        or(eq(doctors.consultationType, "virtual_only"), eq(doctors.consultationType, "both"))
       );
     } else if (filters.consultationType === "in_person") {
       conditions.push(
-        or(
-          eq(doctors.consultationType, "in_person"),
-          eq(doctors.consultationType, "both")
-        )
+        or(eq(doctors.consultationType, "in_person"), eq(doctors.consultationType, "both"))
       );
     } else {
       // For "both", only show doctors who explicitly offer both
@@ -129,8 +126,14 @@ export async function findAllDoctors<
       .selectDistinct({ doctorId: payoutMethods.doctorId })
       .from(payoutMethods)
       .where(eq(payoutMethods.type, filters.payoutType as any));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+    if (rows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.id} IN (${sql.join(
+        rows.map((r) => r.doctorId),
+        sql.raw(",")
+      )})`
+    );
   }
 
   // M2M filters: resolve doctor IDs from junction tables
@@ -140,15 +143,27 @@ export async function findAllDoctors<
       .from(doctorServices)
       .innerJoin(servicesTable, eq(doctorServices.serviceId, servicesTable.id))
       .where(inArray(servicesTable.name, filters.serviceNames));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+    if (rows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.id} IN (${sql.join(
+        rows.map((r) => r.doctorId),
+        sql.raw(",")
+      )})`
+    );
   } else if (filters.serviceId) {
     const rows = await db
       .selectDistinct({ doctorId: doctorServices.doctorId })
       .from(doctorServices)
       .where(eq(doctorServices.serviceId, filters.serviceId));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+    if (rows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.id} IN (${sql.join(
+        rows.map((r) => r.doctorId),
+        sql.raw(",")
+      )})`
+    );
   }
 
   if (filters.conditionNames?.length) {
@@ -157,15 +172,27 @@ export async function findAllDoctors<
       .from(doctorConditions)
       .innerJoin(conditionsTable, eq(doctorConditions.conditionId, conditionsTable.id))
       .where(inArray(conditionsTable.name, filters.conditionNames));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+    if (rows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.id} IN (${sql.join(
+        rows.map((r) => r.doctorId),
+        sql.raw(",")
+      )})`
+    );
   } else if (filters.conditionId) {
     const rows = await db
       .selectDistinct({ doctorId: doctorConditions.doctorId })
       .from(doctorConditions)
       .where(eq(doctorConditions.conditionId, filters.conditionId));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+    if (rows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.id} IN (${sql.join(
+        rows.map((r) => r.doctorId),
+        sql.raw(",")
+      )})`
+    );
   }
 
   if (filters.languageId) {
@@ -173,25 +200,14 @@ export async function findAllDoctors<
       .selectDistinct({ doctorId: doctorLanguages.doctorId })
       .from(doctorLanguages)
       .where(eq(doctorLanguages.languageId, filters.languageId));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
-  }
-
-  if (filters.treatmentMethodNames?.length) {
-    const rows = await db
-      .selectDistinct({ doctorId: doctorTreatmentMethods.doctorId })
-      .from(doctorTreatmentMethods)
-      .innerJoin(treatmentMethodsTable, eq(doctorTreatmentMethods.treatmentMethodId, treatmentMethodsTable.id))
-      .where(inArray(treatmentMethodsTable.name, filters.treatmentMethodNames));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
-  } else if (filters.treatmentMethodId) {
-    const rows = await db
-      .selectDistinct({ doctorId: doctorTreatmentMethods.doctorId })
-      .from(doctorTreatmentMethods)
-      .where(eq(doctorTreatmentMethods.treatmentMethodId, filters.treatmentMethodId));
-    if (rows.length === 0) return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
-    conditions.push(sql`${doctors.id} IN (${sql.join(rows.map((r) => r.doctorId), sql.raw(","))})`);
+    if (rows.length === 0)
+      return { data: [], pagination: calculatePaginationMetadata(page, limit, 0) };
+    conditions.push(
+      sql`${doctors.id} IN (${sql.join(
+        rows.map((r) => r.doctorId),
+        sql.raw(",")
+      )})`
+    );
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -298,7 +314,6 @@ export async function findDoctorById(id: number) {
       schedules: true,
       ageGroups: true,
       doctorServices: { with: { service: true } },
-      doctorTreatmentMethods: { with: { treatmentMethod: true } },
       doctorConditions: { with: { condition: true } },
       doctorLanguages: { with: { language: true } },
     },
@@ -364,11 +379,7 @@ export async function findDoctorService(doctorId: number, serviceId: number) {
   });
 }
 
-export async function createDoctorService(
-  doctorId: number,
-  serviceId: number,
-  amount: number
-) {
+export async function createDoctorService(doctorId: number, serviceId: number, amount: number) {
   const [doctorService] = await db
     .insert(doctorServices)
     .values({ doctorId, serviceId, amount })
@@ -419,7 +430,10 @@ export async function findDoctorPhone(doctorId: number, phoneId: number) {
   });
 }
 
-export async function createDoctorPhone(doctorId: number, data: { areaCode: number; number: number }) {
+export async function createDoctorPhone(
+  doctorId: number,
+  data: { areaCode: number; number: number }
+) {
   const [phone] = await db
     .insert(phones)
     .values({ ...data, doctorId, personId: null })
@@ -427,7 +441,10 @@ export async function createDoctorPhone(doctorId: number, data: { areaCode: numb
   return phone;
 }
 
-export async function editDoctorPhone(phoneId: number, data: { areaCode?: number; number?: number }) {
+export async function editDoctorPhone(
+  phoneId: number,
+  data: { areaCode?: number; number?: number }
+) {
   const [phone] = await db.update(phones).set(data).where(eq(phones.id, phoneId)).returning();
   return phone;
 }
@@ -524,11 +541,7 @@ export async function findDoctorCondition(doctorId: number, conditionId: number)
   });
 }
 
-export async function createDoctorCondition(
-  doctorId: number,
-  conditionId: number,
-  type: string
-) {
+export async function createDoctorCondition(doctorId: number, conditionId: number, type: string) {
   const [row] = await db
     .insert(doctorConditions)
     .values({ doctorId, conditionId, type: type as any })
@@ -569,18 +582,11 @@ export async function findDoctorLanguages(doctorId: number, pagination: Paginati
 
 export async function findDoctorLanguage(doctorId: number, languageId: number) {
   return db.query.doctorLanguages.findFirst({
-    where: and(
-      eq(doctorLanguages.doctorId, doctorId),
-      eq(doctorLanguages.languageId, languageId)
-    ),
+    where: and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId)),
   });
 }
 
-export async function createDoctorLanguage(
-  doctorId: number,
-  languageId: number,
-  type: string
-) {
+export async function createDoctorLanguage(doctorId: number, languageId: number, type: string) {
   const [row] = await db
     .insert(doctorLanguages)
     .values({ doctorId, languageId, type: type as any })
@@ -591,69 +597,7 @@ export async function createDoctorLanguage(
 export async function deleteDoctorLanguage(doctorId: number, languageId: number) {
   await db
     .delete(doctorLanguages)
-    .where(
-      and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId))
-    );
-}
-
-// ============================================================================
-// TREATMENT METHODS (M2M)
-// ============================================================================
-
-export async function findDoctorTreatmentMethods(
-  doctorId: number,
-  pagination: PaginationParams
-) {
-  const { page, limit, offset } = pagination;
-  const whereClause = eq(doctorTreatmentMethods.doctorId, doctorId);
-
-  const [{ count: totalCount }] = await db
-    .select({ count: count() })
-    .from(doctorTreatmentMethods)
-    .where(whereClause);
-
-  const data = await db.query.doctorTreatmentMethods.findMany({
-    where: whereClause,
-    limit,
-    offset,
-    with: { treatmentMethod: true },
-  });
-
-  return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
-}
-
-export async function findDoctorTreatmentMethod(doctorId: number, treatmentMethodId: number) {
-  return db.query.doctorTreatmentMethods.findFirst({
-    where: and(
-      eq(doctorTreatmentMethods.doctorId, doctorId),
-      eq(doctorTreatmentMethods.treatmentMethodId, treatmentMethodId)
-    ),
-  });
-}
-
-export async function createDoctorTreatmentMethod(
-  doctorId: number,
-  treatmentMethodId: number
-) {
-  const [row] = await db
-    .insert(doctorTreatmentMethods)
-    .values({ doctorId, treatmentMethodId })
-    .returning();
-  return row;
-}
-
-export async function deleteDoctorTreatmentMethod(
-  doctorId: number,
-  treatmentMethodId: number
-) {
-  await db
-    .delete(doctorTreatmentMethods)
-    .where(
-      and(
-        eq(doctorTreatmentMethods.doctorId, doctorId),
-        eq(doctorTreatmentMethods.treatmentMethodId, treatmentMethodId)
-      )
-    );
+    .where(and(eq(doctorLanguages.doctorId, doctorId), eq(doctorLanguages.languageId, languageId)));
 }
 
 // ============================================================================
@@ -858,7 +802,13 @@ export async function findDoctorAppointments(doctorId: number, pagination: Pagin
     orderBy: (a, { desc }) => [desc(a.startDateTime)],
     with: {
       person: {
-        columns: { id: true, firstName: true, middleName: true, firstLastName: true, secondLastName: true },
+        columns: {
+          id: true,
+          firstName: true,
+          middleName: true,
+          firstLastName: true,
+          secondLastName: true,
+        },
       },
       doctorService: { with: { service: true } },
       payment: { columns: { id: true, amount: true, date: true } },
@@ -884,7 +834,13 @@ export async function findDoctorReviews(doctorId: number, pagination: Pagination
     orderBy: (r, { desc }) => [desc(r.createdAt)],
     with: {
       person: {
-        columns: { id: true, firstName: true, middleName: true, firstLastName: true, secondLastName: true },
+        columns: {
+          id: true,
+          firstName: true,
+          middleName: true,
+          firstLastName: true,
+          secondLastName: true,
+        },
       },
     },
   });
@@ -925,10 +881,7 @@ export async function findDoctorIdentity(doctorId: number, identityId: number) {
 }
 
 export async function createDoctorIdentity(doctorId: number, identityId: number) {
-  const [row] = await db
-    .insert(doctorIdentities)
-    .values({ doctorId, identityId })
-    .returning();
+  const [row] = await db.insert(doctorIdentities).values({ doctorId, identityId }).returning();
   return row;
 }
 
@@ -944,10 +897,7 @@ export async function deleteDoctorIdentity(doctorId: number, identityId: number)
 // PERSONALITY TRAITS (M2M)
 // ============================================================================
 
-export async function findDoctorPersonalityTraits(
-  doctorId: number,
-  pagination: PaginationParams
-) {
+export async function findDoctorPersonalityTraits(doctorId: number, pagination: PaginationParams) {
   const { page, limit, offset } = pagination;
   const whereClause = eq(doctorPersonalityTraits.doctorId, doctorId);
 
@@ -966,10 +916,7 @@ export async function findDoctorPersonalityTraits(
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }
 
-export async function findDoctorPersonalityTrait(
-  doctorId: number,
-  personalityTraitId: number
-) {
+export async function findDoctorPersonalityTrait(doctorId: number, personalityTraitId: number) {
   return db.query.doctorPersonalityTraits.findFirst({
     where: and(
       eq(doctorPersonalityTraits.doctorId, doctorId),
@@ -978,10 +925,7 @@ export async function findDoctorPersonalityTrait(
   });
 }
 
-export async function createDoctorPersonalityTrait(
-  doctorId: number,
-  personalityTraitId: number
-) {
+export async function createDoctorPersonalityTrait(doctorId: number, personalityTraitId: number) {
   const [row] = await db
     .insert(doctorPersonalityTraits)
     .values({ doctorId, personalityTraitId })
@@ -989,10 +933,7 @@ export async function createDoctorPersonalityTrait(
   return row;
 }
 
-export async function deleteDoctorPersonalityTrait(
-  doctorId: number,
-  personalityTraitId: number
-) {
+export async function deleteDoctorPersonalityTrait(doctorId: number, personalityTraitId: number) {
   await db
     .delete(doctorPersonalityTraits)
     .where(
@@ -1019,15 +960,14 @@ export async function findDoctorDetailById(id: number) {
         with: {
           institution: {
             with: {
-              place: true
-            }
-          }
-        }
+              place: true,
+            },
+          },
+        },
       },
       ageGroups: true,
       schedules: true,
       doctorServices: { with: { service: true } },
-      doctorTreatmentMethods: { with: { treatmentMethod: true } },
       doctorConditions: { with: { condition: true } },
       doctorLanguages: { with: { language: true } },
       doctorIdentities: { with: { identity: true } },

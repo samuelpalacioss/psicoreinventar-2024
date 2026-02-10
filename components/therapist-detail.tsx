@@ -43,7 +43,6 @@ export interface TherapistDetailProps {
   otherSpecialties: string[];
   identities: string[];
   agesServed: string[];
-  treatmentMethods: { name: string; description: string }[];
   licensedIn: string[];
   accepts: string[];
   availableSlots: { date: string; times: string[] }[];
@@ -71,7 +70,6 @@ export default function TherapistDetail({
   otherSpecialties = [],
   identities = [],
   agesServed = [],
-  treatmentMethods = [],
   licensedIn = [],
   accepts = [],
   availableSlots = [],
@@ -339,29 +337,6 @@ export default function TherapistDetail({
                       >
                         {age}
                       </Badge>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              <div className="-mx-6 lg:mx-0">
-                <Separator />
-              </div>
-
-              {/* Treatment Methods */}
-              {treatmentMethods.length > 0 && (
-                <section>
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                    My treatment methods
-                  </h2>
-                  <div className="space-y-4">
-                    {treatmentMethods.map((method) => (
-                      <div key={method.name}>
-                        <h3 className="text-base font-medium text-gray-800 mb-2">{method.name}</h3>
-                        <p className="text-base leading-relaxed text-gray-600">
-                          {method.description}
-                        </p>
-                      </div>
                     ))}
                   </div>
                 </section>
@@ -755,16 +730,6 @@ export default function TherapistDetail({
 //   otherSpecialties: ["Spirituality", "Trauma and PTSD", "Women's Issues"],
 //   identities: ["Jewish", "Woman"],
 //   agesServed: ["Adults (18 to 64)", "Teenagers (13 to 17)"],
-//   treatmentMethods: [
-//     {
-//       name: "Attachment-based",
-//       description: `Attachment-based therapy is a form of psychotherapy that helps individuals build healthier, more secure relationships. I work with clients to recognize their relationship patterns and develop new ways of fostering strong emotional connections.`,
-//     },
-//     {
-//       name: "Cognitive Behavioral Therapy (CBT)",
-//       description: `CBT is a structured, goal-oriented approach that helps identify and change negative thought patterns and behaviors. Through practical techniques, clients learn to reframe unhelpful thinking and develop healthier coping mechanisms that enable them to lead positive and productive lives.`,
-//     },
-//   ],
 //   licensedIn: ["New York", "New Jersey"],
 //   accepts: [
 //     "Cash - $150 per session",

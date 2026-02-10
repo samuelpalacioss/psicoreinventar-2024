@@ -35,32 +35,34 @@ export const consultationTypeSchema = z.enum(["virtual_only", "in_person", "both
  * isActive defaults to false (requires admin approval)
  * consultationType defaults to virtual_only
  */
-export const createDoctorSchema = z.object({
-  ci: ciSchema,
-  firstName: nameSchema,
-  middleName: optionalNameSchema,
-  firstLastName: nameSchema,
-  secondLastName: optionalNameSchema,
-  birthDate: birthDateSchema,
-  address: addressSchema,
-  placeId: placeIdSchema.optional(),
-  consultationType: consultationTypeSchema.default("virtual_only"),
-  biography: longTextSchema,
-  firstSessionExpectation: longTextSchema,
-  biggestStrengths: longTextSchema,
-  practiceStartYear: yearSchema,
-}).refine(
-  (data) => {
-    if (data.consultationType === "virtual_only") {
-      return true;
+export const createDoctorSchema = z
+  .object({
+    ci: ciSchema,
+    firstName: nameSchema,
+    middleName: optionalNameSchema,
+    firstLastName: nameSchema,
+    secondLastName: optionalNameSchema,
+    birthDate: birthDateSchema,
+    address: addressSchema,
+    placeId: placeIdSchema.optional(),
+    consultationType: consultationTypeSchema.default("virtual_only"),
+    biography: longTextSchema,
+    firstSessionExpectation: longTextSchema,
+    biggestStrengths: longTextSchema,
+    practiceStartYear: yearSchema,
+  })
+  .refine(
+    (data) => {
+      if (data.consultationType === "virtual_only") {
+        return true;
+      }
+      return data.placeId !== undefined && data.placeId !== null;
+    },
+    {
+      message: "placeId is required when consultationType is 'in_person' or 'both'",
+      path: ["placeId"],
     }
-    return data.placeId !== undefined && data.placeId !== null;
-  },
-  {
-    message: "placeId is required when consultationType is 'in_person' or 'both'",
-    path: ["placeId"],
-  }
-);
+  );
 
 export type CreateDoctorInput = z.infer<typeof createDoctorSchema>;
 
@@ -73,21 +75,23 @@ export type CreateDoctorInput = z.infer<typeof createDoctorSchema>;
  * All fields are optional (partial update)
  * Refinement applies validation only when consultationType is provided
  */
-const baseUpdateDoctorSchema = z.object({
-  ci: ciSchema,
-  firstName: nameSchema,
-  middleName: optionalNameSchema,
-  firstLastName: nameSchema,
-  secondLastName: optionalNameSchema,
-  birthDate: birthDateSchema,
-  address: addressSchema,
-  placeId: placeIdSchema.optional(),
-  consultationType: consultationTypeSchema,
-  biography: longTextSchema,
-  firstSessionExpectation: longTextSchema,
-  biggestStrengths: longTextSchema,
-  practiceStartYear: yearSchema,
-}).partial();
+const baseUpdateDoctorSchema = z
+  .object({
+    ci: ciSchema,
+    firstName: nameSchema,
+    middleName: optionalNameSchema,
+    firstLastName: nameSchema,
+    secondLastName: optionalNameSchema,
+    birthDate: birthDateSchema,
+    address: addressSchema,
+    placeId: placeIdSchema.optional(),
+    consultationType: consultationTypeSchema,
+    biography: longTextSchema,
+    firstSessionExpectation: longTextSchema,
+    biggestStrengths: longTextSchema,
+    practiceStartYear: yearSchema,
+  })
+  .partial();
 
 export const updateDoctorSchema = baseUpdateDoctorSchema.refine(
   (data) => {
@@ -118,7 +122,6 @@ export const listDoctorsSchema = paginationSchema.extend({
   serviceId: optionalIdFilterSchema,
   conditionId: optionalIdFilterSchema,
   languageId: optionalIdFilterSchema,
-  treatmentMethodId: optionalIdFilterSchema,
   consultationType: consultationTypeSchema.optional(),
   isActive: booleanFilterSchema,
 });
@@ -302,19 +305,6 @@ export const updateDoctorServiceSchema = z.object({
 });
 
 export type UpdateDoctorServiceInput = z.infer<typeof updateDoctorServiceSchema>;
-
-// ============================================================================
-// DOCTOR TREATMENT METHOD (Junction Table)
-// ============================================================================
-
-/**
- * Schema for adding a treatment method to a doctor
- */
-export const addDoctorTreatmentMethodSchema = z.object({
-  treatmentMethodId: numericIdSchema,
-});
-
-export type AddDoctorTreatmentMethodInput = z.infer<typeof addDoctorTreatmentMethodSchema>;
 
 // ============================================================================
 // DOCTOR CONDITION (Junction Table with Type)

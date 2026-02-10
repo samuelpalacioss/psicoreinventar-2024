@@ -44,7 +44,7 @@
 //   {
 //     id: 3,
 //     name: 'Profile Info',
-//     fields: ['clientExpectations', 'treatmentMethods', 'strengths'],
+//     fields: ['clientExpectations', 'strengths'],
 //   },
 //   {
 //     id: 4,
@@ -89,7 +89,6 @@
 //       education: '',
 //       graduationYear: '',
 //       clientExpectations: '',
-//       treatmentMethods: '',
 //       strengths: '',
 //       description: '',
 //     },
@@ -124,7 +123,6 @@
 //         education: data.education,
 //         specialties: data.specialties,
 //         clientExpectations: data.clientExpectations,
-//         treatmentMethods: data.treatmentMethods,
 //         strengths: data.strengths,
 //         description: data.description,
 //       }),
@@ -419,24 +417,6 @@
 //                             {...field}
 //                             id='about-me'
 //                             placeholder='Describe what clients can expect from your sessions...'
-//                             className='min-h-[100px] resize-none'
-//                           />
-//                         </FormControl>
-//                         <FormMessage className='text-[0.8rem]' /> {/* Form error */}
-//                       </FormItem>
-//                     )}
-//                   />
-//                   <FormField
-//                     control={form.control}
-//                     name='treatmentMethods'
-//                     render={({ field }) => (
-//                       <FormItem>
-//                         <FormLabel>What treatment methods do you utilize?</FormLabel>
-//                         <FormControl>
-//                           <Textarea
-//                             {...field}
-//                             id='about-me'
-//                             placeholder='List and describe your treatment methods or methodologies...'
 //                             className='min-h-[100px] resize-none'
 //                           />
 //                         </FormControl>

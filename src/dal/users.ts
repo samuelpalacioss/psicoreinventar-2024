@@ -37,7 +37,6 @@ export async function findUserDoctorProfile(userId: string) {
       schedules: true,
       ageGroups: true,
       doctorServices: { with: { service: true } },
-      doctorTreatmentMethods: { with: { treatmentMethod: true } },
       doctorConditions: { with: { condition: true } },
       doctorLanguages: { with: { language: true } },
     },

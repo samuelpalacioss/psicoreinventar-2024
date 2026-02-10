@@ -1,7 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronDownIcon, MagnifyingGlassIcon, ArrowLeftIcon, XMarkIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  ArrowLeftIcon,
+  XMarkIcon,
+  AdjustmentsHorizontalIcon,
+} from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
@@ -31,7 +37,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   );
 
   // Data lists from database or fallback
-  const locations = placesData?.data?.map(place => place.displayPlace) || [];
+  const locations = placesData?.data?.map((place) => place.displayPlace) || [];
 
   const router = useRouter();
   const pathname = usePathname();
@@ -50,7 +56,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     zelle: "Zelle",
     pago_movil: "Pago Movil",
     bank_transfer: "Bank transfer",
-  } as const satisfies Record<typeof payoutTypeEnum.enumValues[number], string>;
+  } as const satisfies Record<(typeof payoutTypeEnum.enumValues)[number], string>;
 
   // Helper to update URL search params (reads latest URL to avoid stale state)
   function updateParams(updates: Record<string, string | null>) {
@@ -71,11 +77,11 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const isAnyLocationSelected = location === ANY_LOCATION_VALUE;
   const locationLabel = isAnyLocationSelected ? "Any location" : location;
   const paymentMethod = searchParams.get("payment") || "cash";
-  const paymentMethodLabel = payoutMethodWithLabels[paymentMethod as keyof typeof payoutMethodWithLabels] || "Cash";
+  const paymentMethodLabel =
+    payoutMethodWithLabels[paymentMethod as keyof typeof payoutMethodWithLabels] || "Cash";
   const selectedSessionType = searchParams.get("session") || "virtual_only";
   const selectedTherapyTypes = searchParams.get("therapy")?.split(",").filter(Boolean) ?? [];
   const selectedSpecialties = searchParams.get("specialties")?.split(",").filter(Boolean) ?? [];
-  const selectedTreatmentMethods = searchParams.get("method")?.split(",").filter(Boolean) ?? [];
 
   // Search query: local state, synced to URL on blur/Enter
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -85,11 +91,18 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     // `ANY_LOCATION_VALUE` means "no location preference" so we remove the filter param.
     updateParams({ state: value === ANY_LOCATION_VALUE ? null : value });
   }
-  function setPaymentMethod(value: string) { updateParams({ payment: value || null }); }
-  function setSelectedSessionType(value: string) { updateParams({ session: value || null }); }
-  function setSelectedTherapyTypes(values: string[]) { updateParams({ therapy: values.length ? values.join(",") : null }); }
-  function setSelectedSpecialties(values: string[]) { updateParams({ specialties: values.length ? values.join(",") : null }); }
-  function setSelectedTreatmentMethods(values: string[]) { updateParams({ method: values.length ? values.join(",") : null }); }
+  function setPaymentMethod(value: string) {
+    updateParams({ payment: value || null });
+  }
+  function setSelectedSessionType(value: string) {
+    updateParams({ session: value || null });
+  }
+  function setSelectedTherapyTypes(values: string[]) {
+    updateParams({ therapy: values.length ? values.join(",") : null });
+  }
+  function setSelectedSpecialties(values: string[]) {
+    updateParams({ specialties: values.length ? values.join(",") : null });
+  }
 
   // UI state (not persisted in URL)
   const [isSearchOpen, setIsSearchOpen] = useState(!!searchParams.get("q"));
@@ -121,16 +134,20 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     if (value.length > 20) {
       // Convert key format: "OBS_COMP_DISORDER" -> "OCD"
       // For now, just use the initials of the key parts
-      const parts = key.split('_');
-      return parts.map(part => part[0]).join('');
+      const parts = key.split("_");
+      return parts.map((part) => part[0]).join("");
     }
 
     return value;
   };
 
-  const toggleCheckbox = (value: string, selectedValues: string[], setter: (values: string[]) => void) => {
+  const toggleCheckbox = (
+    value: string,
+    selectedValues: string[],
+    setter: (values: string[]) => void
+  ) => {
     if (selectedValues.includes(value)) {
-      setter(selectedValues.filter(v => v !== value));
+      setter(selectedValues.filter((v) => v !== value));
     } else {
       setter([...selectedValues, value]);
     }
@@ -257,14 +274,16 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               {location && paymentMethod ? (
                 <span className="truncate">
                   {locationLabel.length > 8 ? `${locationLabel.substring(0, 8)}...` : locationLabel}
-                  {' • '}
-                  {paymentMethodLabel.length > 5 ? `${paymentMethodLabel.substring(0, 6)}...` : paymentMethodLabel}
+                  {" • "}
+                  {paymentMethodLabel.length > 5
+                    ? `${paymentMethodLabel.substring(0, 6)}...`
+                    : paymentMethodLabel}
                   {selectedSpecialties.length > 0 && (
                     <> • Specialties ({selectedSpecialties.length})</>
                   )}
                 </span>
               ) : (
-                'Find a therapist'
+                "Find a therapist"
               )}
             </button>
             <Button
@@ -283,17 +302,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             <Select value={location} onValueChange={setLocation}>
               <SelectTrigger className="w-auto min-w-[120px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                <SelectValue>
-                  {locationLabel}
-                </SelectValue>
+                <SelectValue>{locationLabel}</SelectValue>
               </SelectTrigger>
-              <SelectContent
-                className="max-h-[300px]"
-
-              >
-                <SelectItem value={ANY_LOCATION_VALUE}>
-                  Any location
-                </SelectItem>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value={ANY_LOCATION_VALUE}>Any location</SelectItem>
                 {locations.map((loc) => (
                   <SelectItem key={loc} value={loc}>
                     {loc}
@@ -306,9 +318,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
               <SelectTrigger className="w-auto min-w-[110px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                <SelectValue>
-                  {paymentMethodLabel}
-                </SelectValue>
+                <SelectValue>{paymentMethodLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {payoutMethods.map((method) => (
@@ -325,7 +335,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   ? "Specialties"
                   : selectedSpecialties.length === 1
                     ? getConditionDisplayLabel(selectedSpecialties[0])
-                    : `${getConditionDisplayLabel(selectedSpecialties[0])} +${selectedSpecialties.length - 1}`
+                    : `${getConditionDisplayLabel(selectedSpecialties[0])} +${selectedSpecialties.length - 1
+                    }`
               }
               options={specialtiesList}
               selectedValues={selectedSpecialties}
@@ -336,7 +347,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             <Select value={selectedSessionType} onValueChange={setSelectedSessionType}>
               <SelectTrigger className="w-auto min-w-[140px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 <SelectValue>
-                  {sessionTypeOptions.find(opt => opt.value === selectedSessionType)?.label || "Virtual"}
+                  {sessionTypeOptions.find((opt) => opt.value === selectedSessionType)?.label ||
+                    "Virtual"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -360,28 +372,21 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               selectedValues={selectedTherapyTypes}
               onChange={setSelectedTherapyTypes}
             />
-
-            <MultiSelectDropdown
-              label={
-                selectedTreatmentMethods.length === 0
-                  ? "Treatment method"
-                  : selectedTreatmentMethods.length === 1
-                    ? selectedTreatmentMethods[0]
-                    : `${selectedTreatmentMethods[0]} +${selectedTreatmentMethods.length - 1}`
-              }
-              options={["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"]}
-              selectedValues={selectedTreatmentMethods}
-              onChange={setSelectedTreatmentMethods}
-            />
           </div>
         </div>
       </div>
 
       {/* Mobile More Filters Modal */}
       <Dialog open={isFiltersModalOpen} onOpenChange={setIsFiltersModalOpen}>
-        <DialogContent showCloseButton={false} className="fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col translate-x-0 translate-y-0 top-0 left-0">
+        <DialogContent
+          showCloseButton={false}
+          className="fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom flex flex-col translate-x-0 translate-y-0 top-0 left-0"
+        >
           {/* Header */}
-          <div className="flex items-center justify-between border-b bg-white px-6 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+          <div
+            className="flex items-center justify-between border-b bg-white px-6 py-4 shrink-0"
+            style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+          >
             <DialogTitle className="text-lg font-semibold">More filters</DialogTitle>
             <button
               onClick={() => setIsFiltersModalOpen(false)}
@@ -417,34 +422,14 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               <h3 className="text-base font-semibold text-gray-900 mb-3">Therapy type</h3>
               <div className="space-y-2">
                 {["Talk therapy", "Couples therapy", "Teen therapy"].map((type) => (
-                  <label
-                    key={type}
-                    className="flex items-center gap-3 cursor-pointer py-2"
-                  >
+                  <label key={type} className="flex items-center gap-3 cursor-pointer py-2">
                     <Checkbox
                       checked={selectedTherapyTypes.includes(type)}
-                      onCheckedChange={() => toggleCheckbox(type, selectedTherapyTypes, setSelectedTherapyTypes)}
+                      onCheckedChange={() =>
+                        toggleCheckbox(type, selectedTherapyTypes, setSelectedTherapyTypes)
+                      }
                     />
                     <span className="text-sm text-gray-700">{type}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Treatment Method Section */}
-            <div className="mb-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-3">Treatment method</h3>
-              <div className="space-y-2">
-                {["CBT", "DBT", "EMDR", "Psychodynamic", "Mindfulness-based", "Solution-focused"].map((method) => (
-                  <label
-                    key={method}
-                    className="flex items-center gap-3 cursor-pointer py-2"
-                  >
-                    <Checkbox
-                      checked={selectedTreatmentMethods.includes(method)}
-                      onCheckedChange={() => toggleCheckbox(method, selectedTreatmentMethods, setSelectedTreatmentMethods)}
-                    />
-                    <span className="text-sm text-gray-700">{method}</span>
                   </label>
                 ))}
               </div>
@@ -452,7 +437,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action buttons */}
-          <div className="border-t bg-white px-6 py-4 flex gap-3 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <div
+            className="border-t bg-white px-6 py-4 flex gap-3 shrink-0"
+            style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+          >
             <Button
               variant="outline"
               className="flex-1 h-12 rounded-full"
@@ -461,7 +449,6 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                   session: null,
                   therapy: null,
                   specialties: null,
-                  method: null,
                 });
               }}
             >
@@ -480,13 +467,20 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
       {/* Find a Therapist Modal (Mobile Only) */}
 
       <Dialog open={isFindProviderModalOpen} onOpenChange={setIsFindProviderModalOpen}>
-        <DialogContent showCloseButton={false} className={cn(
-          "fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col translate-x-0 translate-y-0 top-0 left-0",
-          !isNavigatingBetweenModals && "data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
-          isNavigatingBetweenModals && "duration-0"
-        )}>
+        <DialogContent
+          showCloseButton={false}
+          className={cn(
+            "fixed inset-0 h-full w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col translate-x-0 translate-y-0 top-0 left-0",
+            !isNavigatingBetweenModals &&
+            "data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
+            isNavigatingBetweenModals && "duration-0"
+          )}
+        >
           {/* Header */}
-          <div className="flex items-center justify-between border-b bg-white px-6 py-4 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+          <div
+            className="flex items-center justify-between border-b bg-white px-6 py-4 shrink-0"
+            style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+          >
             <DialogTitle className="text-lg font-semibold">Find a therapist</DialogTitle>
             <button
               onClick={() => {
@@ -504,9 +498,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           <div className="overflow-y-auto flex-1 px-6 py-4 min-h-0">
             {/* Address Section */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                State
-              </label>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">State</label>
               <button
                 onClick={() => {
                   setIsNavigatingBetweenModals(true);
@@ -540,9 +532,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             {/* Specialties Section */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Specialties
-              </label>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">Specialties</label>
               <button
                 onClick={() => {
                   setIsNavigatingBetweenModals(true);
@@ -563,7 +553,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           </div>
 
           {/* Footer with action button */}
-          <div className="border-t bg-white px-6 py-4 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <div
+            className="border-t bg-white px-6 py-4 shrink-0"
+            style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+          >
             <Button
               className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full"
               onClick={() => {
@@ -579,7 +572,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
       {/* Location Selector Modal */}
       <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0">
+        <DialogContent
+          showCloseButton={false}
+          className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0"
+        >
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center gap-3 border-b bg-white px-6 py-4">
@@ -617,7 +613,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 { value: ANY_LOCATION_VALUE, label: "Any location" },
                 ...locations.map((loc) => ({ value: loc, label: loc })),
               ]
-                .filter((option) => option.label.toLowerCase().includes(locationSearch.toLowerCase()))
+                .filter((option) =>
+                  option.label.toLowerCase().includes(locationSearch.toLowerCase())
+                )
                 .map((option) => (
                   <li
                     key={option.value}
@@ -655,7 +653,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
       {/* Payment Method Selector Modal */}
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0">
+        <DialogContent
+          showCloseButton={false}
+          className="h-full max-h-screen w-full max-w-full rounded-none p-0 md:hidden duration-0"
+        >
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center gap-3 border-b bg-white px-6 py-4">
@@ -741,7 +742,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
           setIsSpecialtiesModalOpen(open);
         }}
       >
-        <DialogContent showCloseButton={false} className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col duration-0">
+        <DialogContent
+          showCloseButton={false}
+          className="h-full max-h-screen w-full max-w-full rounded-none p-0 gap-0 md:hidden flex flex-col duration-0"
+        >
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center gap-3 border-b bg-white px-6 py-4 shrink-0">
@@ -789,9 +793,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                     >
                       <Checkbox
                         checked={tempSelectedSpecialties.includes(spec)}
-                        onCheckedChange={() => toggleCheckbox(spec, tempSelectedSpecialties, setTempSelectedSpecialties)}
+                        onCheckedChange={() =>
+                          toggleCheckbox(spec, tempSelectedSpecialties, setTempSelectedSpecialties)
+                        }
                       />
-                      <span className="text-sm text-gray-900">{getConditionDisplayLabel(spec)}</span>
+                      <span className="text-sm text-gray-900">
+                        {getConditionDisplayLabel(spec)}
+                      </span>
                     </label>
                   </li>
                 ))}

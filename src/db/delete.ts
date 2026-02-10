@@ -12,12 +12,10 @@ import {
   conditions,
   languages,
   services,
-  treatmentMethods,
   ageGroups,
   educations,
   schedules,
   doctorServices,
-  doctorTreatmentMethods,
   doctorConditions,
   doctorLanguages,
   paymentMethods,
@@ -67,7 +65,6 @@ async function deleteAll() {
     await safeDelete(paymentMethods, "Payment_Method");
     await safeDelete(doctorLanguages, "Doctor_Language");
     await safeDelete(doctorConditions, "Doctor_Condition");
-    await safeDelete(doctorTreatmentMethods, "Doctor_Treatment_Method");
     await safeDelete(doctorServices, "Doctor_Service");
     await safeDelete(schedules, "Schedule");
     await safeDelete(ageGroups, "Age_Group");
@@ -80,7 +77,6 @@ async function deleteAll() {
     await safeDelete(sessions, "Session");
     await safeDelete(verifications, "Verification");
     await safeDelete(institutions, "Institution");
-    await safeDelete(treatmentMethods, "Treatment_Method");
     await safeDelete(services, "Service");
     await safeDelete(languages, "Language");
     await safeDelete(conditions, "Condition");

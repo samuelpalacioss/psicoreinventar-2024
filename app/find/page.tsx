@@ -64,9 +64,6 @@ export default async function Specialists({
   const therapy = params.therapy?.split(",").filter(Boolean);
   if (therapy?.length) filters.serviceNames = therapy;
 
-  const methods = params.method?.split(",").filter(Boolean);
-  if (methods?.length) filters.treatmentMethodNames = methods;
-
   const result = await findAllDoctors(
     filters,
     { page: 1, limit: 20, offset: 0 },
