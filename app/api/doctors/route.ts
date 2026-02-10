@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
       conditionId: params.conditionId,
       languageId: params.languageId,
       treatmentMethodId: params.treatmentMethodId,
+      consultationType: params.consultationType,
     };
 
     let restrictToIds: number[] | undefined = undefined;

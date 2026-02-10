@@ -19,6 +19,7 @@ export interface DoctorFilters {
   search?: string;
   placeId?: number;
   isActive?: boolean;
+  consultationType?: string;
   serviceId?: number;
   conditionId?: number;
   languageId?: number;
@@ -152,6 +153,7 @@ export function useDoctors(
         search: filters?.search,
         placeId: filters?.placeId,
         isActive: filters?.isActive,
+        consultationType: filters?.consultationType,
         serviceId: filters?.serviceId,
         conditionId: filters?.conditionId,
         languageId: filters?.languageId,

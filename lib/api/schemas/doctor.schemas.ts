@@ -119,6 +119,7 @@ export const listDoctorsSchema = paginationSchema.extend({
   conditionId: optionalIdFilterSchema,
   languageId: optionalIdFilterSchema,
   treatmentMethodId: optionalIdFilterSchema,
+  consultationType: consultationTypeSchema.optional(),
   isActive: booleanFilterSchema,
 });
 

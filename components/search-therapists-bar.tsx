@@ -33,6 +33,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Session type mapping: UI labels to database enum values
+  const sessionTypeOptions = [
+    { label: "Virtual", value: "virtual_only" },
+    { label: "In-person", value: "in_person" },
+    { label: "Virtual & In-person", value: "both" },
+  ];
+
   // Helper to update URL search params (reads latest URL to avoid stale state)
   function updateParams(updates: Record<string, string | null>) {
     const params = new URLSearchParams(window.location.search);
@@ -50,7 +57,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   // Filter state derived from URL search params
   const location = searchParams.get("state") || defaultLocation;
   const paymentMethod = searchParams.get("payment") || "Cash";
-  const selectedSessionType = searchParams.get("session") || "Virtual";
+  const selectedSessionType = searchParams.get("session") || "virtual_only";
   const selectedTherapyTypes = searchParams.get("therapy")?.split(",").filter(Boolean) ?? [];
   const selectedSpecialties = searchParams.get("specialties")?.split(",").filter(Boolean) ?? [];
   const selectedTreatmentMethods = searchParams.get("method")?.split(",").filter(Boolean) ?? [];
@@ -283,12 +290,14 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             <Select value={selectedSessionType} onValueChange={setSelectedSessionType}>
               <SelectTrigger className="w-auto min-w-[140px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                <SelectValue />
+                <SelectValue>
+                  {sessionTypeOptions.find(opt => opt.value === selectedSessionType)?.label || "Virtual"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
+                {sessionTypeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -345,13 +354,13 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               <h3 className="text-base font-semibold text-gray-900 mb-3">Session type</h3>
               <RadioGroup value={selectedSessionType} onValueChange={setSelectedSessionType}>
                 <div className="space-y-2">
-                  {["Virtual", "In-person", "Virtual & In-person"].map((type) => (
+                  {sessionTypeOptions.map((option) => (
                     <label
-                      key={type}
+                      key={option.value}
                       className="flex items-center gap-3 cursor-pointer py-2"
                     >
-                      <RadioGroupItem value={type} id={`session-${type}`} />
-                      <span className="text-sm text-gray-700">{type}</span>
+                      <RadioGroupItem value={option.value} id={`session-${option.value}`} />
+                      <span className="text-sm text-gray-700">{option.label}</span>
                     </label>
                   ))}
                 </div>

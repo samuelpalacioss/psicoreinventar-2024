@@ -20,6 +20,7 @@ import {
   personalityTraits,
   doctorIdentities,
   doctorPersonalityTraits,
+  consultationTypeEnum,
 } from "@/src/db/schema";
 import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
@@ -34,6 +35,7 @@ export interface DoctorFilters {
   placeId?: number;
   placeState?: string;
   isActive?: boolean;
+  consultationType?: typeof consultationTypeEnum.enumValues[number];
   serviceId?: number;
   serviceNames?: string[];
   conditionId?: number;
@@ -96,6 +98,29 @@ export async function findAllDoctors<
 
   if (filters.isActive !== undefined) {
     conditions.push(eq(doctors.isActive, filters.isActive));
+  }
+
+  if (filters.consultationType) {
+    // Inclusive filtering: when filtering by "virtual_only" or "in_person",
+    // also show doctors who offer "both" options
+    if (filters.consultationType === "virtual_only") {
+      conditions.push(
+        or(
+          eq(doctors.consultationType, "virtual_only"),
+          eq(doctors.consultationType, "both")
+        )
+      );
+    } else if (filters.consultationType === "in_person") {
+      conditions.push(
+        or(
+          eq(doctors.consultationType, "in_person"),
+          eq(doctors.consultationType, "both")
+        )
+      );
+    } else {
+      // For "both", only show doctors who explicitly offer both
+      conditions.push(eq(doctors.consultationType, filters.consultationType));
+    }
   }
 
   // M2M filters: resolve doctor IDs from junction tables
@@ -231,7 +256,8 @@ export async function findAllDoctors<
       })
       .from(doctorConditions)
       .leftJoin(conditionsTable, eq(doctorConditions.conditionId, conditionsTable.id))
-      .where(sql`${doctorConditions.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`);
+      .where(sql`${doctorConditions.doctorId} IN (${sql.join(doctorIds, sql.raw(","))})`)
+      .orderBy(doctorConditions.doctorId, conditionsTable.name);
 
     const conditionsMap = new Map<number, string[]>();
     doctorConditionsData.forEach((dc) => {

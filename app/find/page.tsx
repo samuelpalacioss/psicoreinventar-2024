@@ -3,6 +3,7 @@ import SearchTherapistsBar from "@/components/search-therapists-bar";
 import TherapistCard from "@/components/therapist-card";
 import { Suspense } from "react";
 import type { DoctorFilters } from "@/src/dal/doctors";
+import { consultationTypeEnum } from "@/src/db/schema";
 
 type Doctor = Awaited<ReturnType<typeof findAllDoctors>>["data"][number];
 
@@ -52,6 +53,9 @@ export default async function Specialists({
 
   if (params.q) filters.search = params.q;
   if (params.state) filters.placeState = params.state;
+  if (params.session) {
+    filters.consultationType = params.session as typeof consultationTypeEnum.enumValues[number];
+  }
 
   const specialties = params.specialties?.split(",").filter(Boolean);
   if (specialties?.length) filters.conditionNames = specialties;
