@@ -15,6 +15,8 @@ import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import SimpleNav from "./simple-nav";
 import Container from "./container";
 import ReviewCard, { ReviewCardProps } from "./review-card";
+import { consultationTypeEnum, places } from "@/src/db/schema";
+import { InferSelectModel } from "drizzle-orm";
 
 // Extended interface based on TherapistCardProps
 export interface TherapistDetailProps {
@@ -28,7 +30,8 @@ export interface TherapistDetailProps {
   yearsInPractice: number;
   averageRating?: number;
   totalRatings?: number;
-  place?: { id: number; displayPlace: string };
+  place?: Pick<InferSelectModel<typeof places>, 'id' | 'displayPlace'> | null;
+  consultationType: typeof consultationTypeEnum.enumValues[number];
 
   // Extended fields for detail page
   aboutMe: string;
@@ -61,6 +64,7 @@ export default function TherapistDetail({
   averageRating = 0,
   totalRatings = 0,
   place,
+  consultationType,
   aboutMe = "",
   sessionPrice,
   getToKnowMe = { firstSession: "", strengths: "" },
@@ -82,9 +86,6 @@ export default function TherapistDetail({
   const [showAllInsurances, setShowAllInsurances] = useState(false);
   const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
   const [isSpecialtiesModalOpen, setIsSpecialtiesModalOpen] = useState(false);
-
-  // Calculate isVirtual from place
-  const isVirtual = !place;
 
   const initials = name
     ? name
@@ -192,16 +193,29 @@ export default function TherapistDetail({
 
                 <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-700 items-center sm:items-start">
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {place ? (
-                      <div className="flex items-center gap-2">
-                        <Icons.map className="w-4 h-4 text-gray-600" />
-                        <span>{place.displayPlace}</span>
-                      </div>
-                    ) : (
+                    {consultationType === "virtual_only" ? (
                       <div className="flex items-center gap-2">
                         <Video className="w-4 h-4 text-gray-600" />
                         <span>Virtual</span>
                       </div>
+                    ) : consultationType === "in_person" ? (
+                      <div className="flex items-center gap-2">
+                        <Icons.map className="w-4 h-4 text-gray-600" />
+                        <span>{place?.displayPlace || "In-person"}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Video className="w-4 h-4 text-gray-600" />
+                          <span>Virtual</span>
+                        </div>
+                        {place?.displayPlace && (
+                          <div className="flex items-center gap-2">
+                            <Icons.map className="w-4 h-4 text-gray-600" />
+                            <span>{place.displayPlace}</span>
+                          </div>
+                        )}
+                      </>
                     )}
                     {nextAvailable && (
                       <div className="flex items-center gap-2">
@@ -360,15 +374,28 @@ export default function TherapistDetail({
               {/* Location */}
               <section>
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Location</h2>
-                {place ? (
-                  <Badge className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3">
-                    <Icons.map className="w-3.5 h-3.5 mr-1.5" />
-                    {place.displayPlace}
-                  </Badge>
-                ) : (
+                {consultationType === "virtual_only" ? (
                   <div className="flex items-center gap-2 text-gray-600">
                     <Video className="w-4 h-4" />
                     <span>Virtual</span>
+                  </div>
+                ) : consultationType === "in_person" ? (
+                  <Badge className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3">
+                    <Icons.map className="w-3.5 h-3.5 mr-1.5" />
+                    {place?.displayPlace || "In-person"}
+                  </Badge>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Video className="w-4 h-4" />
+                      <span>Virtual</span>
+                    </div>
+                    {place?.displayPlace && (
+                      <Badge className="bg-stone-100 text-gray-700 hover:bg-stone-100 font-normal text-sm py-1.5 px-3">
+                        <Icons.map className="w-3.5 h-3.5 mr-1.5" />
+                        {place.displayPlace}
+                      </Badge>
+                    )}
                   </div>
                 )}
               </section>

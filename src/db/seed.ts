@@ -668,7 +668,7 @@ async function seed() {
           birthDate: "1983-02-14",
           address: "Av. Principal de La Castellana, Torre Profesional, Piso 10",
           placeId: placesData[4].id,
-          consultationType: "both",
+          consultationType: "virtual_only",
           biography:
             "Psicólogo clínico con formación en terapia humanista-existencial. Enfoque en el desarrollo personal, crisis existenciales y búsqueda de sentido.",
           firstSessionExpectation:

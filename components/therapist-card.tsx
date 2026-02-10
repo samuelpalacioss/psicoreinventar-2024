@@ -8,7 +8,7 @@ import TherapistCardActions from "./therapist-card-actions";
 import { Icons } from "./icons";
 import Link from "next/link";
 import { InferSelectModel } from "drizzle-orm";
-import { places } from "@/src/db/schema";
+import { places, consultationTypeEnum } from "@/src/db/schema";
 
 export interface TherapistCardProps {
   id: number;
@@ -21,7 +21,8 @@ export interface TherapistCardProps {
   yearsInPractice: number;
   averageRating?: number;
   totalRatings?: number;
-  place?: Pick<InferSelectModel<typeof places>, 'id' | 'displayPlace'>;
+  place?: Pick<InferSelectModel<typeof places>, 'id' | 'displayPlace'> | null;
+  consultationType: typeof consultationTypeEnum.enumValues[number];
   className?: string;
 }
 
@@ -37,6 +38,7 @@ export default function TherapistCard({
   averageRating = 0,
   totalRatings = 0,
   place,
+  consultationType,
   className,
 }: TherapistCardProps) {
   const initials = name
@@ -123,16 +125,29 @@ export default function TherapistCard({
         <div className="md:pl-64 space-y-4">
           <div className="space-y-2">
             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              {!place?.id ? (
+              {consultationType === "virtual_only" ? (
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Video className="w-4 h-4 text-gray-500" />
                   <span>Virtual</span>
                 </div>
-              ) : (
+              ) : consultationType === "in_person" ? (
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Icons.map className="w-4 h-4 text-gray-500" />
-                  <span>{place.displayPlace || "In-person"}</span>
+                  <span>{place?.displayPlace || "In-person"}</span>
                 </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Video className="w-4 h-4 text-gray-500" />
+                    <span>Virtual</span>
+                  </div>
+                  {place?.displayPlace && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Icons.map className="w-4 h-4 text-gray-500" />
+                      <span>{place.displayPlace}</span>
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="flex items-center gap-2">

@@ -36,6 +36,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
       averageRating={averageRating}
       totalRatings={totalRatings}
       place={place}
+      consultationType={doctor.consultationType}
     />
   );
 }
@@ -74,6 +75,7 @@ export default async function Specialists({
         secondLastName: true,
         practiceStartYear: true,
         biography: true,
+        consultationType: true,
       },
       includePlace: true,
       includeStats: true,

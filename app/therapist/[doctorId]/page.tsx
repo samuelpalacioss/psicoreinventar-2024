@@ -68,8 +68,6 @@ async function TherapistDetailContent({ params }: PageProps) {
   // Get profile image from user
   const profileImage = doctor.user?.image;
 
-  // Check if virtual (no place relationship)
-  const isVirtual = !doctor.place;
 
   // Get specialties from conditions (primary type)
   const allSpecialties =
@@ -161,6 +159,7 @@ async function TherapistDetailContent({ params }: PageProps) {
       ? doctor.schedules[0].day
       : undefined;
 
+
   // TODO: Get accepted insurances (would need a new table/field)
   const accepts = ["Cash"];
 
@@ -175,6 +174,7 @@ async function TherapistDetailContent({ params }: PageProps) {
     averageRating,
     totalRatings,
     place: doctor.place,
+    consultationType: doctor.consultationType,
     aboutMe: doctor.biography,
     sessionPrice,
     getToKnowMe: {
