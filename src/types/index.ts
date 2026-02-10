@@ -115,3 +115,11 @@ export const Conditions = {
 } as const;
 
 export type Conditions = (typeof Conditions)[keyof typeof Conditions];
+
+export const Service = {
+  talk_therapy: "Talk therapy",
+  couples_therapy: "Couples therapy",
+  teen_therapy: "Teen therapy",
+} as const;
+
+export type Service = keyof typeof Service;

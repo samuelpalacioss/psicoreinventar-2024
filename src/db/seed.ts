@@ -35,6 +35,7 @@ import {
 import { randomUUID } from "crypto";
 import { hashPassword } from "@/utils/bcrypt";
 import { Conditions } from "@/src/types";
+import { Service } from "@/src/types";
 
 async function seed() {
   console.log("🌱 Seeding database...");
@@ -224,30 +225,34 @@ async function seed() {
     console.log(`✅ Created ${languagesData.length} languages`);
 
     // ============================================================================
-    // 4. SERVICES (Only 3 services)
+    // 4. SERVICES (single source of truth: keys of ServiceLabels = name in DB)
     // ============================================================================
     console.log("💼 Seeding services...");
+    const serviceDescriptionDuration: Record<
+      keyof typeof Service,
+      { description: string; duration: number }
+    > = {
+      talk_therapy: { description: "One-on-one therapy session", duration: 45 },
+      couples_therapy: { description: "Therapy session for couples", duration: 60 },
+      teen_therapy: { description: "Therapy session for teenagers", duration: 45 },
+    };
     const servicesData = await db
       .insert(services)
-      .values([
-        {
-          name: "Individual Therapy",
-          description: "One-on-one therapy session",
-          duration: 45,
-        },
-        {
-          name: "Couples Therapy",
-          description: "Therapy session for couples",
-          duration: 60,
-        },
-        {
-          name: "Teen Therapy",
-          description: "Therapy session for teenagers",
-          duration: 45,
-        },
-      ])
+      .values(
+        (Object.keys(Service) as (keyof typeof Service)[]).map((name) => ({
+          name,
+          ...serviceDescriptionDuration[name],
+        }))
+      )
       .returning();
     console.log(`✅ Created ${servicesData.length} services`);
+
+    const serviceIdByName = new Map(servicesData.map((s) => [s.name, s.id]));
+    const getServiceId = (name: Service) => {
+      const id = serviceIdByName.get(name);
+      if (!id) throw new Error(`Service not found for name: ${name}`);
+      return id;
+    };
 
     // ============================================================================
     // 6. IDENTITIES
@@ -815,37 +820,37 @@ async function seed() {
       .values([
         {
           doctorId: doctorsData[0].id,
-          serviceId: servicesData[0].id, // Individual Therapy
+          serviceId: getServiceId("talk_therapy"),
           amount: 50,
         },
         {
           doctorId: doctorsData[0].id,
-          serviceId: servicesData[1].id, // Couples Therapy
+          serviceId: getServiceId("couples_therapy"),
           amount: 75,
         },
         {
           doctorId: doctorsData[0].id,
-          serviceId: servicesData[2].id, // Teen Therapy
+          serviceId: getServiceId("teen_therapy"),
           amount: 50,
         },
         {
           doctorId: doctorsData[1].id,
-          serviceId: servicesData[0].id, // Individual Therapy
+          serviceId: getServiceId("talk_therapy"),
           amount: 80,
         },
         {
           doctorId: doctorsData[2].id,
-          serviceId: servicesData[1].id, // Couples Therapy
+          serviceId: getServiceId("couples_therapy"),
           amount: 100,
         },
         {
           doctorId: doctorsData[3].id,
-          serviceId: servicesData[2].id, // Teen Therapy
+          serviceId: getServiceId("teen_therapy"),
           amount: 60,
         },
         {
           doctorId: doctorsData[4].id,
-          serviceId: servicesData[0].id, // Individual Therapy
+          serviceId: getServiceId("talk_therapy"),
           amount: 70,
         },
       ])

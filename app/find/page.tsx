@@ -4,6 +4,7 @@ import TherapistCard from "@/components/therapist-card";
 import { Suspense } from "react";
 import type { DoctorFilters } from "@/src/dal/doctors";
 import { consultationTypeEnum } from "@/src/db/schema";
+import type { Service } from "@/src/types";
 
 type Doctor = Awaited<ReturnType<typeof findAllDoctors>>["data"][number];
 
@@ -61,8 +62,9 @@ export default async function Specialists({
   const specialties = params.specialties?.split(",").filter(Boolean);
   if (specialties?.length) filters.conditionNames = specialties;
 
-  const therapy = params.therapy?.split(",").filter(Boolean);
-  if (therapy?.length) filters.serviceNames = therapy;
+  const service = params.service?.split(",").filter(Boolean) as Service[] | undefined;
+  if (service?.length) filters.serviceNames = service;
+
 
   const result = await findAllDoctors(
     filters,

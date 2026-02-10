@@ -68,6 +68,12 @@ export const consultationTypeEnum = pgEnum("consultation_type", [
   "both",
 ]);
 
+export const serviceTypeEnum = pgEnum("service_type", [
+  "talk_therapy",
+  "couples_therapy",
+  "teen_therapy",
+]);
+
 // ============================================================================
 // BASE TABLES
 // ============================================================================
@@ -299,10 +305,10 @@ export const languages = pgTable("Language", {
 // SERVICE-RELATED TABLES
 // ============================================================================
 
-// Service
+// Service (Therapy types)
 export const services = pgTable("Service", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
+  name: serviceTypeEnum("name").notNull(),
   description: varchar("description", { length: 500 }).notNull(),
   duration: integer("duration").default(45).notNull(), // In minutes
 });

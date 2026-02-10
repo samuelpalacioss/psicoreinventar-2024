@@ -11,6 +11,7 @@ import {
   booleanFilterSchema,
   durationSchema,
 } from "./common.schemas";
+import { Service } from "@/src/types";
 
 /**
  * Validation schemas for simple/reference data entities
@@ -21,11 +22,13 @@ import {
 // SERVICE
 // ============================================================================
 
+const serviceKeys = Object.keys(Service) as [Service, ...Service[]];
+
 /**
  * Schema for creating a service
  */
 export const createServiceSchema = z.object({
-  name: shortTextSchema,
+  name: z.enum(serviceKeys),
   description: mediumTextSchema,
   duration: durationSchema.default(45), // Default 45 minutes
 });

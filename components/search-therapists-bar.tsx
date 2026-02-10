@@ -20,7 +20,7 @@ import { MultiSelectDropdown } from "./multi-select-dropdown";
 import Link from "next/link";
 import { usePlaces } from "@/lib/hooks/use-places";
 import { payoutTypeEnum } from "@/src/db/schema";
-import { Conditions } from "@/src/types";
+import { Conditions, Service } from "@/src/types";
 
 interface SearchTherapistsBarProps {
   className?: string;
@@ -58,6 +58,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     bank_transfer: "Bank transfer",
   } as const satisfies Record<(typeof payoutTypeEnum.enumValues)[number], string>;
 
+
+
   // Helper to update URL search params (reads latest URL to avoid stale state)
   function updateParams(updates: Record<string, string | null>) {
     const params = new URLSearchParams(window.location.search);
@@ -80,7 +82,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const paymentMethodLabel =
     payoutMethodWithLabels[paymentMethod as keyof typeof payoutMethodWithLabels] || "Cash";
   const selectedSessionType = searchParams.get("session") || "virtual_only";
-  const selectedTherapyTypes = searchParams.get("therapy")?.split(",").filter(Boolean) ?? [];
+  const selectedService = (searchParams.get("service")?.split(",").filter(Boolean) ?? []) as Service[];
   const selectedSpecialties = searchParams.get("specialties")?.split(",").filter(Boolean) ?? [];
 
   // Search query: local state, synced to URL on blur/Enter
@@ -97,8 +99,8 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   function setSelectedSessionType(value: string) {
     updateParams({ session: value || null });
   }
-  function setSelectedTherapyTypes(values: string[]) {
-    updateParams({ therapy: values.length ? values.join(",") : null });
+  function setSelectedService(values: Service[]) {
+    updateParams({ service: values.length ? values.join(",") : null });
   }
   function setSelectedSpecialties(values: string[]) {
     updateParams({ specialties: values.length ? values.join(",") : null });
@@ -141,10 +143,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
     return value;
   };
 
-  const toggleCheckbox = (
-    value: string,
-    selectedValues: string[],
-    setter: (values: string[]) => void
+  const toggleCheckbox = <T extends string>(
+    value: T,
+    selectedValues: T[],
+    setter: (values: T[]) => void
   ) => {
     if (selectedValues.includes(value)) {
       setter(selectedValues.filter((v) => v !== value));
@@ -362,15 +364,16 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             <MultiSelectDropdown
               label={
-                selectedTherapyTypes.length === 0
+                selectedService.length === 0
                   ? "Therapy type"
-                  : selectedTherapyTypes.length === 1
-                    ? selectedTherapyTypes[0]
-                    : `${selectedTherapyTypes[0]} +${selectedTherapyTypes.length - 1}`
+                  : selectedService.length === 1
+                    ? Service[selectedService[0]]
+                    : `${Service[selectedService[0]]} +${selectedService.length - 1}`
               }
-              options={["Talk therapy", "Couples therapy", "Teen therapy"]}
-              selectedValues={selectedTherapyTypes}
-              onChange={setSelectedTherapyTypes}
+              options={Object.keys(Service) as Service[]}
+              selectedValues={selectedService}
+              onChange={setSelectedService}
+              formatLabel={(key) => Service[key as Service]}
             />
           </div>
         </div>
@@ -421,15 +424,15 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             <div className="mb-6">
               <h3 className="text-base font-semibold text-gray-900 mb-3">Therapy type</h3>
               <div className="space-y-2">
-                {["Talk therapy", "Couples therapy", "Teen therapy"].map((type) => (
-                  <label key={type} className="flex items-center gap-3 cursor-pointer py-2">
+                {(Object.keys(Service) as Service[]).map((serviceKey) => (
+                  <label key={serviceKey} className="flex items-center gap-3 cursor-pointer py-2">
                     <Checkbox
-                      checked={selectedTherapyTypes.includes(type)}
+                      checked={selectedService.includes(serviceKey)}
                       onCheckedChange={() =>
-                        toggleCheckbox(type, selectedTherapyTypes, setSelectedTherapyTypes)
+                        toggleCheckbox(serviceKey, selectedService, setSelectedService)
                       }
                     />
-                    <span className="text-sm text-gray-700">{type}</span>
+                    <span className="text-sm text-gray-700">{Service[serviceKey]}</span>
                   </label>
                 ))}
               </div>
@@ -447,7 +450,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
               onClick={() => {
                 updateParams({
                   session: null,
-                  therapy: null,
+                  service: null,
                   specialties: null,
                 });
               }}

@@ -4,18 +4,18 @@ import { useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Checkbox } from "./ui/checkbox";
 
-interface MultiSelectDropdownProps {
+interface MultiSelectDropdownProps<T extends string> {
   label: string;
-  options: string[];
-  selectedValues: string[];
-  onChange: (values: string[]) => void;
-  formatLabel?: (value: string) => string;
+  options: T[];
+  selectedValues: T[];
+  onChange: (values: T[]) => void;
+  formatLabel?: (value: T) => string;
 }
 
-export function MultiSelectDropdown({ label, options, selectedValues, onChange, formatLabel }: MultiSelectDropdownProps) {
+export function MultiSelectDropdown<T extends string>({ label, options, selectedValues, onChange, formatLabel }: MultiSelectDropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleOption = (option: string) => {
+  const toggleOption = (option: T) => {
     if (selectedValues.includes(option)) {
       onChange(selectedValues.filter(v => v !== option));
     } else {

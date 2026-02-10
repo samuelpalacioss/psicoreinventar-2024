@@ -23,6 +23,7 @@ import {
 import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
+import type { Service } from "@/src/types";
 
 // ============================================================================
 // FILTERS
@@ -36,7 +37,7 @@ export interface DoctorFilters {
   consultationType?: (typeof consultationTypeEnum.enumValues)[number];
   payoutType?: string;
   serviceId?: number;
-  serviceNames?: string[];
+  serviceNames?: Service[];
   conditionId?: number;
   conditionNames?: string[];
   languageId?: number;
