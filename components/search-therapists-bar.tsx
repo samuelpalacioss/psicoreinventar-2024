@@ -20,6 +20,9 @@ interface SearchTherapistsBarProps {
 }
 
 export default function SearchTherapistsBar({ className }: SearchTherapistsBarProps) {
+  // Special "no filter" value for location. When selected we remove `state` from the URL.
+  const ANY_LOCATION_VALUE = "__any_location__";
+
   // Fetch places from database
   const { data: placesData } = usePlaces(
     { type: "state" }, // Filter for states only
@@ -28,7 +31,6 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
   // Data lists from database or fallback
   const locations = placesData?.data?.map(place => place.displayPlace) || [];
-  const defaultLocation = locations[0] || "";
 
   const router = useRouter();
   const pathname = usePathname();
@@ -64,7 +66,9 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   }
 
   // Filter state derived from URL search params
-  const location = searchParams.get("state") || defaultLocation;
+  const location = searchParams.get("state") ?? ANY_LOCATION_VALUE;
+  const isAnyLocationSelected = location === ANY_LOCATION_VALUE;
+  const locationLabel = isAnyLocationSelected ? "Any location" : location;
   const paymentMethod = searchParams.get("payment") || "cash";
   const paymentMethodLabel = payoutMethodWithLabels[paymentMethod as keyof typeof payoutMethodWithLabels] || "Cash";
   const selectedSessionType = searchParams.get("session") || "virtual_only";
@@ -76,7 +80,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
   // URL state setters
-  function setLocation(value: string) { updateParams({ state: value || null }); }
+  function setLocation(value: string) {
+    // `ANY_LOCATION_VALUE` means "no location preference" so we remove the filter param.
+    updateParams({ state: value === ANY_LOCATION_VALUE ? null : value });
+  }
   function setPaymentMethod(value: string) { updateParams({ payment: value || null }); }
   function setSelectedSessionType(value: string) { updateParams({ session: value || null }); }
   function setSelectedTherapyTypes(values: string[]) { updateParams({ therapy: values.length ? values.join(",") : null }); }
@@ -229,7 +236,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
             >
               {location && paymentMethod ? (
                 <span className="truncate">
-                  {location.length > 8 ? `${location.substring(0, 8)}...` : location}
+                  {locationLabel.length > 8 ? `${locationLabel.substring(0, 8)}...` : locationLabel}
                   {' • '}
                   {paymentMethodLabel.length > 5 ? `${paymentMethodLabel.substring(0, 6)}...` : paymentMethodLabel}
                   {selectedSpecialties.length > 0 && (
@@ -256,12 +263,17 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             <Select value={location} onValueChange={setLocation}>
               <SelectTrigger className="w-auto min-w-[120px] h-9 rounded-full border-gray-300 bg-white px-4 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                <SelectValue />
+                <SelectValue>
+                  {locationLabel}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent
                 className="max-h-[300px]"
 
               >
+                <SelectItem value={ANY_LOCATION_VALUE}>
+                  Any location
+                </SelectItem>
                 {locations.map((loc) => (
                   <SelectItem key={loc} value={loc}>
                     {loc}
@@ -482,7 +494,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                 }}
                 className="w-full rounded-full border border-gray-300 bg-white px-6 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
               >
-                <span>{location}</span>
+                <span>{locationLabel}</span>
                 <ChevronDownIcon className="h-5 w-5 text-gray-500" />
               </button>
             </div>
@@ -580,14 +592,17 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
 
             {/* List */}
             <ul className="flex-1 overflow-y-auto">
-              {locations
-                .filter((loc) => loc.toLowerCase().includes(locationSearch.toLowerCase()))
-                .map((loc) => (
+              {[
+                { value: ANY_LOCATION_VALUE, label: "Any location" },
+                ...locations.map((loc) => ({ value: loc, label: loc })),
+              ]
+                .filter((option) => option.label.toLowerCase().includes(locationSearch.toLowerCase()))
+                .map((option) => (
                   <li
-                    key={loc}
+                    key={option.value}
                     onClick={() => {
                       setIsNavigatingBetweenModals(true);
-                      setLocation(loc);
+                      setLocation(option.value);
                       setIsLocationModalOpen(false);
                       setIsFindProviderModalOpen(true);
                       setLocationSearch("");
@@ -596,7 +611,7 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         setIsNavigatingBetweenModals(true);
-                        setLocation(loc);
+                        setLocation(option.value);
                         setIsLocationModalOpen(false);
                         setIsFindProviderModalOpen(true);
                         setLocationSearch("");
@@ -606,10 +621,10 @@ export default function SearchTherapistsBar({ className }: SearchTherapistsBarPr
                     tabIndex={0}
                     className={cn(
                       "w-full px-6 py-3 text-left text-sm hover:bg-indigo-50 transition-colors cursor-pointer force-cursor-pointer",
-                      location === loc ? "bg-indigo-100 text-gray-900" : "text-gray-700"
+                      location === option.value ? "bg-indigo-100 text-gray-900" : "text-gray-700"
                     )}
                   >
-                    {loc}
+                    {option.label}
                   </li>
                 ))}
             </ul>
