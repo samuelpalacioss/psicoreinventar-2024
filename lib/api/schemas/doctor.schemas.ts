@@ -19,6 +19,8 @@ import {
   dayOfWeekSchema,
 } from "./common.schemas";
 
+export const consultationTypeSchema = z.enum(["virtual_only", "in_person", "both"]);
+
 /**
  * Validation schemas for Doctor (Therapist) entity and related resources
  */
@@ -31,6 +33,7 @@ import {
  * Schema for creating a new doctor profile
  * userId is taken from session, not from request body
  * isActive defaults to false (requires admin approval)
+ * consultationType defaults to virtual_only
  */
 export const createDoctorSchema = z.object({
   ci: ciSchema,
@@ -40,12 +43,24 @@ export const createDoctorSchema = z.object({
   secondLastName: optionalNameSchema,
   birthDate: birthDateSchema,
   address: addressSchema,
-  placeId: placeIdSchema,
+  placeId: placeIdSchema.optional(),
+  consultationType: consultationTypeSchema.default("virtual_only"),
   biography: longTextSchema,
   firstSessionExpectation: longTextSchema,
   biggestStrengths: longTextSchema,
   practiceStartYear: yearSchema,
-});
+}).refine(
+  (data) => {
+    if (data.consultationType === "virtual_only") {
+      return true;
+    }
+    return data.placeId !== undefined && data.placeId !== null;
+  },
+  {
+    message: "placeId is required when consultationType is 'in_person' or 'both'",
+    path: ["placeId"],
+  }
+);
 
 export type CreateDoctorInput = z.infer<typeof createDoctorSchema>;
 
@@ -56,8 +71,36 @@ export type CreateDoctorInput = z.infer<typeof createDoctorSchema>;
 /**
  * Schema for updating a doctor profile
  * All fields are optional (partial update)
+ * Refinement applies validation only when consultationType is provided
  */
-export const updateDoctorSchema = createDoctorSchema.partial();
+const baseUpdateDoctorSchema = z.object({
+  ci: ciSchema,
+  firstName: nameSchema,
+  middleName: optionalNameSchema,
+  firstLastName: nameSchema,
+  secondLastName: optionalNameSchema,
+  birthDate: birthDateSchema,
+  address: addressSchema,
+  placeId: placeIdSchema.optional(),
+  consultationType: consultationTypeSchema,
+  biography: longTextSchema,
+  firstSessionExpectation: longTextSchema,
+  biggestStrengths: longTextSchema,
+  practiceStartYear: yearSchema,
+}).partial();
+
+export const updateDoctorSchema = baseUpdateDoctorSchema.refine(
+  (data) => {
+    if (data.consultationType === undefined || data.consultationType === "virtual_only") {
+      return true;
+    }
+    return data.placeId !== undefined && data.placeId !== null;
+  },
+  {
+    message: "placeId is required when consultationType is 'in_person' or 'both'",
+    path: ["placeId"],
+  }
+);
 
 export type UpdateDoctorInput = z.infer<typeof updateDoctorSchema>;
 

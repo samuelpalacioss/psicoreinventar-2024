@@ -588,6 +588,7 @@ async function seed() {
           birthDate: "1980-04-18",
           address: "Av. Francisco de Miranda, Torre Ejecutiva, Piso 15",
           placeId: placesData[0].id,
+          consultationType: "both",
           biography:
             "Psicólogo clínico con más de 15 años de experiencia en el tratamiento de trastornos de ansiedad y depresión. Especializado en Terapia Cognitivo-Conductual.",
           firstSessionExpectation:
@@ -607,6 +608,7 @@ async function seed() {
           birthDate: "1982-09-25",
           address: "Calle Real de Sabana Grande, Edif. Professional, Consultorio 8B",
           placeId: placesData[1].id,
+          consultationType: "both",
           biography:
             "Psiquiatra especializada en trastornos del estado de ánimo y trauma. Formación en EMDR y terapia psicodinámica. Enfoque integrador y basado en evidencia.",
           firstSessionExpectation:
@@ -626,6 +628,7 @@ async function seed() {
           birthDate: "1978-12-10",
           address: "Av. Andrés Bello, Centro Médico Los Samanes, Piso 4",
           placeId: placesData[2].id,
+          consultationType: "both",
           biography:
             "Psicólogo especializado en terapia familiar y de pareja. Más de 20 años ayudando a familias a mejorar su comunicación y resolver conflictos.",
           firstSessionExpectation:
@@ -645,6 +648,7 @@ async function seed() {
           birthDate: "1985-06-03",
           address: "Urb. Las Acacias, Edif. Médico Santa Teresa, Piso 2",
           placeId: placesData[3].id,
+          consultationType: "both",
           biography:
             "Psicóloga infantil y de adolescentes. Especializada en TDAH, ansiedad en niños y orientación a padres. Uso de técnicas lúdicas y creativas.",
           firstSessionExpectation:
@@ -664,6 +668,7 @@ async function seed() {
           birthDate: "1983-02-14",
           address: "Av. Principal de La Castellana, Torre Profesional, Piso 10",
           placeId: placesData[4].id,
+          consultationType: "both",
           biography:
             "Psicólogo clínico con formación en terapia humanista-existencial. Enfoque en el desarrollo personal, crisis existenciales y búsqueda de sentido.",
           firstSessionExpectation:

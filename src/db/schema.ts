@@ -57,6 +57,12 @@ export const conditionTypeEnum = pgEnum("condition_type", ["primary", "other"]);
 
 export const languageTypeEnum = pgEnum("language_type", ["native", "foreign"]);
 
+export const consultationTypeEnum = pgEnum("consultation_type", [
+  "virtual_only",
+  "in_person",
+  "both",
+]);
+
 // ============================================================================
 // BASE TABLES
 // ============================================================================
@@ -224,9 +230,8 @@ export const doctors = pgTable("Doctor", {
   secondLastName: varchar("second_last_name", { length: 100 }),
   birthDate: date("birth_date").notNull(),
   address: varchar("address", { length: 500 }).notNull(),
-  placeId: integer("place_id")
-    .notNull()
-    .references(() => places.id),
+  placeId: integer("place_id").references(() => places.id),
+  consultationType: consultationTypeEnum("consultation_type").notNull().default("virtual_only"),
   biography: text("biography").notNull(),
   firstSessionExpectation: text("first_session_expectation").notNull(),
   biggestStrengths: text("biggest_strengths").notNull(),
@@ -237,6 +242,7 @@ export const doctors = pgTable("Doctor", {
 }, (table) => [
   index("doctor_isActive_idx").on(table.isActive),
   index("doctor_placeId_idx").on(table.placeId),
+  index("doctor_consultationType_idx").on(table.consultationType),
 ]);
 
 // Phone
