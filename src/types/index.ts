@@ -1,5 +1,6 @@
 import { Icons } from "@/components/icons";
 import type { Icon } from "@/components/icons";
+import { appointmentStatusEnum } from "@/src/db/schema";
 
 export type MainNavSubItem = {
   href: string;
@@ -123,3 +124,12 @@ export const Service = {
 } as const;
 
 export type Service = keyof typeof Service;
+
+export const AppointmentStatus = {
+  scheduled: "Scheduled",
+  confirmed: "Confirmed",
+  completed: "Completed",
+  cancelled: "Cancelled",
+} as const satisfies Record<(typeof appointmentStatusEnum.enumValues)[number], string>;
+
+export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus];

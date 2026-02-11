@@ -326,7 +326,7 @@ export function DataTable<TData extends { id: number | string }>({
                     }
                   >
                     <DropdownMenuRadioItem value="all" className="cursor-pointer">
-                      Todos
+                      All
                     </DropdownMenuRadioItem>
                     <DropdownMenuSeparator />
                     {uniqueValues.map((value) => (
@@ -380,7 +380,7 @@ export function DataTable<TData extends { id: number | string }>({
       {enablePagination && (
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} de{" "}
+            {table.getFilteredSelectedRowModel().rows.length} of {" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">

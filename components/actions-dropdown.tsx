@@ -13,6 +13,7 @@ import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
 
 export type ActionItem = {
+  disabled?: boolean;
   label: string;
   icon: keyof typeof Icons;
   onClick: () => void;
@@ -21,6 +22,7 @@ export type ActionItem = {
 };
 
 interface ActionsDropdownProps {
+  disabled?: boolean;
   actions: ActionItem[];
   triggerIcon?: keyof typeof Icons;
   triggerIconSize?: number;
@@ -31,6 +33,7 @@ interface ActionsDropdownProps {
 }
 
 export function ActionsDropdown({
+  disabled = false,
   actions,
   triggerIcon = "ellipsis",
   triggerIconSize = 4,
@@ -51,7 +54,7 @@ export function ActionsDropdown({
           className={cn("size-8 text-muted-foreground", triggerClassName)}
         >
           <TriggerIcon className={`size-${triggerIconSize}`} />
-          <span className="sr-only">Abrir menú</span>
+          <span className="sr-only">{label}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={contentAlign} className={className}>
@@ -61,6 +64,7 @@ export function ActionsDropdown({
             <div key={index}>
               {action.separatorBefore && <Separator className="my-2" />}
               <DropdownMenuItem
+                disabled={action.disabled}
                 onClick={action.onClick}
                 className={cn(action.variant === "destructive" && "text-destructive")}
               >
