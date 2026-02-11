@@ -228,16 +228,19 @@ export async function findAllDoctors<
     queryOptions.columns = columns;
   }
 
-  if (includePlace) {
-    queryOptions.with = {
+  queryOptions.with = {
+    ...(includePlace && {
       place: {
         columns: {
           id: true,
           displayPlace: true,
         },
       },
-    };
-  }
+    }),
+    user: {
+      columns: { image: true },
+    },
+  };
 
   const data = await db.query.doctors.findMany(queryOptions);
 
@@ -836,11 +839,8 @@ export async function findDoctorReviews(doctorId: number, pagination: Pagination
     with: {
       person: {
         columns: {
-          id: true,
           firstName: true,
-          middleName: true,
           firstLastName: true,
-          secondLastName: true,
         },
       },
     },
@@ -951,10 +951,23 @@ export async function deleteDoctorPersonalityTrait(doctorId: number, personality
 
 export async function findDoctorDetailById(id: number) {
   return db.query.doctors.findFirst({
-    where: eq(doctors.id, id),
+    where: and(eq(doctors.id, id), eq(doctors.isActive, true)),
+    columns: {
+      id: true,
+      firstName: true,
+      middleName: true,
+      firstLastName: true,
+      secondLastName: true,
+      consultationType: true,
+      biography: true,
+      firstSessionExpectation: true,
+      biggestStrengths: true,
+      practiceStartYear: true,
+      placeId: true, // needed for place relation
+    },
     with: {
       user: {
-        columns: { id: true, name: true, image: true },
+        columns: { image: true },
       },
       place: true,
       educations: {

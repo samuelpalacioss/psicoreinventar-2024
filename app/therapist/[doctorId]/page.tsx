@@ -38,12 +38,20 @@ async function TherapistDetailContent({ params }: PageProps) {
 
   const doctor = await findDoctorDetailById(id);
 
+  // // Debug: log DAL response 
+  // console.log("[therapist] DAL findDoctorDetailById:");
+  // console.dir(doctor, { depth: null });
+
   if (!doctor) {
     notFound();
   }
 
   // Fetch reviews with pagination
   const { data: reviewsData } = await findDoctorReviews(id, { page: 1, limit: 10, offset: 0 });
+
+  // // Debug: log DAL response (shows in server terminal)
+  // console.log("[therapist] DAL findDoctorReviews:");
+  // console.dir({ count: reviewsData.length, reviews: reviewsData }, { depth: null });
 
   // Calculate years in practice
   const currentYear = new Date().getFullYear();

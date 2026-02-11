@@ -87,6 +87,13 @@ export default async function Specialists({
     }
   );
 
+  // // Debug: log DAL response (shows in server terminal)
+  // console.log("[find] DAL findAllDoctors:");
+  // console.dir(
+  //   { dataCount: result.data.length, pagination: result.pagination, sampleDoctor: result.data[0] },
+  //   { depth: null }
+  // );
+
   return (
     <>
       <Suspense>
