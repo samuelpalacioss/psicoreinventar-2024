@@ -3,15 +3,12 @@ import {
   Button,
   Container,
   Head,
+  Hr,
   Html,
-  Img,
-  Link,
-  Preview,
+  render,
   Section,
   Text,
-  render,
-} from '@react-email/components';
-import * as React from 'react';
+} from "@react-email/components";
 
 interface PsicoreinventarResetPasswordEmailProps {
   userFirstname?: string;
@@ -25,36 +22,35 @@ export default function PsicoreinventarResetPasswordEmail({
   return (
     <Html>
       <Head />
-      <Preview>Psicoreinventar reset your password</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img
-            src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1720212860/psicoreinventar/wnhx96f5n7ptqxacj2qq.png`}
-            width='42'
-            height='42'
-            alt='Psicoreinventar Logo'
-          />
-          <Section>
-            <Text style={text}>Hi {userFirstname},</Text>
-            {/* <Text style={text}>
-              Someone recently requested a password change for your Psicoreinventar account. If this
-              was you, you can set a new password here:
-            </Text> */}
-            <Text style={text}>
-              Recently, a password change was requested for your Psicoreinventar account. If this
-              was you, you can set a new password here:
+          <div style={accentBar} />
+
+          <Section style={contentSection}>
+            <Text style={wordmark}>psicoreinventar</Text>
+
+            <Text style={heading}>Hi {userFirstname},</Text>
+
+            <Text style={paragraph}>
+              A password reset was requested for your account. If this was you,
+              click the button below to choose a new password.
             </Text>
-            <Button style={button} href={resetPasswordLink}>
-              Reset password
-            </Button>
-            <Text style={text}>This link will expire in one hour.</Text>
-            <Text style={text}>
-              If you don't want to change your password or didn't request this, just
-              ignore and feel free to delete this message.
+
+            <Section style={btnContainer}>
+              <Button href={resetPasswordLink} style={button}>
+                Reset password
+              </Button>
+            </Section>
+
+            <Text style={smallText}>
+              This link expires in 1 hour. If you didn&apos;t request a
+              password reset, you can safely ignore this email.
             </Text>
-            <Text style={text}>All the best, </Text>
-            <Text style={text}>The Psicoreinventar team</Text>
           </Section>
+
+          <Hr style={hr} />
+
+          <Text style={footer}>The Psicoreinventar Team</Text>
         </Container>
       </Body>
     </Html>
@@ -69,38 +65,87 @@ export const PsicoreinventarResetPasswordEmailHtml = (
   });
 
 const main = {
-  backgroundColor: '#f6f9fc',
-  padding: '10px 0',
+  backgroundColor: "#f9fafb",
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 
 const container = {
-  backgroundColor: '#ffffff',
-  border: '1px solid #f0f0f0',
-  padding: '45px',
+  margin: "40px auto",
+  maxWidth: "500px",
+  backgroundColor: "#ffffff",
+  borderRadius: "8px",
+  overflow: "hidden" as const,
 };
 
-const text = {
-  fontSize: '16px',
-  fontFamily:
-    "'Open Sans', 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif",
-  fontWeight: '300',
-  color: '#404040',
-  lineHeight: '26px',
+const accentBar = {
+  height: "3px",
+  backgroundColor: "#c4b5fd",
+  width: "100%",
+};
+
+const contentSection = {
+  padding: "36px 40px 28px",
+};
+
+const wordmark = {
+  fontSize: "13px",
+  fontWeight: "400",
+  letterSpacing: "0.08em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  marginBottom: "32px",
+};
+
+const heading = {
+  fontSize: "26px",
+  fontWeight: "500",
+  color: "#1f2937",
+  lineHeight: "1.2",
+  margin: "0 0 16px",
+};
+
+const paragraph = {
+  fontSize: "15px",
+  lineHeight: "1.7",
+  color: "#6b7280",
+  fontWeight: "400",
+  margin: "0 0 32px",
+};
+
+const btnContainer = {
+  marginBottom: "28px",
 };
 
 const button = {
-  backgroundColor: '#0F172A',
-  borderRadius: '4px',
-  color: '#fff',
-  fontFamily: "'Open Sans', 'Helvetica Neue', Arial",
-  fontSize: '15px',
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  display: 'block',
-  width: '210px',
-  padding: '14px 7px',
+  backgroundColor: "#7c3aed",
+  color: "#ffffff",
+  padding: "12px 28px",
+  borderRadius: "6px",
+  textDecoration: "none",
+  display: "inline-block",
+  fontSize: "14px",
+  fontWeight: "500",
+  letterSpacing: "0.02em",
 };
 
-const anchor = {
-  textDecoration: 'underline',
+const smallText = {
+  fontSize: "13px",
+  lineHeight: "1.6",
+  color: "#9ca3af",
+  fontWeight: "400",
+  margin: "0",
+};
+
+const hr = {
+  borderColor: "#f3f4f6",
+  margin: "0",
+};
+
+const footer = {
+  fontSize: "13px",
+  color: "#9ca3af",
+  fontWeight: "400",
+  padding: "20px 40px",
+  margin: "0",
 };

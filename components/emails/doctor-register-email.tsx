@@ -3,23 +3,17 @@ import {
   Button,
   Container,
   Head,
-  Heading,
-  Html,
   Hr,
-  Img,
-  Preview,
+  Html,
+  render,
   Section,
   Text,
-  render,
 } from "@react-email/components";
-import * as React from "react";
 
 interface PsicoreinventarDoctorRegisterEmailProps {
   doctorName?: string;
   registerDoctorLink?: string;
 }
-
-const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
 
 export default function PsicoreinventarDoctorRegisterEmail({
   doctorName,
@@ -28,48 +22,43 @@ export default function PsicoreinventarDoctorRegisterEmail({
   return (
     <Html>
       <Head />
-      <Preview>Welcome to the Psicoreinventar Team!</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Logo */}
-          <Img
-            src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1739836330/psicoreinventar/ptfldl7wwjzzlfko5cns.png`}
-            width="56"
-            height="56"
-            alt="Psicoreinventar Logo"
-            style={logo}
-          />
+          <div style={accentBar} />
 
-          <Section style={welcomeSection}>
-            <Heading style={h1}>Welcome to the Psicoreinventar Team!</Heading>
-            <Text style={text}>Dear Dr. {doctorName},</Text>
-            <Text style={text}>
-              We are thrilled to inform you that you have been selected to join our team at
-              Psicoreinventar as one of our psychologists. Your expertise and dedication stood out
-              during our selection process, and we are confident that you will be an invaluable
-              addition to our community.
-            </Text>
-            <Text style={text}>
-              To get started, please register your profile on our website. Simply click the button
-              below to begin your journey with us.
-            </Text>
-            <Button style={button} href={registerDoctorLink}>
-              Complete Your Registration
-            </Button>
-            <Text style={text}>
-              You have 7 days to register. If you don't, you will need to request a new
-              register link.
-            </Text>
-            <Text style={text}>
-              If you have any questions or need assistance during the registration process, our
-              onboarding team is here to help you every step of the way.
+          <Section style={contentSection}>
+            <Text style={wordmark}>psicoreinventar</Text>
+
+            <Text style={heading}>Welcome to the team, Dr. {doctorName}.</Text>
+
+            <Text style={paragraph}>
+              We&apos;re thrilled to have you join Psicoreinventar as one of
+              our psychologists. Your expertise stood out during our selection
+              process, and we&apos;re confident you&apos;ll be an invaluable
+              part of our community.
             </Text>
 
-            {/* Footer */}
-            <Hr style={hr} />
-            <Text style={text}>All the best,</Text>
-            <Text style={text}>The Psicoreinventar team</Text>
+            <Text style={paragraph}>
+              To get started, please complete your profile registration by
+              clicking the button below.
+            </Text>
+
+            <Section style={btnContainer}>
+              <Button href={registerDoctorLink} style={button}>
+                Complete registration
+              </Button>
+            </Section>
+
+            <Text style={smallText}>
+              You have 7 days to complete your registration. After that,
+              you&apos;ll need to request a new link. If you need any
+              assistance, our onboarding team is here to help.
+            </Text>
           </Section>
+
+          <Hr style={hr} />
+
+          <Text style={footer}>The Psicoreinventar Team</Text>
         </Container>
       </Body>
     </Html>
@@ -90,47 +79,81 @@ const main = {
 };
 
 const container = {
-  margin: "0 auto",
-  padding: "40px 20px",
-  maxWidth: "480px",
+  margin: "40px auto",
+  maxWidth: "500px",
   backgroundColor: "#ffffff",
-  borderRadius: "12px",
-  boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+  borderRadius: "8px",
+  overflow: "hidden" as const,
 };
 
-const logo = {
-  display: "block",
+const accentBar = {
+  height: "3px",
+  backgroundColor: "#c4b5fd",
+  width: "100%",
 };
 
-const welcomeSection = {
-  marginTop: "24px",
+const contentSection = {
+  padding: "36px 40px 28px",
 };
 
-const text = {
-  fontSize: "16px",
-  lineHeight: "24px",
-  color: "#4b5563",
+const wordmark = {
+  fontSize: "13px",
+  fontWeight: "400",
+  letterSpacing: "0.08em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  marginBottom: "32px",
 };
 
-const h1 = {
-  fontSize: "24px",
-  fontWeight: "600",
-  color: "#323842",
-  marginTop: "8px",
+const heading = {
+  fontSize: "26px",
+  fontWeight: "500",
+  color: "#1f2937",
+  lineHeight: "1.2",
+  margin: "0 0 16px",
+};
+
+const paragraph = {
+  fontSize: "15px",
+  lineHeight: "1.7",
+  color: "#6b7280",
+  fontWeight: "400",
+  margin: "0 0 20px",
+};
+
+const btnContainer = {
+  marginBottom: "28px",
 };
 
 const button = {
-  backgroundColor: "#5e3bdb",
+  backgroundColor: "#7c3aed",
   color: "#ffffff",
-  padding: "12px 24px",
+  padding: "12px 28px",
   borderRadius: "6px",
   textDecoration: "none",
   display: "inline-block",
-  fontSize: "16px",
+  fontSize: "14px",
   fontWeight: "500",
+  letterSpacing: "0.02em",
+};
+
+const smallText = {
+  fontSize: "13px",
+  lineHeight: "1.6",
+  color: "#9ca3af",
+  fontWeight: "400",
+  margin: "0",
 };
 
 const hr = {
-  borderColor: "#cccccc",
-  margin: "20px 0 0",
+  borderColor: "#f3f4f6",
+  margin: "0",
+};
+
+const footer = {
+  fontSize: "13px",
+  color: "#9ca3af",
+  fontWeight: "400",
+  padding: "20px 40px",
+  margin: "0",
 };
