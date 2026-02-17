@@ -14,6 +14,7 @@ export interface Appointment {
   id: number;
   patientName: string;
   patientCi: number;
+  doctorName?: string;
   startDateTime: string;
   endDateTime: string;
   serviceName: string;
@@ -30,7 +31,61 @@ const statusConfig: Record<AppointmentStatus, { label: string; className: string
   cancelled: { label: "Cancelled", className: "bg-rose-200/40 text-gray-900 hover:bg-rose-200/40" },
 };
 
-export const appointmentsColumns: ColumnDef<Appointment>[] = [
+const patientColumn: ColumnDef<Appointment> = {
+  accessorKey: "patientName",
+  header: ({ column }) => (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="-ml-4 hover:bg-transparent"
+    >
+      Patient
+      <Icons.sort className="ml-2 size-3.5" />
+    </Button>
+  ),
+  cell: ({ row }) => (
+    <div className="flex flex-col gap-1 py-1">
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground">CI: {row.original.patientCi}</span>
+        <button
+          onClick={() => navigator.clipboard.writeText(row.original.patientCi.toString())}
+          className="opacity-50 hover:opacity-100 hover:bg-accent rounded p-0.5 transition-all cursor-pointer"
+          aria-label="Copy CI"
+        >
+          <Icons.copy className="size-3 text-muted-foreground" />
+        </button>
+      </div>
+      <span className="font-medium">{row.original.patientName}</span>
+    </div>
+  ),
+  meta: { displayName: "Patient" },
+  enableHiding: false,
+};
+
+const doctorColumn: ColumnDef<Appointment> = {
+  accessorKey: "doctorName",
+  header: ({ column }) => (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="-ml-4 hover:bg-transparent"
+    >
+      Doctor
+      <Icons.sort className="ml-2 size-3.5" />
+    </Button>
+  ),
+  cell: ({ row }) => (
+    <div className="flex flex-col gap-1 py-1">
+      <span className="font-medium">{row.original.doctorName}</span>
+    </div>
+  ),
+  meta: { displayName: "Doctor" },
+  enableHiding: false,
+};
+
+export function createAppointmentColumns(perspective: "provider" | "client"): ColumnDef<Appointment>[] {
+  const personColumn = perspective === "client" ? doctorColumn : patientColumn;
+  return [
   {
     id: "select",
     header: ({ table }) => (
@@ -54,38 +109,7 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  {
-    accessorKey: "patientName",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="-ml-4 hover:bg-transparent"
-      >
-        Patient
-        <Icons.sort className="ml-2 size-3.5" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="flex flex-col gap-1 py-1">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">CI: {row.original.patientCi}</span>
-          <button
-            onClick={() => navigator.clipboard.writeText(row.original.patientCi.toString())}
-            className="opacity-50 hover:opacity-100 hover:bg-accent rounded p-0.5 transition-all cursor-pointer"
-            aria-label="Copy CI"
-          >
-            <Icons.copy className="size-3 text-muted-foreground" />
-          </button>
-        </div>
-        <span className="font-medium">{row.original.patientName}</span>
-      </div>
-    ),
-    meta: {
-      displayName: "Patient",
-    },
-    enableHiding: false,
-  },
+  personColumn,
   {
     accessorKey: "startDateTime",
     header: ({ column }) => (
@@ -264,4 +288,7 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-];
+  ];
+}
+
+export const appointmentsColumns = createAppointmentColumns("provider");
