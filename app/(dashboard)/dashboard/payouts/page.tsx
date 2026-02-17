@@ -3,6 +3,8 @@ import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { PayoutCard, type PayoutMethod } from "@/components/dashboard/payout-card";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
+import { Role } from "@/src/types";
+import { hasPermission } from "@/utils/api/authorization/permissions";
 
 const mockPayoutMethods: PayoutMethod[] = [
   {
@@ -44,6 +46,11 @@ export default async function PayoutsPage() {
 
   if (!session?.user) {
     redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const canList = hasPermission(session.user.role as Role, "payout-method", "list");
+  if (!canList || canList === "none") {
+    redirect("/dashboard");
   }
 
   const sortedMethods = [...mockPayoutMethods].sort((a, b) => {
