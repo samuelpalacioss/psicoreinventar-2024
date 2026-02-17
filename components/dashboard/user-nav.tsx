@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Icons } from "@/components/icons"
 import { signOutAction } from "@/actions/auth"
+import Link from "next/link"
 
 interface UserNavProps {
     user: {
@@ -54,8 +55,8 @@ export function UserNav({ user }: UserNavProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        Settings
+                    <DropdownMenuItem asChild>
+                        <Link href="/dashboard/profile">Settings</Link>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <form action={signOutAction}>
