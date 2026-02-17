@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Icons } from "@/components/icons"
+import { signOutAction } from "@/actions/auth"
 
 interface UserNavProps {
     user: {
@@ -57,10 +58,14 @@ export function UserNav({ user }: UserNavProps) {
                         Settings
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuItem className="flex items-center">
-                    Sign out
-                    <Icons.logout className="w-4 h-4 ml-2" />
-                </DropdownMenuItem>
+                <form action={signOutAction}>
+                    <DropdownMenuItem asChild>
+                        <button type="submit" className="w-full flex items-center cursor-pointer">
+                            Sign out
+                            <Icons.logout className="w-4 h-4 ml-2" />
+                        </button>
+                    </DropdownMenuItem>
+                </form>
             </DropdownMenuContent>
         </DropdownMenu>
     )
