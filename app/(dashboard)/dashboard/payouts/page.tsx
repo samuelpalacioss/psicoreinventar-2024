@@ -37,13 +37,18 @@ const mockPayoutMethods: PayoutMethod[] = [
 ];
 
 export default function PayoutsPage() {
+  const sortedMethods = [...mockPayoutMethods].sort((a, b) => {
+    if (a.isPreferred === b.isPreferred) return 0;
+    return a.isPreferred ? -1 : 1;
+  });
+
   return (
     <DashboardContainer
       title="Payout Methods"
       description="Manage how you receive your earnings. Set a preferred method for automatic payouts."
     >
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {mockPayoutMethods.map((method) => (
+        {sortedMethods.map((method) => (
           <PayoutCard key={method.id} method={method} />
         ))}
       </div>
