@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Button, buttonVariants } from "./ui/button";
 import { MainNavItem } from "@/src/types";
 import { User } from "@/lib/auth/auth";
-import UserDropdown from "./user-dropdown";
+import { UserNav } from "./dashboard/user-nav";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -146,26 +146,24 @@ export default function Navbar({ className, items, user, children }: NavbarProps
                 </div>
               </div>
               <div className="flex items-center gap-2 lg:gap-4">
+                <Link
+                  href="/find"
+                  className={cn(
+                    buttonVariants({ variant: "default" }),
+                    "hidden lg:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
+                  )}
+                >
+                  Find a therapist
+                </Link>
                 {user ? (
-                  <UserDropdown user={user} />
+                  <UserNav user={user} />
                 ) : (
-                  <>
-                    <Button
-                      asChild
-                      className="text-sm bg-white hover:bg-gray-100 border border-gray-200 text-gray-900"
-                    >
-                      <Link href="/login">Log in</Link>
-                    </Button>
-                    <Link
-                      href="/find"
-                      className={cn(
-                        buttonVariants({ variant: "default" }),
-                        "hidden lg:inline-flex font-semibold bg-indigo-600 hover:bg-indigo-700"
-                      )}
-                    >
-                      Find a therapist
-                    </Link>
-                  </>
+                  <Button
+                    asChild
+                    className="text-sm bg-white hover:bg-gray-100 border border-gray-200 text-gray-900"
+                  >
+                    <Link href="/login">Log in</Link>
+                  </Button>
                 )}
                 {/* Mobile menu button - only show if not on dashboard */}
                 {!isOnDashboard && (
