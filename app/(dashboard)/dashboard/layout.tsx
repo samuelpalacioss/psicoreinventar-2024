@@ -5,10 +5,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Role } from "@/src/types";
 import "./theme.css";
 import { NavDashboard } from "@/components/dashboard/nav-dashboard";
+import { getServerSession } from "@/lib/auth/session";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // TODO: Get user role from session/auth
-  const userRole = Role.DOCTOR;
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession();
+  const userRole = (session?.user?.role as Role) ?? Role.PATIENT;
 
   return (
     <SidebarProvider

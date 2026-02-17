@@ -19,7 +19,6 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   userRole: Role;
 }
 
-// TODO: Add dynamic role based on user logged in
 export function AppSidebar({ userRole = Role.PATIENT, ...props }: AppSidebarProps) {
   const navItems = dashboardConfig.sidebarNav[userRole];
   const { isMobile, setOpenMobile } = useSidebar();
