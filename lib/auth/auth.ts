@@ -7,6 +7,10 @@ import { nextCookies } from "better-auth/next-js";
 import { Role } from "@/src/types";
 import { authContext } from "./auth-context";
 import { hashPassword, verifyPassword } from "@/utils/bcrypt";
+import { Resend } from "resend";
+import VerificationEmail from "@/components/emails/verification-email";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -41,8 +45,22 @@ export const auth = betterAuth({
       },
     },
   },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      await resend.emails.send({
+        from: "Psicoreinventar <no-reply@psicoreinventar.com>",
+        to: user.email,
+        subject: "Verify your email address",
+        react: VerificationEmail({
+          userFirstname: user.name,
+          verificationLink: url,
+        }),
+      });
+    },
+  },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
     password: {
       hash: async (password) => {
         // the password after hashing e.g. const passwordHash = await hash(password);
