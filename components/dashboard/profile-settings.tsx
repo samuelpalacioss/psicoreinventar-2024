@@ -45,10 +45,12 @@ const personalDetailsSchema = z.object({
   phoneAreaCode: z
     .string()
     .min(1, { message: "Area code is required" })
+    .max(3, { message: "Max 3 digits" })
     .regex(/^\d+$/, { message: "Digits only" }),
   phoneNumber: z
     .string()
     .min(1, { message: "Phone number is required" })
+    .max(7, { message: "Max 7 digits" })
     .regex(/^\d+$/, { message: "Digits only" }),
   birthDate: z.string().min(1, { message: "Birth date is required" }),
 });
@@ -126,7 +128,9 @@ function PersonalDetailsModal({
         return;
       }
 
-      setSuccessMessage("Personal details updated successfully.");
+      form.reset();
+      setServerError(null);
+      setSuccessMessage(null);
       onOpenChange(false);
     },
   });
@@ -192,7 +196,8 @@ function PersonalDetailsModal({
                         id={field.name}
                         name={field.name}
                         type="text"
-                        placeholder="0412"
+                        placeholder="412"
+                        maxLength={3}
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -600,7 +605,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
 
   const phoneDisplay =
     user.phoneAreaCode && user.phoneNumber
-      ? `(0${user.phoneAreaCode}) ${user.phoneNumber}`
+      ? `(${user.phoneAreaCode}) ${user.phoneNumber}`
       : "Not set";
 
   const birthDateDisplay = user.birthDate

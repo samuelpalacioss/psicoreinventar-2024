@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import db from "@/src/db";
 import { persons, doctors, phones } from "@/src/db/schema";
@@ -9,6 +10,21 @@ import { auth } from "@/lib/auth/auth";
 import { tryCatch } from "@/utils/tryCatch";
 import { Role } from "@/src/types";
 import * as z from "zod";
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+function parseFullName(name: string) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 2) {
+    return { firstName: parts[0], middleName: null, firstLastName: parts[1], secondLastName: null };
+  }
+  if (parts.length === 3) {
+    return { firstName: parts[0], middleName: null, firstLastName: parts[1], secondLastName: parts[2] };
+  }
+  return { firstName: parts[0], middleName: parts[1], firstLastName: parts[2], secondLastName: parts[3] };
+}
 
 // ============================================================================
 // VALIDATION
@@ -22,8 +38,8 @@ const updatePersonalDetailsSchema = z.object({
     .refine((val) => val.trim().split(/\s+/).length >= 2)
     .refine((val) => val.trim().split(/\s+/).length <= 4)
     .refine((val) => val.trim().split(/\s+/).every((p) => p.length <= 100)),
-  phoneAreaCode: z.string().min(1).regex(/^\d+$/),
-  phoneNumber: z.string().min(1).regex(/^\d+$/),
+  phoneAreaCode: z.string().min(1).max(3).regex(/^\d+$/),
+  phoneNumber: z.string().min(1).max(7).regex(/^\d+$/),
   birthDate: z.string().min(1),
 });
 
@@ -124,7 +140,7 @@ export async function updatePersonalDetailsAction(input: UpdatePersonalDetailsIn
 
     if (!person) return { error: "Patient profile not found." };
 
-    await db.update(persons).set({ birthDate }).where(eq(persons.userId, userId));
+    await db.update(persons).set({ ...parseFullName(name), birthDate }).where(eq(persons.userId, userId));
 
     const existingPhone = person.phones[0];
     if (existingPhone) {
@@ -140,6 +156,7 @@ export async function updatePersonalDetailsAction(input: UpdatePersonalDetailsIn
       });
     }
 
+    revalidatePath("/dashboard/profile");
     return { success: true };
   }
 
@@ -151,7 +168,7 @@ export async function updatePersonalDetailsAction(input: UpdatePersonalDetailsIn
 
     if (!doctor) return { error: "Doctor profile not found." };
 
-    await db.update(doctors).set({ birthDate }).where(eq(doctors.userId, userId));
+    await db.update(doctors).set({ ...parseFullName(name), birthDate }).where(eq(doctors.userId, userId));
 
     const existingPhone = doctor.phones[0];
     if (existingPhone) {
@@ -167,6 +184,7 @@ export async function updatePersonalDetailsAction(input: UpdatePersonalDetailsIn
       });
     }
 
+    revalidatePath("/dashboard/profile");
     return { success: true };
   }
 
