@@ -5,7 +5,6 @@ import {
   Head,
   Hr,
   Html,
-  Img,
   render,
   Section,
   Text,
@@ -25,43 +24,37 @@ export default function VerificationEmail({
       <Head />
       <Body style={main}>
         <Container style={container}>
-          {/* Logo */}
-          <Img
-            src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1739836330/psicoreinventar/ptfldl7wwjzzlfko5cns.png`}
-            width="56"
-            height="56"
-            alt="Psicoreinventar Logo"
-            style={logo}
-          />
+          {/* Accent line at top */}
+          <div style={accentBar} />
 
-          <Section style={welcomeSection}>
-            {/*<Text style={badge}>Email Verification</Text>*/}
+          <Section style={contentSection}>
+            {/* Wordmark */}
+            <Text style={wordmark}>psicoreinventar</Text>
 
-            <Text style={heading}>Hi {userFirstname}</Text>
-          </Section>
+            <Text style={heading}>Hi {userFirstname},</Text>
 
-          <Text style={paragraph}>
-            Please click the button below to verify your Psicoreinventar account. Let's get
-            started on your therapy journey.
-          </Text>
-
-          <Section style={btnContainer}>
-            <Button href={verificationLink} style={button}>
-              Verify email
-            </Button>
-          </Section>
-
-          <Text style={smallText}>This verification link will expire in 12 hours.</Text>
-
-          <Hr style={hr} />
-          {/* Footer */}
-          <Section style={footer}>
             <Text style={paragraph}>
-              Best,
-              <br />
-              The Psicoreinventar Team
+              Thanks for joining. Please verify your email address to complete
+              your account setup and begin your journey.
+            </Text>
+
+            <Section style={btnContainer}>
+              <Button href={verificationLink} style={button}>
+                Verify email address
+              </Button>
+            </Section>
+
+            <Text style={smallText}>
+              This link expires in 12 hours. If you didn&apos;t create an
+              account, you can safely ignore this email.
             </Text>
           </Section>
+
+          <Hr style={hr} />
+
+          <Text style={footer}>
+            The Psicoreinventar Team
+          </Text>
         </Container>
       </Body>
     </Html>
@@ -80,81 +73,81 @@ const main = {
 };
 
 const container = {
-  margin: "0 auto",
-  padding: "40px 20px",
-  maxWidth: "480px",
+  margin: "40px auto",
+  maxWidth: "500px",
   backgroundColor: "#ffffff",
-  borderRadius: "12px",
-  boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+  borderRadius: "8px",
+  overflow: "hidden" as const,
 };
 
-const logo = {
-  // margin: "0 auto",
-  display: "block",
+const accentBar = {
+  height: "3px",
+  backgroundColor: "#c4b5fd",
+  width: "100%",
 };
 
-const welcomeSection = {
-  // textAlign: "center" as const,
-  marginTop: "24px",
+const contentSection = {
+  padding: "36px 40px 28px",
 };
 
-const badge = {
-  backgroundColor: "#f3f0ff",
-  color: "#5F51E8",
-  padding: "4px 12px",
-  borderRadius: "9999px",
-  fontSize: "14px",
-  fontWeight: "500",
-  display: "inline-block",
+const wordmark = {
+  fontSize: "13px",
+  fontWeight: "400",
+  letterSpacing: "0.08em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  marginBottom: "32px",
 };
 
 const heading = {
-  fontSize: "24px",
-  fontWeight: "600",
-  color: "#323842",
-  marginTop: "8px",
+  fontSize: "26px",
+  fontWeight: "500",
+  color: "#1f2937",
+  lineHeight: "1.2",
+  margin: "0 0 16px",
 };
 
 const paragraph = {
-  fontSize: "16px",
-  lineHeight: "24px",
-  color: "#4b5563",
-  // textAlign: "center" as const,
+  fontSize: "15px",
+  lineHeight: "1.7",
+  color: "#6b7280",
+  fontWeight: "400",
+  margin: "0 0 32px",
 };
 
 const btnContainer = {
-  // textAlign: "center" as const,
-  marginTop: "24px",
+  marginBottom: "28px",
 };
 
 const button = {
-  backgroundColor: "#5e3bdb",
+  backgroundColor: "#7c3aed",
   color: "#ffffff",
-  padding: "12px 24px",
+  padding: "12px 28px",
   borderRadius: "6px",
   textDecoration: "none",
-  // textAlign: "center" as const,
   display: "inline-block",
-  fontSize: "16px",
+  fontSize: "14px",
   fontWeight: "500",
+  letterSpacing: "0.02em",
 };
 
 const smallText = {
-  fontSize: "14px",
-  color: "#6b7280",
-  // textAlign: "center" as const,
+  fontSize: "13px",
+  lineHeight: "1.6",
+  color: "#9ca3af",
+  fontWeight: "400",
+  margin: "0",
 };
 
 const hr = {
-  borderColor: "#cccccc",
-  margin: "20px 0 0",
+  borderColor: "#f3f4f6",
+  margin: "0",
 };
 
 const footer = {
-  fontSize: "12px",
-};
-
-const footerText = {
+  fontSize: "13px",
   color: "#9ca3af",
-  // textAlign: "center" as const,
+  fontWeight: "400",
+  padding: "20px 40px",
+  margin: "0",
 };
