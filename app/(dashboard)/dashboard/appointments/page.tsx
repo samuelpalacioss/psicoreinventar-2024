@@ -7,6 +7,8 @@ import { ActionNewButton } from "@/components/dashboard/action-new-button";
 import { AppointmentStatus } from "@/src/types";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
+import { Role } from "@/src/types";
+import { hasPermission } from "@/utils/api/authorization/permissions";
 
 const mockAppointments: Appointment[] = [
   {
@@ -65,6 +67,11 @@ export default async function AppointmentsPage() {
 
   if (!session?.user) {
     redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const canList = hasPermission(session.user.role as Role, "appointment", "list");
+  if (!canList || canList === "none") {
+    redirect("/dashboard");
   }
 
   return (

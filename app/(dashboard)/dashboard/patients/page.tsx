@@ -6,6 +6,8 @@ import { DataTable } from "@/components/dashboard/data-table";
 import { ActionNewButton } from "@/components/dashboard/action-new-button";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
+import { Role } from "@/src/types";
+import { hasPermission } from "@/utils/api/authorization/permissions";
 
 const mockPatients: Patient[] = [
   {
@@ -93,6 +95,11 @@ export default async function PatientsPage() {
 
   if (!session?.user) {
     redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const canList = hasPermission(session.user.role as Role, "person", "list");
+  if (!canList || canList === "none") {
+    redirect("/dashboard");
   }
 
   return (

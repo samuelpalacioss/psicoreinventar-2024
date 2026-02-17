@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
+import { Role } from "@/src/types";
+import { hasPermission } from "@/utils/api/authorization/permissions";
 import { Suspense } from "react";
 import { paymentsColumns, PaymentType, type Payment } from "@/components/dashboard/payments-columns";
 import { DataTable } from "@/components/dashboard/data-table";
@@ -64,6 +66,11 @@ export default async function PaymentsPage() {
 
   if (!session?.user) {
     redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const canList = hasPermission(session.user.role as Role, "payment", "list");
+  if (!canList || canList === "none") {
+    redirect("/dashboard");
   }
 
   return (

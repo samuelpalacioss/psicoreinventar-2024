@@ -2,12 +2,19 @@ import { redirect } from "next/navigation";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
+import { Role } from "@/src/types";
+import { hasPermission } from "@/utils/api/authorization/permissions";
 
 export default async function ProgressPage() {
   const session = await getServerSession();
 
   if (!session?.user) {
     redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const canList = hasPermission(session.user.role as Role, "progress", "list");
+  if (!canList || canList === "none") {
+    redirect("/dashboard");
   }
 
   return (
