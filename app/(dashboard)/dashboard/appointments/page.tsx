@@ -1,9 +1,12 @@
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { appointmentsColumns, type Appointment } from "@/components/dashboard/appointments-columns";
 import { DataTable } from "@/components/dashboard/data-table";
 import { ActionNewButton } from "@/components/dashboard/action-new-button";
 import { AppointmentStatus } from "@/src/types";
+import { getServerSession } from "@/lib/auth/session";
+import { AUTH_ROUTES } from "@/config/auth";
 
 const mockAppointments: Appointment[] = [
   {
@@ -57,7 +60,13 @@ const mockAppointments: Appointment[] = [
 ];
 
 
-export default function AppointmentsPage() {
+export default async function AppointmentsPage() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    redirect(AUTH_ROUTES.LOGIN);
+  }
+
   return (
     <DashboardContainer
       title="Appointments"

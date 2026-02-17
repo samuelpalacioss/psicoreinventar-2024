@@ -1,8 +1,11 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { patientsColumns, type Patient } from "@/components/dashboard/clients-columns";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { DataTable } from "@/components/dashboard/data-table";
 import { ActionNewButton } from "@/components/dashboard/action-new-button";
+import { getServerSession } from "@/lib/auth/session";
+import { AUTH_ROUTES } from "@/config/auth";
 
 const mockPatients: Patient[] = [
   {
@@ -85,7 +88,13 @@ const mockPatients: Patient[] = [
   },
 ];
 
-export default function PatientsPage() {
+export default async function PatientsPage() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    redirect(AUTH_ROUTES.LOGIN);
+  }
+
   return (
     <DashboardContainer
       title="Patients"

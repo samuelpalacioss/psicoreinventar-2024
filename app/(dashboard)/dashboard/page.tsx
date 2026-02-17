@@ -1,27 +1,20 @@
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { DashboardContainerSkeleton } from "@/components/dashboard/dashboard-container-skeleton";
 import SignOutButton from "@/components/sign-out-button";
 import { getServerSession } from "@/lib/auth/session";
+import { AUTH_ROUTES } from "@/config/auth";
 import { Role } from "@/src/types";
-import { Suspense } from "react";
 
-// const boilerplateUser = {
-//   name: "Samuel Palacios",
-//   role: Role.PATIENT, // Change to "doctor" to test doctor view
-// };
-
-// const { name, role } = boilerplateUser;
-export default function Page() {
-  return (
-    <Suspense fallback={<DashboardPageFallback />}>
-      <DashboardPageContent />
-    </Suspense>
-  );
-}
-
-async function DashboardPageContent() {
+export default async function Page() {
   const session = await getServerSession();
-  const { name: userName, role: userRole } = session?.user ?? {};
+
+  if (!session?.user) {
+    redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const { name: userName, role: userRole } = session.user;
 
   const greeting =
     userRole === Role.DOCTOR ? `Hello doc ${userName}` : `Hello my friend ${userName}`;
@@ -35,12 +28,10 @@ async function DashboardPageContent() {
           : "Welcome back to your wellness journey."
       }
     >
-      <span>holaaaa</span>
-      <SignOutButton />
+      <Suspense fallback={<DashboardContainerSkeleton />}>
+        <span>holaaaa</span>
+        <SignOutButton />
+      </Suspense>
     </DashboardContainer>
   );
-}
-
-function DashboardPageFallback() {
-  return <DashboardContainerSkeleton />;
 }

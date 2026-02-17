@@ -5,26 +5,34 @@ import { getServerSession } from "@/lib/auth/session";
 import { ProfileSettings } from "@/components/dashboard/profile-settings";
 import { getProfileAction } from "@/actions/profile";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AUTH_ROUTES } from "@/config/auth";
 
-async function ProfileSettingsLoader() {
+export default async function ProfilePage() {
   const session = await getServerSession();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect(AUTH_ROUTES.LOGIN);
   }
 
   const { data: profileData } = await getProfileAction();
 
   return (
-    <ProfileSettings
-      user={{
-        name: session.user.name,
-        email: session.user.email,
-        birthDate: profileData?.birthDate,
-        phoneAreaCode: profileData?.phoneAreaCode,
-        phoneNumber: profileData?.phoneNumber,
-      }}
-    />
+    <DashboardContainer
+      title="Profile"
+      description="Manage your personal details and account settings."
+    >
+      <Suspense fallback={<ProfileSettingsSkeleton />}>
+        <ProfileSettings
+          user={{
+            name: session.user.name,
+            email: session.user.email,
+            birthDate: profileData?.birthDate,
+            phoneAreaCode: profileData?.phoneAreaCode,
+            phoneNumber: profileData?.phoneNumber,
+          }}
+        />
+      </Suspense>
+    </DashboardContainer>
   );
 }
 
@@ -35,18 +43,5 @@ function ProfileSettingsSkeleton() {
       <Skeleton className="h-[112px] w-full rounded-lg" />
       <Skeleton className="h-[112px] w-full rounded-lg" />
     </div>
-  );
-}
-
-export default function ProfilePage() {
-  return (
-    <DashboardContainer
-      title="Profile"
-      description="Manage your personal details and account settings."
-    >
-      <Suspense fallback={<ProfileSettingsSkeleton />}>
-        <ProfileSettingsLoader />
-      </Suspense>
-    </DashboardContainer>
   );
 }

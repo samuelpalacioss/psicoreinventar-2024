@@ -1,5 +1,8 @@
+import { redirect } from "next/navigation";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { PayoutCard, type PayoutMethod } from "@/components/dashboard/payout-card";
+import { getServerSession } from "@/lib/auth/session";
+import { AUTH_ROUTES } from "@/config/auth";
 
 const mockPayoutMethods: PayoutMethod[] = [
   {
@@ -36,7 +39,13 @@ const mockPayoutMethods: PayoutMethod[] = [
   },
 ];
 
-export default function PayoutsPage() {
+export default async function PayoutsPage() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    redirect(AUTH_ROUTES.LOGIN);
+  }
+
   const sortedMethods = [...mockPayoutMethods].sort((a, b) => {
     if (a.isPreferred === b.isPreferred) return 0;
     return a.isPreferred ? -1 : 1;
