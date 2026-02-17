@@ -422,6 +422,9 @@ function PasswordModal({
 }) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -439,11 +442,15 @@ function PasswordModal({
       const { error } = await authClient.changePassword({
         currentPassword: value.currentPassword,
         newPassword: value.newPassword,
-        revokeOtherSessions: false,
+        revokeOtherSessions: true,
       });
 
       if (error) {
-        setServerError(error.message ?? "Failed to change password.");
+        setServerError(
+          error.code === "INVALID_PASSWORD"
+            ? "Current password is incorrect."
+            : (error.message ?? "Failed to change password.")
+        );
         return;
       }
 
@@ -485,17 +492,32 @@ function PasswordModal({
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Current password</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      type="password"
-                      placeholder="••••••••"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      disabled={form.state.isSubmitting}
-                    />
+                    <div className="relative">
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type={showCurrent ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        disabled={form.state.isSubmitting}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrent((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        tabIndex={-1}
+                      >
+                        {showCurrent ? (
+                          <Icons.eyeOff className="h-4 w-4 cursor-pointer" />
+                        ) : (
+                          <Icons.eye className="h-4 w-4 cursor-pointer" />
+                        )}
+                      </button>
+                    </div>
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
@@ -509,17 +531,32 @@ function PasswordModal({
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>New password</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      type="password"
-                      placeholder="••••••••"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      disabled={form.state.isSubmitting}
-                    />
+                    <div className="relative">
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type={showNew ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        disabled={form.state.isSubmitting}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNew((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        tabIndex={-1}
+                      >
+                        {showNew ? (
+                          <Icons.eyeOff className="h-4 w-4 cursor-pointer" />
+                        ) : (
+                          <Icons.eye className="h-4 w-4 cursor-pointer" />
+                        )}
+                      </button>
+                    </div>
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
@@ -533,17 +570,32 @@ function PasswordModal({
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Confirm new password</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      type="password"
-                      placeholder="••••••••"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      disabled={form.state.isSubmitting}
-                    />
+                    <div className="relative">
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type={showConfirm ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        disabled={form.state.isSubmitting}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        tabIndex={-1}
+                      >
+                        {showConfirm ? (
+                          <Icons.eyeOff className="h-4 w-4 cursor-pointer" />
+                        ) : (
+                          <Icons.eye className="h-4 w-4 cursor-pointer" />
+                        )}
+                      </button>
+                    </div>
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
