@@ -604,7 +604,7 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
       : "Not set";
 
   const birthDateDisplay = user.birthDate
-    ? new Date(user.birthDate).toLocaleDateString("en-US", {
+    ? new Date(user.birthDate + "T00:00:00").toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
