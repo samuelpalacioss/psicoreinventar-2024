@@ -309,7 +309,7 @@ export function DataTable<TData extends { id: number | string }>({
             {filterKey && filterColumn && (
               <DropdownMenu key="filter">
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-33">
+                  <Button variant="outline">
                     <span>
                       {selectedFilterValue
                         ? filterLabels?.[selectedFilterValue] || selectedFilterValue

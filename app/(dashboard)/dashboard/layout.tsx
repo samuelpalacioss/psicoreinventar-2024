@@ -34,7 +34,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         >
           <NavDashboard />
         </Suspense>
-        <div className="flex flex-1 flex-col overflow-auto">{children}</div>
+        <Suspense
+          fallback={
+            <div className="flex flex-1 flex-col overflow-auto p-6 lg:p-12">
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-44" />
+                <Skeleton className="h-4 w-80 max-w-full" />
+                <Skeleton className="h-[360px] w-full" />
+              </div>
+            </div>
+          }
+        >
+          <div className="flex flex-1 flex-col overflow-auto">{children}</div>
+        </Suspense>
       </SidebarInset>
     </SidebarProvider>
   );
