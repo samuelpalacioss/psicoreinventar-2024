@@ -7,9 +7,14 @@ import "./theme.css";
 import { NavDashboard } from "@/components/dashboard/nav-dashboard";
 import { getServerSession } from "@/lib/auth/session";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+async function DashboardSidebarWithSession() {
   const session = await getServerSession();
   const userRole = (session?.user?.role as Role) ?? Role.PATIENT;
+
+  return <AppSidebar variant="inset" userRole={userRole} />;
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider
@@ -19,7 +24,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" userRole={userRole} />
+      <Suspense fallback={<AppSidebar variant="inset" userRole={Role.PATIENT} />}>
+        <DashboardSidebarWithSession />
+      </Suspense>
       <SidebarInset className="m-0! flex flex-col min-h-svh max-h-svh overflow-hidden md:rounded-tl-xl! md:rounded-tr-xl! md:rounded-bl-none! md:rounded-br-none!">
         <Suspense
           fallback={
