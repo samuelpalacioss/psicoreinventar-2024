@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { patientsColumns, type Patient } from "@/components/dashboard/clients-columns";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { DataTable } from "@/components/dashboard/data-table";
-import { ActionNewButton } from "@/components/dashboard/action-new-button";
+import { NewPatientButton } from "@/components/dashboard/add-patient-modal";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
 import { Role } from "@/src/types";
@@ -113,9 +113,8 @@ export default async function PatientsPage() {
           columns={patientsColumns}
           searchKey={["ci", "name", "email", "phone"]}
           searchPlaceholder="Search by CI, name, email or phone"
-          actions={
-            <ActionNewButton label="New patient" icon="plus" />
-          } />
+          actions={<NewPatientButton />}
+        />
       </Suspense>
     </DashboardContainer>
   );

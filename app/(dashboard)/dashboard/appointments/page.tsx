@@ -3,12 +3,15 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { appointmentsColumns, type Appointment } from "@/components/dashboard/appointments-columns";
 import { DataTable } from "@/components/dashboard/data-table";
-import { ActionNewButton } from "@/components/dashboard/action-new-button";
+import { NewAppointmentButton } from "@/components/dashboard/add-appointment-modal";
 import { AppointmentStatus } from "@/src/types";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
 import { Role } from "@/src/types";
 import { hasPermission } from "@/utils/api/authorization/permissions";
+import { findDoctorByUserId } from "@/src/dal/doctors";
+import { findPatients } from "@/src/dal/persons";
+import { findAllServicesForDoctor } from "@/src/dal/services";
 
 const mockAppointments: Appointment[] = [
   {
@@ -74,6 +77,20 @@ export default async function AppointmentsPage() {
     redirect("/dashboard");
   }
 
+  const doctor = await findDoctorByUserId(session.user.id);
+  const patientsForAppointment: Awaited<ReturnType<typeof findPatients>>["data"] = doctor
+    ? (
+        await findPatients(doctor.id, {
+          page: 1,
+          limit: 500,
+          offset: 0,
+        })
+      ).data
+    : [];
+  const servicesForAppointment: Awaited<ReturnType<typeof findAllServicesForDoctor>> = doctor
+    ? await findAllServicesForDoctor(doctor.id)
+    : [];
+
   return (
     <DashboardContainer
       title="Appointments"
@@ -88,7 +105,12 @@ export default async function AppointmentsPage() {
           filterKey="status"
           filterTitle="Status"
           filterLabels={AppointmentStatus}
-          actions={<ActionNewButton label="New Appointment" icon="plus" />}
+          actions={
+            <NewAppointmentButton
+              patients={patientsForAppointment}
+              services={servicesForAppointment}
+            />
+          }
         />
       </Suspense>
     </DashboardContainer>

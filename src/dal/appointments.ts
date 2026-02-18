@@ -244,6 +244,31 @@ export async function createAppointmentWithPayment(data: {
   });
 }
 
+/**
+ * Create an appointment without a payment record.
+ * Used when payment is handled separately.
+ * endDateTime is calculated as startDateTime + 45 minutes.
+ */
+export async function createAppointment(data: {
+  personId: number;
+  doctorId: number;
+  doctorServiceDoctorId: number;
+  doctorServiceServiceId: number;
+  startDateTime: Date;
+  endDateTime: Date;
+  notes?: string | null;
+}) {
+  const [appointment] = await db
+    .insert(appointments)
+    .values({
+      ...data,
+      status: "scheduled",
+      notes: data.notes || null,
+    })
+    .returning();
+  return appointment;
+}
+
 export async function editAppointment(id: number, data: Partial<typeof appointments.$inferInsert>) {
   const [appointment] = await db
     .update(appointments)

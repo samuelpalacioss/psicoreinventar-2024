@@ -8,7 +8,7 @@ import {
   paymentMethodPersons,
   progresses,
 } from "@/src/db/schema";
-import { and, count, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, count, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
 
@@ -198,10 +198,7 @@ export async function findPersonPaymentMethods(personId: number, pagination: Pag
 
 export async function findPersonPaymentMethod(personId: number, methodId: number) {
   return db.query.paymentMethodPersons.findFirst({
-    where: and(
-      eq(paymentMethodPersons.id, methodId),
-      eq(paymentMethodPersons.personId, personId)
-    ),
+    where: and(eq(paymentMethodPersons.id, methodId), eq(paymentMethodPersons.personId, personId)),
     with: { paymentMethod: true },
   });
 }
@@ -291,6 +288,35 @@ export async function deletePersonPaymentMethod(methodId: number, paymentMethodI
 // ============================================================================
 // READ-ONLY: APPOINTMENTS, PAYMENTS, PROGRESSES
 // ============================================================================
+
+export async function findPatients(doctorId: number, pagination: PaginationParams) {
+  const { page, limit, offset } = pagination;
+  const whereClause = eq(appointments.doctorId, doctorId);
+
+  const [{ count: totalCount }] = await db
+    .select({ count: sql<number>`count(distinct ${appointments.personId})` })
+    .from(appointments)
+    .where(whereClause);
+
+  const data = await db
+    .selectDistinct({
+      patientId: persons.id,
+      patientCi: persons.ci,
+      doctorId: appointments.doctorId,
+      firstName: persons.firstName,
+      middleName: persons.middleName,
+      firstLastName: persons.firstLastName,
+      secondLastName: persons.secondLastName,
+    })
+    .from(appointments)
+    .innerJoin(persons, eq(appointments.personId, persons.id))
+    .where(whereClause)
+    .orderBy(persons.firstName, persons.firstLastName)
+    .limit(limit)
+    .offset(offset);
+
+  return { data, pagination: calculatePaginationMetadata(page, limit, Number(totalCount)) };
+}
 
 export async function findPatientAppointments(personId: number, pagination: PaginationParams) {
   const { page, limit, offset } = pagination;
