@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Suspense fallback={<AppSidebar variant="inset" userRole={Role.PATIENT} />}>
         <DashboardSidebarWithSession />
       </Suspense>
-      <SidebarInset className="m-0! flex flex-col min-h-svh max-h-svh overflow-hidden md:rounded-tl-xl! md:rounded-tr-xl! md:rounded-bl-none! md:rounded-br-none!">
+      <SidebarInset className="m-0! flex flex-col h-svh min-h-svh max-h-svh overflow-hidden md:rounded-tl-xl! md:rounded-tr-xl! md:rounded-bl-none! md:rounded-br-none!">
         <Suspense
           fallback={
             <header className="flex h-16 shrink-0 items-center border-b bg-background rounded-tl-xl transition-[width,height] ease-linear">
