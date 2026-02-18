@@ -1371,7 +1371,7 @@ async function seed() {
           startDateTime: new Date("2025-12-15T09:00:00Z"),
           endDateTime: new Date("2025-12-15T09:45:00Z"),
           status: "completed",
-          notes: "Primera sesión. Paciente se mostró receptivo.",
+          notes: "Primera sesión, espero todo salga bien",
         },
         {
           personId: personsData[1].id,
@@ -1393,7 +1393,7 @@ async function seed() {
           startDateTime: new Date("2025-12-17T15:00:00Z"),
           endDateTime: new Date("2025-12-17T16:00:00Z"),
           status: "completed",
-          notes: "Terapia de pareja. Buen avance en comunicación.",
+          notes: "Doctora espero manana llegar a tiempo para mi cita.",
         },
         {
           personId: personsData[0].id,
@@ -1404,7 +1404,7 @@ async function seed() {
           startDateTime: new Date("2025-12-22T10:00:00Z"),
           endDateTime: new Date("2025-12-22T10:45:00Z"),
           status: "completed",
-          notes: "Segunda sesión. Buen progreso en manejo de ansiedad.",
+          notes: "Quisiera discutir un poco de mi estado de ánimo y de mi vida en general.",
         },
         {
           personId: personsData[0].id,
@@ -1436,7 +1436,8 @@ async function seed() {
           startDateTime: new Date("2026-01-07T14:00:00Z"),
           endDateTime: new Date("2026-01-07T14:45:00Z"),
           status: "scheduled",
-          notes: "Primera sesión con nuevo paciente.",
+          notes:
+            "Tengo una cita con la Dra. Laura Pérez para hablar de mi estado de ánimo y de mi vida en general",
         },
       ])
       .returning();

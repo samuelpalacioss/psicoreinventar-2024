@@ -226,7 +226,7 @@ export function EditAppointmentModal({
               <Textarea
                 id={field.name}
                 name={field.name}
-                placeholder="Session topics, patient background..."
+                placeholder="Session topics, any info that might be helpful for the therapist..."
                 rows={3}
                 value={field.state.value}
                 onBlur={field.handleBlur}

@@ -7,11 +7,13 @@ import { Icons } from "@/components/icons";
 import { ActionsDropdown } from "@/components/actions-dropdown";
 import { Badge } from "@/components/ui/badge";
 import { appointmentStatusEnum } from "@/src/db/schema";
+import { Service as ServiceLabels } from "@/src/types";
 
 type AppointmentStatus = typeof appointmentStatusEnum.enumValues[number];
 
 export interface Appointment {
   id: number;
+  patientId: number;
   patientName: string;
   patientCi: number;
   doctorName?: string;
@@ -21,6 +23,9 @@ export interface Appointment {
   status: AppointmentStatus;
   paymentAmount: number;
   notes: string | null;
+  progressId: number | null;
+  progressTitle: string | null;
+  progressLevel: string | null;
   cancellationReason: string | null;
 }
 
@@ -29,6 +34,13 @@ const statusConfig: Record<AppointmentStatus, { label: string; className: string
   confirmed: { label: "Confirmed", className: "bg-emerald-200/40 text-gray-900 hover:bg-emerald-200/40" },
   completed: { label: "Completed", className: "bg-gray-50/50 text-gray-600 border border-gray-200 hover:bg-gray-50/50" },
   cancelled: { label: "Cancelled", className: "bg-rose-200/40 text-gray-900 hover:bg-rose-200/40" },
+};
+
+const progressLevelConfig: Record<string, { label: string; className: string }> = {
+  low: { label: "Low", className: "bg-rose-200/40 text-gray-900 hover:bg-rose-200/40" },
+  moderate: { label: "Moderate", className: "bg-amber-200/40 text-gray-900 hover:bg-amber-200/40" },
+  good: { label: "Good", className: "bg-indigo-200/40 text-gray-900 hover:bg-indigo-200/40" },
+  great: { label: "Great", className: "bg-emerald-200/40 text-gray-900 hover:bg-emerald-200/40" },
 };
 
 const patientColumn: ColumnDef<Appointment> = {
@@ -85,14 +97,51 @@ const doctorColumn: ColumnDef<Appointment> = {
 
 export interface AppointmentColumnOptions {
   onEdit?: (appointment: Appointment) => void;
+  onEditProgress?: (appointment: Appointment) => void;
+  onViewProgress?: (appointment: Appointment) => void;
 }
 
 export function createAppointmentColumns(
   perspective: "provider" | "client",
   options?: AppointmentColumnOptions
 ): ColumnDef<Appointment>[] {
-  const { onEdit } = options ?? {};
+  const { onEdit, onEditProgress, onViewProgress } = options ?? {};
   const personColumn = perspective === "client" ? doctorColumn : patientColumn;
+  const progressColumn: ColumnDef<Appointment> = {
+    id: "progress",
+    header: "Progress",
+    cell: ({ row }) => {
+      const hasProgress = Boolean(row.original.progressId);
+      const progressLevel = row.original.progressLevel;
+
+      if (!hasProgress) {
+        return <span className="text-sm text-muted-foreground">No progress</span>;
+      }
+
+      if (!progressLevel) {
+        return <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100">Recorded</Badge>;
+      }
+
+      const config = progressLevelConfig[progressLevel] ?? {
+        label: progressLevel,
+        className: "bg-slate-100 text-slate-700 hover:bg-slate-100",
+      };
+
+      return (
+        <div
+          className="max-w-[220px] truncate"
+          title={row.original.progressTitle || undefined}
+        >
+          <Badge className={config.className}>{config.label}</Badge>
+        </div>
+      );
+    },
+    meta: {
+      displayName: "Progress",
+    },
+    enableSorting: false,
+  };
+
   return [
     {
       id: "select",
@@ -118,6 +167,7 @@ export function createAppointmentColumns(
       enableHiding: false,
     },
     personColumn,
+    ...(perspective === "provider" ? [progressColumn] : []),
     {
       accessorKey: "startDateTime",
       header: ({ column }) => (
@@ -164,11 +214,11 @@ export function createAppointmentColumns(
           <Icons.sort className="ml-2 size-3.5" />
         </Button>
       ),
-      cell: ({ row }) => (
-        <div className="text-sm">
-          {row.original.serviceName}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const key = row.original.serviceName as keyof typeof ServiceLabels | undefined;
+        const label = key && key in ServiceLabels ? ServiceLabels[key] : row.original.serviceName;
+        return <div className="text-sm">{label || "—"}</div>;
+      },
       meta: {
         displayName: "Service",
       },
@@ -260,9 +310,6 @@ export function createAppointmentColumns(
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const isCompleted = row.original.status === "completed";
-        const isCancelled = row.original.status === "cancelled";
-
         return (
           <ActionsDropdown
             actions={[
@@ -276,11 +323,19 @@ export function createAppointmentColumns(
                 icon: "edit",
                 onClick: () => onEdit?.(row.original),
               },
+              ...(perspective === "provider"
+                ? [{
+                    label: "Edit Progress",
+                    icon: "edit" as const,
+                    onClick: () => onEditProgress?.(row.original),
+                    disabled: !row.original.progressId,
+                  }]
+                : []),
               {
                 label: "View Progress",
                 icon: "booking",
-                onClick: () => console.log("View Progress", row.original.id),
-                disabled: !isCompleted
+                onClick: () => onViewProgress?.(row.original),
+                disabled: !row.original.progressId
               },
             ]}
           />

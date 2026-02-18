@@ -344,6 +344,16 @@ export async function findPatientAppointments(personId: number, pagination: Pagi
       },
       doctorService: { with: { service: true } },
       payment: { columns: { id: true, amount: true, date: true } },
+      progresses: {
+        columns: {
+          id: true,
+          title: true,
+          level: true,
+          createdAt: true,
+        },
+        orderBy: (p, { desc }) => [desc(p.createdAt)],
+        limit: 1,
+      },
     },
   });
 

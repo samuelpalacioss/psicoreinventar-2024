@@ -8,60 +8,15 @@ import { AUTH_ROUTES } from "@/config/auth";
 import { Role } from "@/src/types";
 import { hasPermission } from "@/utils/api/authorization/permissions";
 import { findDoctorByUserId } from "@/src/dal/doctors";
+import { findPersonByUserId } from "@/src/dal/persons";
 import { findPatients } from "@/src/dal/persons";
 import { findAllServicesForDoctor } from "@/src/dal/services";
+import { findAllAppointments } from "@/src/dal/appointments";
+import { findPatientAppointments } from "@/src/dal/persons";
 
-const mockAppointments: Appointment[] = [
-  {
-    id: 1,
-    patientName: "Luanna Martelli",
-    patientCi: 12345678,
-    startDateTime: "2024-02-15T09:00:00",
-    endDateTime: "2024-02-15T09:45:00",
-    serviceName: "Talk Therapy",
-    status: "scheduled",
-    paymentAmount: 80.00,
-    notes: "First session - anxiety management",
-    cancellationReason: null,
-  },
-  {
-    id: 2,
-    patientName: "Carlos Rodriguez",
-    patientCi: 87654321,
-    startDateTime: "2024-02-15T14:30:00",
-    endDateTime: "2024-02-15T15:30:00",
-    serviceName: "Couples Therapy",
-    status: "confirmed",
-    paymentAmount: 120.00,
-    notes: "Session with partner - communication issues",
-    cancellationReason: null,
-  },
-  {
-    id: 3,
-    patientName: "Ana Martinez",
-    patientCi: 45678912,
-    startDateTime: "2024-02-14T10:00:00",
-    endDateTime: "2024-02-14T10:45:00",
-    serviceName: "Talk Therapy",
-    status: "completed",
-    paymentAmount: 80.00,
-    notes: "Follow-up session - good progress",
-    cancellationReason: null,
-  },
-  {
-    id: 4,
-    patientName: "Luis Fernandez",
-    patientCi: 98765432,
-    startDateTime: "2024-02-13T16:00:00",
-    endDateTime: "2024-02-13T17:00:00",
-    serviceName: "Teen Therapy",
-    status: "cancelled",
-    paymentAmount: 90.00,
-    notes: "Initial consultation scheduled",
-    cancellationReason: "Cancelado por el paciente",
-  },
-];
-
+function formatName(parts: (string | null | undefined)[]): string {
+  return parts.filter(Boolean).join(" ");
+}
 
 export default async function AppointmentsPage() {
   const session = await getServerSession();
@@ -75,19 +30,86 @@ export default async function AppointmentsPage() {
     redirect("/dashboard");
   }
 
-  const doctor = await findDoctorByUserId(session.user.id);
-  const patientsForAppointment: Awaited<ReturnType<typeof findPatients>>["data"] = doctor
-    ? (
-      await findPatients(doctor.id, {
+  const role = session.user.role as Role;
+  const isDoctor = role === Role.DOCTOR;
+
+  let appointments: Appointment[] = [];
+  let patientsForAppointment: Awaited<ReturnType<typeof findPatients>>["data"] = [];
+  let servicesForAppointment: Awaited<ReturnType<typeof findAllServicesForDoctor>> = [];
+  const perspective: "provider" | "client" = isDoctor ? "provider" : "client";
+
+  if (isDoctor) {
+    const doctor = await findDoctorByUserId(session.user.id);
+    if (doctor) {
+      const [{ data: rawAppointments }, patientsResult, services] = await Promise.all([
+        findAllAppointments({ doctorId: doctor.id }, { page: 1, limit: 500, offset: 0 }),
+        findPatients(doctor.id, { page: 1, limit: 500, offset: 0 }),
+        findAllServicesForDoctor(doctor.id),
+      ]);
+
+      patientsForAppointment = patientsResult.data;
+      servicesForAppointment = services;
+
+      appointments = rawAppointments.map((appt) => ({
+        patientId: appt.person?.id ?? 0,
+        id: appt.id,
+        patientName: formatName([
+          appt.person?.firstName,
+          appt.person?.middleName,
+          appt.person?.firstLastName,
+          appt.person?.secondLastName,
+        ]),
+        patientCi: appt.person?.ci ?? 0,
+        startDateTime: appt.startDateTime.toISOString(),
+        endDateTime: appt.endDateTime.toISOString(),
+        serviceName: appt.doctorService?.service?.name ?? "",
+        status: appt.status,
+        paymentAmount: appt.payment ? parseFloat(appt.payment.amount) : 0,
+        notes: appt.notes ?? null,
+        progressId: appt.progresses?.[0]?.id ?? null,
+        progressTitle: appt.progresses?.[0]?.title ?? null,
+        progressLevel: appt.progresses?.[0]?.level ?? null,
+        cancellationReason: appt.cancellationReason ?? null,
+      }));
+    }
+  } else {
+    const person = await findPersonByUserId(session.user.id);
+    if (person) {
+      const { data: rawAppointments } = await findPatientAppointments(person.id, {
         page: 1,
         limit: 500,
         offset: 0,
-      })
-    ).data
-    : [];
-  const servicesForAppointment: Awaited<ReturnType<typeof findAllServicesForDoctor>> = doctor
-    ? await findAllServicesForDoctor(doctor.id)
-    : [];
+      });
+
+      appointments = rawAppointments.map((appt) => ({
+        patientId: person.id,
+        id: appt.id,
+        patientName: formatName([
+          person.firstName,
+          person.middleName,
+          person.firstLastName,
+          person.secondLastName,
+        ]),
+        patientCi: person.ci,
+        doctorName: formatName([
+          appt.doctor?.firstName,
+          appt.doctor?.middleName,
+          appt.doctor?.firstLastName,
+          appt.doctor?.secondLastName,
+        ]),
+        startDateTime: appt.startDateTime.toISOString(),
+        endDateTime: appt.endDateTime.toISOString(),
+        serviceName: appt.doctorService?.service?.name,
+        status: appt.status,
+        paymentAmount: appt.payment ? parseFloat(appt.payment.amount) : 0,
+        notes: appt.notes ?? null,
+        progressId: appt.progresses?.[0]?.id ?? null,
+        progressTitle: appt.progresses?.[0]?.title ?? null,
+        progressLevel: appt.progresses?.[0]?.level ?? null,
+        cancellationReason: appt.cancellationReason ?? null,
+      }));
+    }
+  }
 
   return (
     <DashboardContainer
@@ -96,9 +118,10 @@ export default async function AppointmentsPage() {
     >
       <Suspense fallback={<div>Loading...</div>}>
         <AppointmentsTable
-          appointments={mockAppointments}
+          appointments={appointments}
           patients={patientsForAppointment}
           services={servicesForAppointment}
+          perspective={perspective}
         />
       </Suspense>
     </DashboardContainer>

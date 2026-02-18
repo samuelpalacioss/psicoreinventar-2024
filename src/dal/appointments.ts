@@ -21,6 +21,35 @@ export interface AppointmentQueryOptions<T = any> extends QueryOptions<T> {
   includeDoctor?: boolean;
   includeDoctorService?: boolean;
   includePayment?: boolean;
+  includeProgresses?: boolean;
+}
+
+export interface AppointmentWithRelations extends Omit<typeof appointments.$inferSelect, never> {
+  person?: {
+    id: number;
+    ci: number;
+    firstName: string;
+    middleName: string | null;
+    firstLastName: string;
+    secondLastName: string | null;
+  } | null;
+  doctor?: {
+    id: number;
+    firstName: string;
+    middleName: string | null;
+    firstLastName: string;
+    secondLastName: string | null;
+  } | null;
+  doctorService?: {
+    service: { name: string };
+  } | null;
+  payment?: { id: number; amount: string; date: string } | null;
+  progresses?: {
+    id: number;
+    title: string;
+    level: string | null;
+    createdAt: Date;
+  }[];
 }
 
 // ============================================================================
@@ -41,9 +70,10 @@ export async function findAllAppointments<
     includeDoctor = true,
     includeDoctorService = true,
     includePayment = true,
+    includeProgresses = true,
   } = options;
 
-  const conditions = [];
+  const conditions = [isNull(appointments.deletedAt)];
 
   if (filters.personId) {
     conditions.push(eq(appointments.personId, filters.personId));
@@ -83,6 +113,7 @@ export async function findAllAppointments<
     withOptions.person = {
       columns: {
         id: true,
+        ci: true,
         firstName: true,
         middleName: true,
         firstLastName: true,
@@ -107,12 +138,24 @@ export async function findAllAppointments<
   if (includePayment) {
     withOptions.payment = { columns: { id: true, amount: true, date: true } };
   }
+  if (includeProgresses) {
+    withOptions.progresses = {
+      columns: {
+        id: true,
+        title: true,
+        level: true,
+        createdAt: true,
+      },
+      orderBy: (p: any, { desc }: any) => [desc(p.createdAt)],
+      limit: 1,
+    };
+  }
 
   if (Object.keys(withOptions).length > 0) {
     queryOptions.with = withOptions;
   }
 
-  const data = await db.query.appointments.findMany(queryOptions);
+  const data = await db.query.appointments.findMany(queryOptions) as AppointmentWithRelations[];
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }
