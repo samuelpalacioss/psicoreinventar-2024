@@ -6,9 +6,17 @@ import db from "@/src/db";
 import { doctorServices } from "@/src/db/schema";
 import { getServerSession } from "@/lib/auth/session";
 import { findDoctorByUserId } from "@/src/dal/doctors";
-import { createAppointment } from "@/src/dal/appointments";
-import { addAppointmentSchema } from "@/lib/schema";
+import {
+  createAppointment,
+  editAppointment,
+  findAppointmentByIdBasic,
+} from "@/src/dal/appointments";
+import { addAppointmentSchema, editAppointmentSchema } from "@/lib/schema";
+import { AppointmentStatus } from "@/src/types";
 import { tryCatch } from "@/utils/tryCatch";
+
+// Edit appointment: date/time is only applied when status is scheduled or confirmed; new date/time must be in the future.
+const APPOINTMENT_DURATION_MINUTES = 45;
 
 export async function createAppointmentAction(input: {
   patientId: string;
@@ -62,6 +70,69 @@ export async function createAppointmentAction(input: {
 
   if (error) {
     return { error: "Failed to schedule appointment" };
+  }
+
+  revalidatePath("/dashboard/appointments");
+  return { success: true };
+}
+
+export async function updateAppointmentAction(input: {
+  appointmentId: number;
+  startDate: string;
+  startTime: string;
+  status: keyof typeof AppointmentStatus;
+  notes: string;
+}) {
+  const session = await getServerSession();
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
+  const validation = editAppointmentSchema.safeParse(input);
+  if (!validation.success) {
+    return { error: "Invalid data" };
+  }
+
+  const { appointmentId, startDate, startTime, status, notes } = validation.data;
+
+  const doctor = await findDoctorByUserId(session.user.id);
+  if (!doctor) {
+    return { error: "Doctor profile not found" };
+  }
+
+  const appointment = await findAppointmentByIdBasic(appointmentId);
+  if (!appointment) {
+    return { error: "Appointment not found" };
+  }
+  if (appointment.doctorId !== doctor.id) {
+    return { error: "Not allowed to edit this appointment" };
+  }
+
+  // Only apply date/time when status allows reschedule (scheduled or confirmed). New time must be in the future.
+  const canChangeDateTime = status === "scheduled" || status === "confirmed";
+  const updatePayload: Parameters<typeof editAppointment>[1] = {
+    status,
+    notes: notes || null,
+  };
+
+  if (canChangeDateTime) {
+    const startDateTime = new Date(`${startDate}T${startTime}`);
+    if (Number.isNaN(startDateTime.getTime())) {
+      return { error: "Invalid date or time" };
+    }
+    if (startDateTime < new Date()) {
+      return { error: "New date and time must be in the future" };
+    }
+    const endDateTime = new Date(
+      startDateTime.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000
+    );
+    updatePayload.startDateTime = startDateTime;
+    updatePayload.endDateTime = endDateTime;
+  }
+
+  const { error } = await tryCatch(editAppointment(appointmentId, updatePayload));
+  if (error) {
+    return { error: "Failed to update appointment" };
   }
 
   revalidatePath("/dashboard/appointments");

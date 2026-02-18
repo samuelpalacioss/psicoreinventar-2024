@@ -1,10 +1,8 @@
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { appointmentsColumns, type Appointment } from "@/components/dashboard/appointments-columns";
-import { DataTable } from "@/components/dashboard/data-table";
-import { NewAppointmentButton } from "@/components/dashboard/add-appointment-modal";
-import { AppointmentStatus } from "@/src/types";
+import { type Appointment } from "@/components/dashboard/appointments-columns";
+import { AppointmentsTable } from "@/components/dashboard/appointments-table";
 import { getServerSession } from "@/lib/auth/session";
 import { AUTH_ROUTES } from "@/config/auth";
 import { Role } from "@/src/types";
@@ -80,12 +78,12 @@ export default async function AppointmentsPage() {
   const doctor = await findDoctorByUserId(session.user.id);
   const patientsForAppointment: Awaited<ReturnType<typeof findPatients>>["data"] = doctor
     ? (
-        await findPatients(doctor.id, {
-          page: 1,
-          limit: 500,
-          offset: 0,
-        })
-      ).data
+      await findPatients(doctor.id, {
+        page: 1,
+        limit: 500,
+        offset: 0,
+      })
+    ).data
     : [];
   const servicesForAppointment: Awaited<ReturnType<typeof findAllServicesForDoctor>> = doctor
     ? await findAllServicesForDoctor(doctor.id)
@@ -97,20 +95,10 @@ export default async function AppointmentsPage() {
       description="View and manage your upcoming appointments. Here you can see all scheduled sessions and their status."
     >
       <Suspense fallback={<div>Loading...</div>}>
-        <DataTable
-          data={mockAppointments}
-          columns={appointmentsColumns}
-          searchKey={["patientName", "patientCi", "startDateTime"]}
-          searchPlaceholder="Search by patient name, CI, date"
-          filterKey="status"
-          filterTitle="Status"
-          filterLabels={AppointmentStatus}
-          actions={
-            <NewAppointmentButton
-              patients={patientsForAppointment}
-              services={servicesForAppointment}
-            />
-          }
+        <AppointmentsTable
+          appointments={mockAppointments}
+          patients={patientsForAppointment}
+          services={servicesForAppointment}
         />
       </Suspense>
     </DashboardContainer>

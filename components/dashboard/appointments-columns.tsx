@@ -83,211 +83,212 @@ const doctorColumn: ColumnDef<Appointment> = {
   enableHiding: false,
 };
 
-export function createAppointmentColumns(perspective: "provider" | "client"): ColumnDef<Appointment>[] {
+export interface AppointmentColumnOptions {
+  onEdit?: (appointment: Appointment) => void;
+}
+
+export function createAppointmentColumns(
+  perspective: "provider" | "client",
+  options?: AppointmentColumnOptions
+): ColumnDef<Appointment>[] {
+  const { onEdit } = options ?? {};
   const personColumn = perspective === "client" ? doctorColumn : patientColumn;
   return [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        className="cursor-pointer"
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        className="cursor-pointer"
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  personColumn,
-  {
-    accessorKey: "startDateTime",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="-ml-4 hover:bg-transparent"
-      >
-        Date & Time
-        <Icons.sort className="ml-2 size-3.5" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const startDate = new Date(row.original.startDateTime);
-      const dateStr = startDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-      const timeStr = startDate.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      return (
-        <div className="flex flex-col gap-0.5 py-1">
-          <span className="text-sm">{dateStr}</span>
-          <span className="text-xs text-muted-foreground">{timeStr}</span>
-        </div>
-      );
-    },
-    meta: {
-      displayName: "Date & Time",
-    },
-  },
-  {
-    accessorKey: "serviceName",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="-ml-4 hover:bg-transparent"
-      >
-        Service
-        <Icons.sort className="ml-2 size-3.5" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">
-        {row.original.serviceName}
-      </div>
-    ),
-    meta: {
-      displayName: "Service",
-    },
-  },
-  {
-    id: "duration",
-    header: "Duration",
-    cell: ({ row }) => {
-      const start = new Date(row.original.startDateTime);
-      const end = new Date(row.original.endDateTime);
-      const durationMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
-      return (
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 text-sm">
-          {durationMinutes} min
-        </div>
-      );
-    },
-    meta: {
-      displayName: "Duration",
-    },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="-ml-4 hover:bg-transparent"
-      >
-        Status
-        <Icons.sort className="ml-2 size-3.5" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const status = row.original.status;
-      const config = statusConfig[status];
-      return (
-        <Badge className={config.className}>
-          {config.label}
-        </Badge>
-      );
-    },
-    meta: {
-      displayName: "Status",
-    },
-  },
-  {
-    accessorKey: "paymentAmount",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="-ml-4 hover:bg-transparent"
-      >
-        Payment
-        <Icons.sort className="ml-2 size-3.5" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">
-        ${row.original.paymentAmount.toFixed(2)}
-      </div>
-    ),
-    meta: {
-      displayName: "Payment",
-    },
-  },
-  {
-    accessorKey: "notes",
-    header: "Notes",
-    cell: ({ row }) => {
-      const notes = row.original.notes;
-      return (
-        <div
-          className="text-sm text-muted-foreground max-w-[250px] truncate"
-          title={notes || undefined}
-        >
-          {notes || "—"}
-        </div>
-      );
-    },
-    meta: {
-      displayName: "Notes",
-    },
-    enableSorting: false,
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const isCompleted = row.original.status === "completed";
-      const isCancelled = row.original.status === "cancelled";
-
-      return (
-        <ActionsDropdown
-          actions={[
-            {
-              label: "View Details",
-              icon: "eye",
-              onClick: () => console.log("View", row.original.id)
-            },
-            {
-              label: "View Progress",
-              icon: "booking",
-              onClick: () => console.log("View Progress", row.original.id),
-              disabled: !isCompleted
-            },
-            {
-              label: "Reschedule",
-              icon: "calendar",
-              onClick: () => console.log("Reschedule", row.original.id),
-              disabled: isCompleted || isCancelled
-            },
-            {
-              label: "Change Status",
-              icon: "edit",
-              onClick: () => console.log("Change Status", row.original.id),
-              disabled: isCompleted || isCancelled
-            },
-          ]}
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          className="cursor-pointer"
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
         />
-      );
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          className="cursor-pointer"
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-    enableSorting: false,
-    enableHiding: false,
-  },
+    personColumn,
+    {
+      accessorKey: "startDateTime",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4 hover:bg-transparent"
+        >
+          Date & Time
+          <Icons.sort className="ml-2 size-3.5" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const startDate = new Date(row.original.startDateTime);
+        const dateStr = startDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        });
+        const timeStr = startDate.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        return (
+          <div className="flex flex-col gap-0.5 py-1">
+            <span className="text-sm">{dateStr}</span>
+            <span className="text-xs text-muted-foreground">{timeStr}</span>
+          </div>
+        );
+      },
+      meta: {
+        displayName: "Date & Time",
+      },
+    },
+    {
+      accessorKey: "serviceName",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4 hover:bg-transparent"
+        >
+          Service
+          <Icons.sort className="ml-2 size-3.5" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-sm">
+          {row.original.serviceName}
+        </div>
+      ),
+      meta: {
+        displayName: "Service",
+      },
+    },
+    {
+      id: "duration",
+      header: "Duration",
+      cell: ({ row }) => {
+        const start = new Date(row.original.startDateTime);
+        const end = new Date(row.original.endDateTime);
+        const durationMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+        return (
+          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 text-sm">
+            {durationMinutes} min
+          </div>
+        );
+      },
+      meta: {
+        displayName: "Duration",
+      },
+      enableSorting: false,
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4 hover:bg-transparent"
+        >
+          Status
+          <Icons.sort className="ml-2 size-3.5" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const config = statusConfig[status];
+        return (
+          <Badge className={config.className}>
+            {config.label}
+          </Badge>
+        );
+      },
+      meta: {
+        displayName: "Status",
+      },
+    },
+    {
+      accessorKey: "paymentAmount",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4 hover:bg-transparent"
+        >
+          Payment
+          <Icons.sort className="ml-2 size-3.5" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-sm">
+          ${row.original.paymentAmount.toFixed(2)}
+        </div>
+      ),
+      meta: {
+        displayName: "Payment",
+      },
+    },
+    {
+      accessorKey: "notes",
+      header: "Notes",
+      cell: ({ row }) => {
+        const notes = row.original.notes;
+        return (
+          <div
+            className="text-sm text-muted-foreground max-w-[250px] truncate"
+            title={notes || undefined}
+          >
+            {notes || "—"}
+          </div>
+        );
+      },
+      meta: {
+        displayName: "Notes",
+      },
+      enableSorting: false,
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const isCompleted = row.original.status === "completed";
+        const isCancelled = row.original.status === "cancelled";
+
+        return (
+          <ActionsDropdown
+            actions={[
+              {
+                label: "View Details",
+                icon: "eye",
+                onClick: () => console.log("View", row.original.id)
+              },
+              {
+                label: "Edit",
+                icon: "edit",
+                onClick: () => onEdit?.(row.original),
+              },
+              {
+                label: "View Progress",
+                icon: "booking",
+                onClick: () => console.log("View Progress", row.original.id),
+                disabled: !isCompleted
+              },
+            ]}
+          />
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
   ];
 }
 

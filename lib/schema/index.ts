@@ -41,10 +41,7 @@ export const addPatientSchema = z.object({
     .min(6, { message: "Min 6 digits" })
     .max(7, { message: "Max 7 digits" })
     .regex(/^\d+$/, { message: "Digits only" }),
-  address: z
-    .string()
-    .min(1, { message: "Required" })
-    .max(500, { message: "Max 500 characters" }),
+  address: z.string().min(1, { message: "Required" }).max(500, { message: "Max 500 characters" }),
 });
 
 export type AddPatientSchema = z.infer<typeof addPatientSchema>;
@@ -73,6 +70,19 @@ export const addAppointmentSchema = z.object({
 });
 
 export type AddAppointmentSchema = z.infer<typeof addAppointmentSchema>;
+
+// Edit appointment: date/time, status, notes. Date/time only applied when status is scheduled or confirmed.
+export const editAppointmentSchema = z.object({
+  appointmentId: z.number().int().positive(),
+  startDate: z.string().min(1, { message: "Required" }),
+  startTime: z.string().min(1, { message: "Required" }),
+  status: z.enum(["scheduled", "confirmed", "completed", "cancelled"], {
+    message: "Invalid status",
+  }),
+  notes: z.string().max(1000, { message: "Max 500 characters" }),
+});
+
+export type EditAppointmentSchema = z.infer<typeof editAppointmentSchema>;
 
 const signUpBaseSchema = z.object({
   name: z
