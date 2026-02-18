@@ -601,8 +601,7 @@ export const appointments = pgTable(
       .references(() => doctors.id, { onDelete: "cascade" }),
     doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(), // doctorService.doctorId
     doctorServiceServiceId: integer("doctor_service_service_id").notNull(), // doctorService.serviceId
-    paymentId: integer("payment_id")
-      .notNull()
+    paymentId: integer("payment_id") // Can be nullable by appointments made by doctor for patient
       .unique()
       .references(() => payments.id),
     startDateTime: timestamp("start_date_time").notNull(),
