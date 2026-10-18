@@ -11,7 +11,7 @@ import {
   editAppointment,
   findAppointmentByIdBasic,
 } from "@/src/dal/appointments";
-import { addAppointmentSchema, editAppointmentSchema } from "@/lib/schema";
+import { addAppointmentActionSchema, editAppointmentActionSchema } from "@/lib/schema";
 import { AppointmentStatus } from "@/src/types";
 import { tryCatch } from "@/utils/tryCatch";
 
@@ -21,8 +21,7 @@ const APPOINTMENT_DURATION_MINUTES = 45;
 export async function createAppointmentAction(input: {
   patientId: string;
   serviceId: string;
-  startDate: string;
-  startTime: string;
+  startDateTime: string; // ISO 8601 UTC instant, built on the client from its local date + time
   paymentAmount: string;
   notes: string;
 }) {
@@ -31,12 +30,14 @@ export async function createAppointmentAction(input: {
     return { error: "Unauthorized" };
   }
 
-  const validation = addAppointmentSchema.safeParse(input);
+  const validation = addAppointmentActionSchema.safeParse(input);
   if (!validation.success) {
     return { error: "Invalid data" };
   }
 
-  const { patientId, serviceId, startDate, startTime, notes } = validation.data;
+  const { patientId, serviceId, notes } = validation.data;
+
+  const startDateTime = new Date(validation.data.startDateTime);
 
   const doctor = await findDoctorByUserId(session.user.id);
   if (!doctor) {
@@ -53,8 +54,7 @@ export async function createAppointmentAction(input: {
     return { error: "Service not found" };
   }
 
-  const startDateTime = new Date(`${startDate}T${startTime}`);
-  const endDateTime = new Date(startDateTime.getTime() + 45 * 60 * 1000);
+  const endDateTime = new Date(startDateTime.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000);
 
   const { error } = await tryCatch(
     createAppointment({
@@ -78,8 +78,7 @@ export async function createAppointmentAction(input: {
 
 export async function updateAppointmentAction(input: {
   appointmentId: number;
-  startDate: string;
-  startTime: string;
+  startDateTime: string; // ISO 8601 UTC instant, built on the client from its local date + time
   status: keyof typeof AppointmentStatus;
   notes: string;
 }) {
@@ -88,12 +87,12 @@ export async function updateAppointmentAction(input: {
     return { error: "Unauthorized" };
   }
 
-  const validation = editAppointmentSchema.safeParse(input);
+  const validation = editAppointmentActionSchema.safeParse(input);
   if (!validation.success) {
     return { error: "Invalid data" };
   }
 
-  const { appointmentId, startDate, startTime, status, notes } = validation.data;
+  const { appointmentId, status, notes } = validation.data;
 
   const doctor = await findDoctorByUserId(session.user.id);
   if (!doctor) {
@@ -116,7 +115,7 @@ export async function updateAppointmentAction(input: {
   };
 
   if (canChangeDateTime) {
-    const startDateTime = new Date(`${startDate}T${startTime}`);
+    const startDateTime = new Date(validation.data.startDateTime);
     if (Number.isNaN(startDateTime.getTime())) {
       return { error: "Invalid date or time" };
     }

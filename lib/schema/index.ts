@@ -71,6 +71,11 @@ export const addAppointmentSchema = z.object({
 
 export type AddAppointmentSchema = z.infer<typeof addAppointmentSchema>;
 
+// Server action payload: the client converts its local date + time into an ISO (UTC) instant.
+export const addAppointmentActionSchema = addAppointmentSchema
+  .omit({ startDate: true, startTime: true })
+  .extend({ startDateTime: z.iso.datetime() });
+
 // Edit appointment: date/time, status, notes. Date/time only applied when status is scheduled or confirmed.
 export const editAppointmentSchema = z.object({
   appointmentId: z.number().int().positive(),
@@ -83,6 +88,11 @@ export const editAppointmentSchema = z.object({
 });
 
 export type EditAppointmentSchema = z.infer<typeof editAppointmentSchema>;
+
+// Server action payload: the client converts its local date + time into an ISO (UTC) instant.
+export const editAppointmentActionSchema = editAppointmentSchema
+  .omit({ startDate: true, startTime: true })
+  .extend({ startDateTime: z.iso.datetime() });
 
 const signUpBaseSchema = z.object({
   name: z

@@ -31,9 +31,14 @@ function formatTimeForInput(date: Date) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+// Interprets the date + time inputs in the browser's time zone, i.e. the instant the user picked.
+function toLocalDateTime(startDate: string, startTime: string) {
+  return new Date(`${startDate}T${startTime}`);
+}
+
 function isDateTimeInPast(startDate: string, startTime: string) {
   if (!startDate || !startTime) return false;
-  const selectedDateTime = new Date(`${startDate}T${startTime}`);
+  const selectedDateTime = toLocalDateTime(startDate, startTime);
   if (Number.isNaN(selectedDateTime.getTime())) return false;
   return selectedDateTime < new Date();
 }
@@ -79,8 +84,7 @@ export function EditAppointmentModal({
 
       const result = await updateAppointmentAction({
         appointmentId: value.appointmentId,
-        startDate: value.startDate,
-        startTime: value.startTime,
+        startDateTime: toLocalDateTime(value.startDate, value.startTime).toISOString(),
         status: value.status,
         notes: value.notes,
       });
