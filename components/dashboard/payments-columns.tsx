@@ -7,6 +7,7 @@ import { Icons } from "@/components/icons";
 import { ActionsDropdown } from "@/components/actions-dropdown";
 import { Badge } from "@/components/ui/badge";
 import { payoutTypeEnum } from "@/src/db/schema";
+import { PaymentStatus } from "@/src/types";
 
 type PayoutType = typeof payoutTypeEnum.enumValues[number];
 
@@ -19,6 +20,7 @@ export interface Payment {
   paymentType: PayoutType;
   paymentDetails: string; // e.g. "•••• 4242", "+58 412 5551234", "Bank XYZ", "—"
   paymentNickname: string;
+  status: PaymentStatus;
 }
 
 const paymentTypeConfig: Record<PayoutType, { label: string; className: string }> = {
@@ -38,6 +40,11 @@ const paymentTypeConfig: Record<PayoutType, { label: string; className: string }
     label: "Bank Transfer",
     className: "bg-indigo-200/40 text-gray-900 hover:bg-indigo-200/40",
   },
+};
+
+const paymentStatusClassName: Record<PaymentStatus, string> = {
+  pending: "bg-amber-200/40 text-gray-900 hover:bg-amber-200/40",
+  paid: "bg-emerald-200/40 text-gray-900 hover:bg-emerald-200/40",
 };
 
 export const PaymentType = {
@@ -145,6 +152,17 @@ export const paymentsColumns: ColumnDef<Payment>[] = [
       <div className="py-1 text-sm font-medium">${row.original.amount.toFixed(2)}</div>
     ),
     meta: { displayName: "Amount" },
+  },
+  {
+    accessorKey: "status",
+    header: () => <div>Status</div>,
+    cell: ({ row }) => (
+      <Badge className={`inline-flex w-20 justify-center px-2 py-0.5 ${paymentStatusClassName[row.original.status]}`}>
+        {PaymentStatus[row.original.status]}
+      </Badge>
+    ),
+    meta: { displayName: "Status" },
+    enableSorting: false,
   },
   {
     accessorKey: "paymentType",

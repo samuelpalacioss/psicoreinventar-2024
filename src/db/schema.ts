@@ -39,6 +39,8 @@ export const institutionTypeEnum = pgEnum("institution_type", [
   "other",
 ]);
 
+export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid"]);
+
 export const paymentMethodTypeEnum = pgEnum("payment_method_type", ["card", "pago_movil"]);
 
 export const payoutTypeEnum = pgEnum("payout_type", [
@@ -629,13 +631,12 @@ export const payments = pgTable(
     personId: integer("person_id")
       .notNull()
       .references(() => persons.id, { onDelete: "cascade" }),
-    paymentMethodId: integer("payment_method_id")
-      .notNull()
-      .references(() => paymentMethods.id),
-    payoutMethodId: integer("payout_method_id")
-      .notNull()
-      .references(() => payoutMethods.id),
+    // Nullable for payments created by a doctor (no patient payment method yet)
+    paymentMethodId: integer("payment_method_id").references(() => paymentMethods.id),
+    // Nullable because a doctor may not have a preferred payout method configured
+    payoutMethodId: integer("payout_method_id").references(() => payoutMethods.id),
     amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    status: paymentStatusEnum("status").default("pending").notNull(),
     date: date("date").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

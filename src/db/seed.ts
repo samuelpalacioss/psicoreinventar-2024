@@ -1308,6 +1308,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[0].id, // Dr. Roberto's preferred bank
           amount: "50.00",
           date: "2025-12-15",
+          status: "paid",
         },
         {
           personId: personsData[1].id,
@@ -1315,6 +1316,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's Zelle (preferred)
           amount: "80.00",
           date: "2025-12-16",
+          status: "paid",
         },
         {
           personId: personsData[2].id,
@@ -1322,6 +1324,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[4].id, // Dr. Miguel's bank
           amount: "100.00",
           date: "2025-12-17",
+          status: "paid",
         },
         {
           personId: personsData[0].id,
@@ -1329,6 +1332,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[0].id, // Dr. Roberto's preferred bank
           amount: "50.00",
           date: "2025-12-20",
+          status: "paid",
         },
         {
           personId: personsData[3].id,
@@ -1336,6 +1340,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[5].id, // Dra. Carmen's cash (preferred)
           amount: "60.00",
           date: "2025-12-22",
+          status: "paid",
         },
         {
           personId: personsData[0].id,
@@ -1343,6 +1348,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[0].id, // Dr. Roberto's preferred bank
           amount: "50.00",
           date: "2025-12-22",
+          status: "paid",
         },
         {
           personId: personsData[3].id,
@@ -1350,6 +1356,7 @@ async function seed() {
           payoutMethodId: payoutMethodsData[2].id, // Dra. Laura's Zelle (preferred)
           amount: "80.00",
           date: "2026-01-07",
+          status: "paid",
         },
       ])
       .returning();

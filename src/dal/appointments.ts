@@ -3,6 +3,7 @@ import { appointments, payments } from "@/src/db/schema";
 import { and, count, eq, gte, isNull, lte, gt, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
+import type { PaymentStatus } from "@/src/types";
 
 // ============================================================================
 // FILTERS
@@ -243,15 +244,17 @@ export async function findAppointmentForProgress(
 /**
  * Create appointment and payment in a single transaction.
  * All validation (slot, payment method, payout method) should be done before calling this.
+ * paymentMethodId/payoutMethodId may be null for doctor-created appointments (payment pending).
  */
 export async function createAppointmentWithPayment(data: {
   personId: number;
   doctorId: number;
   doctorServiceDoctorId: number;
   doctorServiceServiceId: number;
-  paymentMethodId: number;
-  payoutMethodId: number;
+  paymentMethodId: number | null;
+  payoutMethodId: number | null;
   amount: string;
+  paymentStatus: PaymentStatus;
   startDateTime: Date;
   endDateTime: Date;
   notes?: string | null;
@@ -264,6 +267,7 @@ export async function createAppointmentWithPayment(data: {
         paymentMethodId: data.paymentMethodId,
         payoutMethodId: data.payoutMethodId,
         amount: data.amount,
+        status: data.paymentStatus,
         date: new Date().toISOString().split("T")[0],
       })
       .returning();

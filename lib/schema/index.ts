@@ -65,7 +65,8 @@ export const addAppointmentSchema = z.object({
   paymentAmount: z
     .string()
     .min(1, { message: "Required" })
-    .regex(/^\d+(\.\d{1,2})?$/, { message: "Enter a valid amount" }),
+    .regex(/^\d+(\.\d{1,2})?$/, { message: "Enter a valid amount" })
+    .refine((value) => Number(value) <= 99999999.99, { message: "Max amount is 99,999,999.99" }),
   notes: z.string().max(1000, { message: "Max 1000 characters" }),
 });
 

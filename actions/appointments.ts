@@ -5,9 +5,9 @@ import { and, eq } from "drizzle-orm";
 import db from "@/src/db";
 import { doctorServices } from "@/src/db/schema";
 import { getServerSession } from "@/lib/auth/session";
-import { findDoctorByUserId } from "@/src/dal/doctors";
+import { findDoctorByUserId, findDoctorPreferredPayoutMethod } from "@/src/dal/doctors";
 import {
-  createAppointment,
+  createAppointmentWithPayment,
   editAppointment,
   findAppointmentByIdBasic,
 } from "@/src/dal/appointments";
@@ -35,7 +35,7 @@ export async function createAppointmentAction(input: {
     return { error: "Invalid data" };
   }
 
-  const { patientId, serviceId, notes } = validation.data;
+  const { patientId, serviceId, paymentAmount, notes } = validation.data;
 
   const startDateTime = new Date(validation.data.startDateTime);
 
@@ -56,12 +56,19 @@ export async function createAppointmentAction(input: {
 
   const endDateTime = new Date(startDateTime.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000);
 
+  // Payout method is optional: a doctor may not have a preferred one configured yet
+  const preferredPayoutMethod = await findDoctorPreferredPayoutMethod(doctor.id);
+
   const { error } = await tryCatch(
-    createAppointment({
+    createAppointmentWithPayment({
       personId: parseInt(patientId, 10),
       doctorId: doctor.id,
       doctorServiceDoctorId: doctorService.doctorId,
       doctorServiceServiceId: doctorService.serviceId,
+      paymentMethodId: null,
+      payoutMethodId: preferredPayoutMethod?.id ?? null,
+      amount: paymentAmount,
+      paymentStatus: "pending",
       startDateTime,
       endDateTime,
       notes: notes || null,

@@ -267,6 +267,7 @@ export async function POST(request: NextRequest) {
       payoutMethodId: validatedData.payoutMethodId,
       amount: validatedData.amount.toFixed(2),
       date: validatedData.date,
+      status: "paid",
     });
 
     return NextResponse.json(

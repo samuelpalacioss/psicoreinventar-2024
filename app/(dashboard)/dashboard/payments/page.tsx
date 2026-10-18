@@ -18,6 +18,7 @@ const mockPayments: Payment[] = [
     paymentType: "pago_movil",
     paymentNickname: "My Pago Móvil",
     paymentDetails: "+58 412 5551234",
+    status: "paid",
   },
   {
     id: 2,
@@ -28,6 +29,7 @@ const mockPayments: Payment[] = [
     paymentType: "zelle",
     paymentNickname: "Personal Zelle",
     paymentDetails: "patient@email.com",
+    status: "paid",
   },
   {
     id: 3,
@@ -38,6 +40,7 @@ const mockPayments: Payment[] = [
     paymentType: "bank_transfer",
     paymentNickname: "Banesco Account",
     paymentDetails: "•••• 7890",
+    status: "paid",
   },
   {
     id: 4,
@@ -48,6 +51,7 @@ const mockPayments: Payment[] = [
     paymentType: "cash",
     paymentNickname: "Cash",
     paymentDetails: "In-person",
+    status: "paid",
   },
   {
     id: 5,
@@ -58,6 +62,7 @@ const mockPayments: Payment[] = [
     paymentType: "pago_movil",
     paymentNickname: "My Pago Móvil",
     paymentDetails: "+58 412 5551234",
+    status: "paid",
   },
 ];
 
