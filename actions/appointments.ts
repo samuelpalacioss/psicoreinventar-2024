@@ -6,6 +6,7 @@ import db from "@/src/db";
 import { doctorServices } from "@/src/db/schema";
 import { getServerSession } from "@/lib/auth/session";
 import { findDoctorByUserId, findDoctorPreferredPayoutMethod } from "@/src/dal/doctors";
+import { findPatientPersonById, isExistingPatientOfDoctor } from "@/src/dal/persons";
 import {
   createAppointmentWithPayment,
   editAppointment,
@@ -38,10 +39,24 @@ export async function createAppointmentAction(input: {
   const { patientId, serviceId, paymentAmount, notes } = validation.data;
 
   const startDateTime = new Date(validation.data.startDateTime);
+  if (startDateTime < new Date()) {
+    return { error: "Time cannot be in the past" };
+  }
 
   const doctor = await findDoctorByUserId(session.user.id);
   if (!doctor) {
     return { error: "Doctor profile not found" };
+  }
+
+  const patientIdNum = parseInt(patientId, 10);
+  const patient = await findPatientPersonById(patientIdNum);
+  if (!patient) {
+    return { error: "Patient not found" };
+  }
+
+  const isExistingPatient = await isExistingPatientOfDoctor(patientIdNum, doctor.id);
+  if (!isExistingPatient) {
+    return { error: "Patient not found" };
   }
 
   const serviceIdNum = parseInt(serviceId, 10);
@@ -61,7 +76,7 @@ export async function createAppointmentAction(input: {
 
   const { error } = await tryCatch(
     createAppointmentWithPayment({
-      personId: parseInt(patientId, 10),
+      personId: patientIdNum,
       doctorId: doctor.id,
       doctorServiceDoctorId: doctorService.doctorId,
       doctorServiceServiceId: doctorService.serviceId,
