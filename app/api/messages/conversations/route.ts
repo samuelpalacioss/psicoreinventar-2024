@@ -11,6 +11,8 @@ import {
   buildParticipantName,
   syncConversationsFromAppointments,
 } from "@/src/dal/conversations";
+import { findDoctorByUserId } from "@/src/dal/doctors";
+import { findPersonByUserId } from "@/src/dal/persons";
 
 export async function GET(request: NextRequest) {
   const session = await getAuthSession(request);
@@ -240,6 +242,25 @@ export async function POST(request: NextRequest) {
   }
 
   const { doctorId, personId } = validationResult.data;
+
+  const [currentDoctor, currentPerson] = await Promise.all([
+    findDoctorByUserId(session.user.id),
+    findPersonByUserId(session.user.id),
+  ]);
+  const isParticipant = currentDoctor?.id === doctorId || currentPerson?.id === personId;
+
+  if (!isParticipant) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Forbidden",
+          code: "FORBIDDEN",
+        },
+      },
+      { status: StatusCodes.FORBIDDEN }
+    );
+  }
 
   const appointmentLink = await db.query.appointments.findFirst({
     where: and(eq(appointments.doctorId, doctorId), eq(appointments.personId, personId)),
