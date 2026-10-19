@@ -1,8 +1,13 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { patientsColumns, type Patient } from "@/components/dashboard/clients-columns";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { DataTable } from "@/components/dashboard/data-table";
-import { ActionNewButton } from "@/components/dashboard/action-new-button";
+import { NewPatientButton } from "@/components/dashboard/add-patient-modal";
+import { getServerSession } from "@/lib/auth/session";
+import { AUTH_ROUTES } from "@/config/auth";
+import { Role } from "@/src/types";
+import { hasPermission } from "@/utils/api/authorization/permissions";
 
 const mockPatients: Patient[] = [
   {
@@ -85,7 +90,18 @@ const mockPatients: Patient[] = [
   },
 ];
 
-export default function PatientsPage() {
+export default async function PatientsPage() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const canList = hasPermission(session.user.role as Role, "person", "list");
+  if (!canList || canList === "none") {
+    redirect("/dashboard");
+  }
+
   return (
     <DashboardContainer
       title="Patients"
@@ -97,9 +113,8 @@ export default function PatientsPage() {
           columns={patientsColumns}
           searchKey={["ci", "name", "email", "phone"]}
           searchPlaceholder="Search by CI, name, email or phone"
-          actions={
-            <ActionNewButton label="New patient" icon="plus" />
-          } />
+          actions={<NewPatientButton />}
+        />
       </Suspense>
     </DashboardContainer>
   );

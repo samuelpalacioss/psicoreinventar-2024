@@ -39,6 +39,8 @@ export const institutionTypeEnum = pgEnum("institution_type", [
   "other",
 ]);
 
+export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid"]);
+
 export const paymentMethodTypeEnum = pgEnum("payment_method_type", ["card", "pago_movil"]);
 
 export const payoutTypeEnum = pgEnum("payout_type", [
@@ -601,8 +603,7 @@ export const appointments = pgTable(
       .references(() => doctors.id, { onDelete: "cascade" }),
     doctorServiceDoctorId: integer("doctor_service_doctor_id").notNull(), // doctorService.doctorId
     doctorServiceServiceId: integer("doctor_service_service_id").notNull(), // doctorService.serviceId
-    paymentId: integer("payment_id")
-      .notNull()
+    paymentId: integer("payment_id") // Can be nullable by appointments made by doctor for patient
       .unique()
       .references(() => payments.id),
     startDateTime: timestamp("start_date_time").notNull(),
@@ -630,13 +631,12 @@ export const payments = pgTable(
     personId: integer("person_id")
       .notNull()
       .references(() => persons.id, { onDelete: "cascade" }),
-    paymentMethodId: integer("payment_method_id")
-      .notNull()
-      .references(() => paymentMethods.id),
-    payoutMethodId: integer("payout_method_id")
-      .notNull()
-      .references(() => payoutMethods.id),
+    // Nullable for payments created by a doctor (no patient payment method yet)
+    paymentMethodId: integer("payment_method_id").references(() => paymentMethods.id),
+    // Nullable because a doctor may not have a preferred payout method configured
+    payoutMethodId: integer("payout_method_id").references(() => payoutMethods.id),
     amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    status: paymentStatusEnum("status").default("pending").notNull(),
     date: date("date").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -679,6 +679,50 @@ export const reviews = pgTable(
   ]
 );
 
+// Conversation - one chat per doctor-patient pair
+export const conversations = pgTable(
+  "Conversation",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctors.id, { onDelete: "cascade" }),
+    personId: integer("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+    lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("conversation_doctor_person_idx").on(table.doctorId, table.personId),
+    index("conversation_doctorId_idx").on(table.doctorId),
+    index("conversation_personId_idx").on(table.personId),
+    index("conversation_lastMessageAt_idx").on(table.lastMessageAt),
+  ]
+);
+
+// Message - individual messages inside a conversation
+export const messages = pgTable(
+  "Message",
+  {
+    id: serial("id").primaryKey(),
+    conversationId: integer("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    senderId: text("sender_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("message_conversationId_idx").on(table.conversationId),
+    index("message_senderId_idx").on(table.senderId),
+    index("message_createdAt_idx").on(table.createdAt),
+  ]
+);
+
 // ============================================================================
 // RELATIONS
 // ============================================================================
@@ -694,6 +738,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   }),
   sessions: many(sessions),
   accounts: many(accounts),
+  sentMessages: many(messages),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -725,6 +770,7 @@ export const personsRelations = relations(persons, ({ one, many }) => ({
   payments: many(payments),
   paymentMethodPersons: many(paymentMethodPersons),
   reviews: many(reviews),
+  conversations: many(conversations),
 }));
 
 export const doctorsRelations = relations(doctors, ({ one, many }) => ({
@@ -749,6 +795,7 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   payoutMethods: many(payoutMethods),
   progresses: many(progresses),
   reviews: many(reviews),
+  conversations: many(conversations),
 }));
 
 export const phonesRelations = relations(phones, ({ one }) => ({
@@ -941,6 +988,29 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   appointment: one(appointments, {
     fields: [reviews.appointmentId],
     references: [appointments.id],
+  }),
+}));
+
+export const conversationsRelations = relations(conversations, ({ one, many }) => ({
+  doctor: one(doctors, {
+    fields: [conversations.doctorId],
+    references: [doctors.id],
+  }),
+  person: one(persons, {
+    fields: [conversations.personId],
+    references: [persons.id],
+  }),
+  messages: many(messages),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [messages.conversationId],
+    references: [conversations.id],
+  }),
+  sender: one(users, {
+    fields: [messages.senderId],
+    references: [users.id],
   }),
 }));
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useId } from "react";
+import { useEffect, useState, useMemo, useId } from "react";
 import {
   closestCenter,
   DndContext,
@@ -142,6 +142,12 @@ export function DataTable<TData extends { id: number | string }>({
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {}),
   );
+
+  // Keep internal table rows in sync when parent data changes
+  // (e.g. after login/logout or server-side re-fetch with different user scope).
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
 
   const dataIds = useMemo<UniqueIdentifier[]>(() => data?.map(({ id }) => id) || [], [data]);
 
@@ -309,7 +315,7 @@ export function DataTable<TData extends { id: number | string }>({
             {filterKey && filterColumn && (
               <DropdownMenu key="filter">
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-33">
+                  <Button variant="outline">
                     <span>
                       {selectedFilterValue
                         ? filterLabels?.[selectedFilterValue] || selectedFilterValue

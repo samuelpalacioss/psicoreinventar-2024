@@ -105,6 +105,7 @@ export async function findPaymentById(id: number) {
       paymentMethodId: payments.paymentMethodId,
       payoutMethodId: payments.payoutMethodId,
       amount: payments.amount,
+      status: payments.status,
       date: payments.date,
       createdAt: payments.createdAt,
       updatedAt: payments.updatedAt,

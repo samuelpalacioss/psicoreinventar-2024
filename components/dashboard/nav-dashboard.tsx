@@ -1,11 +1,17 @@
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
-import { Badge } from "@/components/ui/badge"
 import { UserNav } from "@/components/dashboard/user-nav"
+import { getServerSession } from "@/lib/auth/session"
+import { redirect } from "next/navigation"
+import { AUTH_ROUTES } from "@/config/auth"
 
-export function NavDashboard() {
+export async function NavDashboard() {
+    const session = await getServerSession()
+
+    if (!session?.user) {
+        redirect(AUTH_ROUTES.LOGIN)
+    }
+
     return (
         <header className="flex h-16 shrink-0 items-center border-b bg-background rounded-tl-xl transition-[width,height] ease-linear">
             <div className="flex w-full items-center justify-between px-6 lg:px-12">
@@ -17,7 +23,7 @@ export function NavDashboard() {
                     />
                 </div>
                 <div className="flex items-center">
-                    <UserNav />
+                    <UserNav user={session.user} />
                 </div>
             </div>
         </header>

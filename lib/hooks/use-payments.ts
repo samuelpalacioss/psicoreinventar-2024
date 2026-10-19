@@ -11,6 +11,7 @@ export interface Payment {
   amount: number;
   paymentDate: Date;
   paymentMethodId: number | null;
+  status: 'pending' | 'paid';
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;

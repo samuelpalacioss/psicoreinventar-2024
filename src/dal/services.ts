@@ -1,5 +1,5 @@
 import db from "@/src/db";
-import { services } from "@/src/db/schema";
+import { doctorServices, services } from "@/src/db/schema";
 import { and, count, ilike, or, eq } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
@@ -45,6 +45,19 @@ export async function findAllServices<
   const data = await db.query.services.findMany(queryOptions);
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
+}
+
+export async function findAllServicesForDoctor(doctorId: number) {
+  return db
+    .select({
+      serviceId: doctorServices.serviceId,
+      doctorId: doctorServices.doctorId,
+      amount: doctorServices.amount,
+      serviceName: services.name,
+    })
+    .from(doctorServices)
+    .innerJoin(services, eq(doctorServices.serviceId, services.id))
+    .where(eq(doctorServices.doctorId, doctorId));
 }
 
 export async function findServiceById(id: number) {

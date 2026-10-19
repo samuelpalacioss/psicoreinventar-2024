@@ -1,5 +1,100 @@
 import * as z from "zod";
 
+// ============================================================================
+// PATIENT — derived from persons + phones + users tables
+// placeId handled separately (requires location search)
+// ============================================================================
+
+export const addPatientSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, { message: "Required" })
+    .max(100, { message: "Max 100 characters" })
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, { message: "Letters only" }),
+  middleName: z
+    .string()
+    .max(100, { message: "Max 100 characters" })
+    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, { message: "Letters only" }),
+  firstLastName: z
+    .string()
+    .min(1, { message: "Required" })
+    .max(100, { message: "Max 100 characters" })
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, { message: "Letters only" }),
+  secondLastName: z
+    .string()
+    .max(100, { message: "Max 100 characters" })
+    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, { message: "Letters only" }),
+  email: z.email({ message: "Invalid email address" }),
+  ci: z
+    .string()
+    .min(1, { message: "Required" })
+    .max(8, { message: "Max 8 digits" })
+    .regex(/^\d+$/, { message: "Digits only" }),
+  birthDate: z.string().min(1, { message: "Required" }),
+  phoneAreaCode: z
+    .string()
+    .min(1, { message: "Required" })
+    .max(4, { message: "Max 4 digits" })
+    .regex(/^\d+$/, { message: "Digits only" }),
+  phoneNumber: z
+    .string()
+    .min(6, { message: "Min 6 digits" })
+    .max(7, { message: "Max 7 digits" })
+    .regex(/^\d+$/, { message: "Digits only" }),
+  address: z.string().min(1, { message: "Required" }).max(500, { message: "Max 500 characters" }),
+});
+
+export type AddPatientSchema = z.infer<typeof addPatientSchema>;
+
+// ============================================================================
+// APPOINTMENT — derived from appointments + payments tables
+// Payment method / payout method selection handled separately
+// ============================================================================
+
+export const addAppointmentSchema = z.object({
+  patientId: z
+    .string()
+    .min(1, { message: "Select a patient" })
+    .regex(/^\d+$/, { message: "Digits only" }),
+  serviceId: z
+    .string()
+    .min(1, { message: "Select a service" })
+    .regex(/^\d+$/, { message: "Digits only" }),
+  startDate: z.string().min(1, { message: "Required" }),
+  startTime: z.string().min(1, { message: "Required" }),
+  paymentAmount: z
+    .string()
+    .min(1, { message: "Required" })
+    .regex(/^\d+(\.\d{1,2})?$/, { message: "Enter a valid amount" })
+    .refine((value) => Number(value) <= 99999999.99, { message: "Max amount is 99,999,999.99" }),
+  notes: z.string().max(1000, { message: "Max 1000 characters" }),
+});
+
+export type AddAppointmentSchema = z.infer<typeof addAppointmentSchema>;
+
+// Server action payload: the client converts its local date + time into an ISO (UTC) instant.
+export const addAppointmentActionSchema = addAppointmentSchema
+  .omit({ startDate: true, startTime: true })
+  .extend({ startDateTime: z.iso.datetime() });
+
+// Edit appointment: date/time, status, notes. Date/time only applied when status is scheduled or confirmed.
+export const editAppointmentSchema = z.object({
+  appointmentId: z.number().int().positive(),
+  startDate: z.string().min(1, { message: "Required" }),
+  startTime: z.string().min(1, { message: "Required" }),
+  status: z.enum(["scheduled", "confirmed", "completed", "cancelled"], {
+    message: "Invalid status",
+  }),
+  notes: z.string().max(1000, { message: "Max 500 characters" }),
+});
+
+export type EditAppointmentSchema = z.infer<typeof editAppointmentSchema>;
+
+// Server action payload: the client converts its local date + time into an ISO (UTC) instant.
+export const editAppointmentActionSchema = editAppointmentSchema
+  .omit({ startDate: true, startTime: true })
+  .extend({ startDateTime: z.iso.datetime() });
+
 const signUpBaseSchema = z.object({
   name: z
     .string()

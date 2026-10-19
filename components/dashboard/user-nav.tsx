@@ -5,33 +5,43 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Icons } from "@/components/icons"
+import { signOutAction } from "@/actions/auth"
+import Link from "next/link"
 
-export function UserNav() {
-    const user = {
-        name: "Valentina Varela",
-        email: "valen123@gmail.com",
-        image: "url",
+interface UserNavProps {
+    user: {
+        name: string | null
+        email: string | null
+        image?: string | null
     }
-    const { name, email, image } = user; // TODO: Get user from session
-    const userInitials = name.split(" ").map((n) => n[0]).join("");
+}
+
+export function UserNav({ user }: UserNavProps) {
+    const name = user.name ?? "User"
+    const email = user.email ?? "No email"
+    const image = user.image ?? null
+    const userInitials = name
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-12 w-fit rounded-full flex items-center justify-start gap-3 pl-2 pr-0 md:pr-4 hover:bg-inherit">
                     <Avatar className="h-10 w-10 border border-border/50">
-                        <AvatarImage src={image} alt="user avatar" />
+                        <AvatarImage src={image ?? undefined} alt="user avatar" />
                         <AvatarFallback>{userInitials}</AvatarFallback>
                     </Avatar>
-                    <div className="hidden md:flex flex-col items-start text-sm">
-                        <span className="font-semibold text-cue-deep-green text-base">{name}</span>
-                    </div>
+
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-52" align="end" forceMount>
@@ -45,14 +55,18 @@ export function UserNav() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        Ajustes
+                    <DropdownMenuItem asChild>
+                        <Link href="/dashboard/profile">Settings</Link>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuItem className="flex items-center">
-                    Cerrar sesión
-                    <Icons.logout className="w-4 h-4 ml-2" />
-                </DropdownMenuItem>
+                <form action={signOutAction}>
+                    <DropdownMenuItem asChild>
+                        <button type="submit" className="w-full flex items-center cursor-pointer">
+                            Sign out
+                            <Icons.logout className="w-4 h-4 ml-2" />
+                        </button>
+                    </DropdownMenuItem>
+                </form>
             </DropdownMenuContent>
         </DropdownMenu>
     )

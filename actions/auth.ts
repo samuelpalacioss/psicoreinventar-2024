@@ -4,6 +4,7 @@ import { signUpActionSchema, signInSchema } from "@/lib/schema";
 import { auth } from "@/lib/auth/auth";
 import { AUTH_ROUTES } from "@/config/auth";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { tryCatch } from "@/utils/tryCatch";
 import { authContext } from "@/lib/auth/auth-context";
@@ -75,6 +76,7 @@ export async function signInAction(formData: FormData) {
     return { error: error.message };
   }
 
+  revalidatePath("/", "layout");
   redirect(AUTH_ROUTES.DASHBOARD);
 }
 
@@ -85,5 +87,6 @@ export async function signOutAction() {
     })
   );
 
+  revalidatePath("/", "layout");
   redirect("/");
 }

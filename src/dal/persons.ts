@@ -7,8 +7,9 @@ import {
   paymentMethods,
   paymentMethodPersons,
   progresses,
+  users,
 } from "@/src/db/schema";
-import { and, count, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, count, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
 
@@ -100,6 +101,37 @@ export async function findPersonByUserId(userId: string) {
   return db.query.persons.findFirst({
     where: eq(persons.userId, userId),
   });
+}
+
+/**
+ * Find a person by id only if their user account has the patient role.
+ */
+export async function findPatientPersonById(id: number) {
+  const [person] = await db
+    .select({ id: persons.id })
+    .from(persons)
+    .innerJoin(users, eq(persons.userId, users.id))
+    .where(and(eq(persons.id, id), eq(users.role, "patient")));
+  return person;
+}
+
+/**
+ * Whether the person is an existing patient of the doctor: at least one
+ * non-soft-deleted appointment between them.
+ */
+export async function isExistingPatientOfDoctor(personId: number, doctorId: number) {
+  const [appointment] = await db
+    .select({ id: appointments.id })
+    .from(appointments)
+    .where(
+      and(
+        eq(appointments.personId, personId),
+        eq(appointments.doctorId, doctorId),
+        isNull(appointments.deletedAt)
+      )
+    )
+    .limit(1);
+  return Boolean(appointment);
 }
 
 export async function findPersonByCi(ci: number) {
@@ -198,10 +230,7 @@ export async function findPersonPaymentMethods(personId: number, pagination: Pag
 
 export async function findPersonPaymentMethod(personId: number, methodId: number) {
   return db.query.paymentMethodPersons.findFirst({
-    where: and(
-      eq(paymentMethodPersons.id, methodId),
-      eq(paymentMethodPersons.personId, personId)
-    ),
+    where: and(eq(paymentMethodPersons.id, methodId), eq(paymentMethodPersons.personId, personId)),
     with: { paymentMethod: true },
   });
 }
@@ -292,6 +321,35 @@ export async function deletePersonPaymentMethod(methodId: number, paymentMethodI
 // READ-ONLY: APPOINTMENTS, PAYMENTS, PROGRESSES
 // ============================================================================
 
+export async function findPatients(doctorId: number, pagination: PaginationParams) {
+  const { page, limit, offset } = pagination;
+  const whereClause = and(eq(appointments.doctorId, doctorId), isNull(appointments.deletedAt));
+
+  const [{ count: totalCount }] = await db
+    .select({ count: sql<number>`count(distinct ${appointments.personId})` })
+    .from(appointments)
+    .where(whereClause);
+
+  const data = await db
+    .selectDistinct({
+      patientId: persons.id,
+      patientCi: persons.ci,
+      doctorId: appointments.doctorId,
+      firstName: persons.firstName,
+      middleName: persons.middleName,
+      firstLastName: persons.firstLastName,
+      secondLastName: persons.secondLastName,
+    })
+    .from(appointments)
+    .innerJoin(persons, eq(appointments.personId, persons.id))
+    .where(whereClause)
+    .orderBy(persons.firstName, persons.firstLastName)
+    .limit(limit)
+    .offset(offset);
+
+  return { data, pagination: calculatePaginationMetadata(page, limit, Number(totalCount)) };
+}
+
 export async function findPatientAppointments(personId: number, pagination: PaginationParams) {
   const { page, limit, offset } = pagination;
   const whereClause = eq(appointments.personId, personId);
@@ -318,6 +376,16 @@ export async function findPatientAppointments(personId: number, pagination: Pagi
       },
       doctorService: { with: { service: true } },
       payment: { columns: { id: true, amount: true, date: true } },
+      progresses: {
+        columns: {
+          id: true,
+          title: true,
+          level: true,
+          createdAt: true,
+        },
+        orderBy: (p, { desc }) => [desc(p.createdAt)],
+        limit: 1,
+      },
     },
   });
 
@@ -353,6 +421,7 @@ export async function findPatientPayments(
       paymentMethodId: payments.paymentMethodId,
       payoutMethodId: payments.payoutMethodId,
       amount: payments.amount,
+      status: payments.status,
       date: payments.date,
       createdAt: payments.createdAt,
       updatedAt: payments.updatedAt,

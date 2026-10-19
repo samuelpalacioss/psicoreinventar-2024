@@ -1,6 +1,6 @@
 import { Icons } from "@/components/icons";
 import type { Icon } from "@/components/icons";
-import { appointmentStatusEnum } from "@/src/db/schema";
+import { appointmentStatusEnum, paymentStatusEnum } from "@/src/db/schema";
 
 export type MainNavSubItem = {
   href: string;
@@ -133,3 +133,40 @@ export const AppointmentStatus = {
 } as const satisfies Record<(typeof appointmentStatusEnum.enumValues)[number], string>;
 
 export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus];
+
+export const PaymentStatus = {
+  pending: "Pending",
+  paid: "Paid",
+} as const satisfies Record<(typeof paymentStatusEnum.enumValues)[number], string>;
+
+export type PaymentStatus = keyof typeof PaymentStatus;
+
+export interface ChatParticipant {
+  userId: string;
+  name: string;
+  image: string | null;
+}
+
+export interface ChatMessage {
+  id: number;
+  conversationId: number;
+  senderId: string;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface ChatConversation {
+  id: number;
+  doctorId: number;
+  personId: number;
+  lastMessageAt: string;
+  unreadCount: number;
+  participant: ChatParticipant;
+  lastMessage: {
+    id: number;
+    senderId: string;
+    content: string;
+    createdAt: string;
+  } | null;
+}

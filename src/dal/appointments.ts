@@ -3,6 +3,7 @@ import { appointments, payments } from "@/src/db/schema";
 import { and, count, eq, gte, isNull, lte, gt, sql } from "drizzle-orm";
 import { calculatePaginationMetadata } from "@/utils/api/pagination/paginate";
 import type { PaginationParams, QueryOptions } from "./types";
+import type { PaymentStatus } from "@/src/types";
 
 // ============================================================================
 // FILTERS
@@ -21,6 +22,35 @@ export interface AppointmentQueryOptions<T = any> extends QueryOptions<T> {
   includeDoctor?: boolean;
   includeDoctorService?: boolean;
   includePayment?: boolean;
+  includeProgresses?: boolean;
+}
+
+export interface AppointmentWithRelations extends Omit<typeof appointments.$inferSelect, never> {
+  person?: {
+    id: number;
+    ci: number;
+    firstName: string;
+    middleName: string | null;
+    firstLastName: string;
+    secondLastName: string | null;
+  } | null;
+  doctor?: {
+    id: number;
+    firstName: string;
+    middleName: string | null;
+    firstLastName: string;
+    secondLastName: string | null;
+  } | null;
+  doctorService?: {
+    service: { name: string };
+  } | null;
+  payment?: { id: number; amount: string; date: string } | null;
+  progresses?: {
+    id: number;
+    title: string;
+    level: string | null;
+    createdAt: Date;
+  }[];
 }
 
 // ============================================================================
@@ -41,9 +71,10 @@ export async function findAllAppointments<
     includeDoctor = true,
     includeDoctorService = true,
     includePayment = true,
+    includeProgresses = true,
   } = options;
 
-  const conditions = [];
+  const conditions = [isNull(appointments.deletedAt)];
 
   if (filters.personId) {
     conditions.push(eq(appointments.personId, filters.personId));
@@ -83,6 +114,7 @@ export async function findAllAppointments<
     withOptions.person = {
       columns: {
         id: true,
+        ci: true,
         firstName: true,
         middleName: true,
         firstLastName: true,
@@ -107,12 +139,24 @@ export async function findAllAppointments<
   if (includePayment) {
     withOptions.payment = { columns: { id: true, amount: true, date: true } };
   }
+  if (includeProgresses) {
+    withOptions.progresses = {
+      columns: {
+        id: true,
+        title: true,
+        level: true,
+        createdAt: true,
+      },
+      orderBy: (p: any, { desc }: any) => [desc(p.createdAt)],
+      limit: 1,
+    };
+  }
 
   if (Object.keys(withOptions).length > 0) {
     queryOptions.with = withOptions;
   }
 
-  const data = await db.query.appointments.findMany(queryOptions);
+  const data = await db.query.appointments.findMany(queryOptions) as AppointmentWithRelations[];
 
   return { data, pagination: calculatePaginationMetadata(page, limit, totalCount) };
 }
@@ -200,15 +244,17 @@ export async function findAppointmentForProgress(
 /**
  * Create appointment and payment in a single transaction.
  * All validation (slot, payment method, payout method) should be done before calling this.
+ * paymentMethodId/payoutMethodId may be null for doctor-created appointments (payment pending).
  */
 export async function createAppointmentWithPayment(data: {
   personId: number;
   doctorId: number;
   doctorServiceDoctorId: number;
   doctorServiceServiceId: number;
-  paymentMethodId: number;
-  payoutMethodId: number;
+  paymentMethodId: number | null;
+  payoutMethodId: number | null;
   amount: string;
+  paymentStatus: PaymentStatus;
   startDateTime: Date;
   endDateTime: Date;
   notes?: string | null;
@@ -221,6 +267,7 @@ export async function createAppointmentWithPayment(data: {
         paymentMethodId: data.paymentMethodId,
         payoutMethodId: data.payoutMethodId,
         amount: data.amount,
+        status: data.paymentStatus,
         date: new Date().toISOString().split("T")[0],
       })
       .returning();
@@ -242,6 +289,31 @@ export async function createAppointmentWithPayment(data: {
 
     return { appointment, payment };
   });
+}
+
+/**
+ * Create an appointment without a payment record.
+ * Used when payment is handled separately.
+ * endDateTime is calculated as startDateTime + 45 minutes.
+ */
+export async function createAppointment(data: {
+  personId: number;
+  doctorId: number;
+  doctorServiceDoctorId: number;
+  doctorServiceServiceId: number;
+  startDateTime: Date;
+  endDateTime: Date;
+  notes?: string | null;
+}) {
+  const [appointment] = await db
+    .insert(appointments)
+    .values({
+      ...data,
+      status: "scheduled",
+      notes: data.notes || null,
+    })
+    .returning();
+  return appointment;
 }
 
 export async function editAppointment(id: number, data: Partial<typeof appointments.$inferInsert>) {

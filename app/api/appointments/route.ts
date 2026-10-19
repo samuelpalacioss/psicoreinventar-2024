@@ -314,6 +314,7 @@ export async function POST(request: NextRequest) {
             payoutMethodId: preferredPayoutMethod.id,
             amount: price!.toString(),
             date: new Date().toISOString().split("T")[0], // Current date
+            status: "paid",
           })
           .returning();
 

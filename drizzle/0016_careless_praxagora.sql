@@ -1,0 +1,1 @@
+ALTER TABLE "Appointment" ALTER COLUMN "payment_id" DROP NOT NULL;

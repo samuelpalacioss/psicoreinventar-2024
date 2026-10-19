@@ -1,21 +1,18 @@
-// import { Product } from '@/lib/validations/product';
 import {
   Body,
-  Container,
   Column,
+  Container,
   Head,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
+  render,
   Row,
   Section,
   Text,
-  render,
-} from '@react-email/components';
-
-import { format } from 'date-fns';
+} from "@react-email/components";
+import { format } from "date-fns";
 
 interface ReceiptEmailProps {
   email: string;
@@ -35,128 +32,81 @@ export const ReceiptEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Psicoreinventar Receipt</Preview>
-
+      <Preview>Your Psicoreinventar receipt</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Section>
+          <div style={accentBar} />
+
+          <Section style={contentSection}>
+            {/* Header row: wordmark + receipt label */}
             <Row>
               <Column>
-                <Img
-                  src={`https://res.cloudinary.com/dzgjxwvnw/image/upload/v1709082039/psicoreinventar/jdksucxrqefoxvm7mrki.png`}
-                  width='86'
-                  height='86'
-                  alt='Psicoreinventar Logo'
-                />
+                <Text style={wordmark}>psicoreinventar</Text>
               </Column>
+              <Column align="right">
+                <Text style={receiptLabel}>Receipt</Text>
+              </Column>
+            </Row>
 
-              <Column align='right' style={tableCell}>
-                <Text style={heading}>Receipt</Text>
+            {/* Info table */}
+            <Section style={infoSection}>
+              <Row style={infoRow}>
+                <Column style={infoColumn}>
+                  <Text style={infoLabel}>EMAIL</Text>
+                  <Link style={infoValue}>{email}</Link>
+                </Column>
+                <Column style={infoColumn}>
+                  <Text style={infoLabel}>BILLED TO</Text>
+                  <Text style={infoValue}>{patient}</Text>
+                </Column>
+              </Row>
+              <Row style={infoRow}>
+                <Column style={infoColumn}>
+                  <Text style={infoLabel}>DATE</Text>
+                  <Text style={infoValue}>{format(date, "dd MMM yyyy")}</Text>
+                </Column>
+                <Column style={infoColumn}>
+                  <Text style={infoLabel}>APPOINTMENT ID</Text>
+                  <Text style={infoValue}>{appointmentId}</Text>
+                </Column>
+              </Row>
+            </Section>
+
+            <Hr style={divider} />
+
+            {/* Product row */}
+            <Section style={productSection}>
+              <Row>
+                <Column>
+                  <Text style={productName}>{product.name}</Text>
+                  <Text style={productDesc}>
+                    {product.description.length > 60
+                      ? product.description.slice(0, 60) + "..."
+                      : product.description}
+                  </Text>
+                </Column>
+                <Column align="right">
+                  <Text style={productPrice}>${product.price}.99</Text>
+                </Column>
+              </Row>
+            </Section>
+
+            <Hr style={divider} />
+
+            {/* Total */}
+            <Row style={totalRow}>
+              <Column>
+                <Text style={totalLabel}>TOTAL</Text>
+              </Column>
+              <Column align="right">
+                <Text style={totalAmount}>${product.price}.99</Text>
               </Column>
             </Row>
           </Section>
 
-          <Section style={informationTable}>
-            <Row style={informationTableRow}>
-              <Column colSpan={2}>
-                <Section>
-                  <Row>
-                    <Column style={informationTableColumn}>
-                      <Text style={informationTableLabel}>EMAIL</Text>
-                      <Link
-                        style={{
-                          ...informationTableValue,
-                          color: '#15c',
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        {email}
-                      </Link>
-                    </Column>
-                  </Row>
+          <Hr style={hr} />
 
-                  <Row>
-                    <Column style={informationTableColumn}>
-                      <Text style={informationTableLabel}>INVOICE DATE</Text>
-                      <Text style={informationTableValue}>{format(date, 'dd MMM yyyy')}</Text>
-                    </Column>
-                  </Row>
-
-                  <Row>
-                    <Column style={informationTableColumn}>
-                      <Text style={informationTableLabel}>APPOINTMENT ID</Text>
-                      <Link
-                        style={{
-                          ...informationTableValue,
-                          color: '#15c',
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        {appointmentId}
-                      </Link>
-                    </Column>
-                  </Row>
-                </Section>
-              </Column>
-              <Column style={informationTableColumn} colSpan={2}>
-                <Text style={informationTableLabel}>BILLED TO</Text>
-                {/* <Text style={informationTableValue}>Card ending with {lastFourDigits}</Text> */}
-                <Text style={informationTableValue}>{patient}</Text>
-              </Column>
-            </Row>
-          </Section>
-          <Section style={productTitleTable}>
-            <Text style={productsTitle}>For your mental health</Text>
-          </Section>
-          <Section>
-            <Row>
-              {/* <Column style={{ width: '64px' }}>
-                <Img
-                  src={product.image}
-                  width='64'
-                  height='64'
-                  alt={product.name}
-                  style={productIcon}
-                />
-              </Column> */}
-              <Column style={{ paddingLeft: '22px' }}>
-                <Text style={productTitle}>{product.name}</Text>
-                <Text style={productDescription}>
-                  {' '}
-                  {product.description.length > 50
-                    ? product.description?.slice(0, 50) + '...'
-                    : product.description}
-                </Text>
-              </Column>
-
-              <Column style={productPriceWrapper} align='right'>
-                {/*@currently zod doesnt support decimals validation */}
-                <Text style={productPrice}>${product.price}.99</Text>
-              </Column>
-            </Row>
-          </Section>
-          <Hr style={productPriceLine} />
-          <Section align='right'>
-            <Row>
-              <Column style={tableCell} align='right'>
-                <Text style={productPriceTotal}>TOTAL</Text>
-              </Column>
-              <Column style={productPriceVerticalLine}></Column>
-              <Column style={productPriceLargeWrapper}>
-                {/*@currently zod doesnt support decimals validation */}
-                <Text style={productPriceLarge}>${product.price}.99</Text>
-              </Column>
-            </Row>
-          </Section>
-          <Hr style={productPriceLineBottom} />
-
-          <Text style={footerLinksWrapper}>
-            <Link href='#'>Account Settings</Link> • <Link href='#'>Terms of Sale</Link> •{' '}
-            <Link href='#'>Privacy Policy </Link>
-          </Text>
-          <Text style={footerCopyright}>
-            Copyright &copy; {new Date().getFullYear()} Psicoreinventar. <br /> <Link href='#'>All rights reserved</Link>
-          </Text>
+          <Text style={footer}>The Psicoreinventar Team</Text>
         </Container>
       </Body>
     </Html>
@@ -171,217 +121,138 @@ export const ReceiptEmailHtml = (props: ReceiptEmailProps) =>
   });
 
 const main = {
-  fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-  backgroundColor: '#ffffff',
-};
-
-const resetText = {
-  margin: '0',
-  padding: '0',
-  lineHeight: 1.4,
+  backgroundColor: "#f9fafb",
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 
 const container = {
-  margin: '0 auto',
-  padding: '20px 0 48px',
-  width: '660px',
-  maxWidth: '100%',
+  margin: "40px auto",
+  maxWidth: "500px",
+  backgroundColor: "#ffffff",
+  borderRadius: "8px",
+  overflow: "hidden" as const,
 };
 
-const tableCell = { display: 'table-cell' };
-
-const heading = {
-  fontSize: '18px',
-  fontWeight: '300',
-  color: '#888888',
+const accentBar = {
+  height: "3px",
+  backgroundColor: "#c4b5fd",
+  width: "100%",
 };
 
-const cupomText = {
-  textAlign: 'center' as const,
-  margin: '36px 0 40px 0',
-  fontSize: '14px',
-  fontWeight: '500',
-  color: '#111111',
+const contentSection = {
+  padding: "36px 40px 28px",
 };
 
-const supStyle = {
-  fontWeight: '300',
+const wordmark = {
+  fontSize: "13px",
+  fontWeight: "400",
+  letterSpacing: "0.08em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  margin: "0",
 };
 
-const informationTable = {
-  borderCollapse: 'collapse' as const,
-  borderSpacing: '0px',
-  color: 'rgb(51,51,51)',
-  backgroundColor: 'rgb(250,250,250)',
-  borderRadius: '3px',
-  fontSize: '12px',
+const receiptLabel = {
+  fontSize: "13px",
+  fontWeight: "400",
+  letterSpacing: "0.06em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  margin: "0",
 };
 
-const informationTableRow = {
-  height: '46px',
+const infoSection = {
+  marginTop: "28px",
+  marginBottom: "4px",
 };
 
-const informationTableColumn = {
-  paddingLeft: '20px',
-  borderStyle: 'solid',
-  borderColor: 'white',
-  borderWidth: '0px 1px 1px 0px',
-  height: '44px',
+const infoRow = {
+  marginBottom: "16px",
 };
 
-const informationTableLabel = {
-  ...resetText,
-  color: 'rgb(102,102,102)',
-  fontSize: '10px',
+const infoColumn = {
+  paddingRight: "20px",
+  verticalAlign: "top" as const,
 };
 
-const informationTableValue = {
-  fontSize: '12px',
-  margin: '0',
-  padding: '0',
-  lineHeight: 1.4,
+const infoLabel = {
+  fontSize: "10px",
+  fontWeight: "500",
+  letterSpacing: "0.08em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  margin: "0 0 2px",
 };
 
-const productTitleTable = {
-  ...informationTable,
-  margin: '30px 0 15px 0',
-  height: '24px',
+const infoValue = {
+  fontSize: "14px",
+  fontWeight: "400",
+  color: "#374151",
+  margin: "0",
+  lineHeight: "1.4",
 };
 
-const productsTitle = {
-  background: '#fafafa',
-  paddingLeft: '10px',
-  fontSize: '14px',
-  fontWeight: '500',
-  margin: '0',
+const divider = {
+  borderColor: "#f3f4f6",
+  margin: "20px 0",
 };
 
-const productIcon = {
-  margin: '0 0 0 20px',
-  borderRadius: '14px',
-  border: '1px solid rgba(128,128,128,0.2)',
+const productSection = {
+  marginBottom: "4px",
 };
 
-const productTitle = { fontSize: '12px', fontWeight: '600', ...resetText };
-
-const productDescription = {
-  fontSize: '12px',
-  color: 'rgb(102,102,102)',
-  ...resetText,
+const productName = {
+  fontSize: "15px",
+  fontWeight: "500",
+  color: "#1f2937",
+  margin: "0 0 4px",
 };
 
-const productLink = {
-  fontSize: '12px',
-  color: 'rgb(0,112,201)',
-  textDecoration: 'none',
-};
-
-const divisor = {
-  marginLeft: '4px',
-  marginRight: '4px',
-  color: 'rgb(51,51,51)',
-  fontWeight: 200,
-};
-
-const productPriceTotal = {
-  margin: '0',
-  color: 'rgb(102,102,102)',
-  fontSize: '10px',
-  fontWeight: '600',
-  padding: '0px 30px 0px 0px',
-  textAlign: 'right' as const,
+const productDesc = {
+  fontSize: "13px",
+  fontWeight: "400",
+  color: "#9ca3af",
+  margin: "0",
+  lineHeight: "1.5",
 };
 
 const productPrice = {
-  fontSize: '12px',
-  fontWeight: '600',
-  margin: '0',
+  fontSize: "15px",
+  fontWeight: "400",
+  color: "#374151",
+  margin: "0",
 };
 
-const productPriceLarge = {
-  margin: '0px 20px 0px 0px',
-  fontSize: '16px',
-  fontWeight: '600',
-  whiteSpace: 'nowrap' as const,
-  textAlign: 'right' as const,
+const totalRow = {
+  marginTop: "4px",
 };
 
-const productPriceWrapper = {
-  display: 'table-cell',
-  padding: '0px 20px 0px 0px',
-  width: '100px',
-  verticalAlign: 'top',
+const totalLabel = {
+  fontSize: "11px",
+  fontWeight: "500",
+  letterSpacing: "0.08em",
+  color: "#9ca3af",
+  textTransform: "uppercase" as const,
+  margin: "0",
 };
 
-const productPriceLine = { margin: '30px 0 0 0' };
-
-const productPriceVerticalLine = {
-  height: '48px',
-  borderLeft: '1px solid',
-  borderColor: 'rgb(238,238,238)',
+const totalAmount = {
+  fontSize: "20px",
+  fontWeight: "500",
+  color: "#1f2937",
+  margin: "0",
 };
 
-const productPriceLargeWrapper = { display: 'table-cell', width: '90px' };
-
-const productPriceLineBottom = { margin: '0 0 75px 0' };
-
-const block = { display: 'block' };
-
-const ctaTitle = {
-  display: 'block',
-  margin: '15px 0 0 0',
+const hr = {
+  borderColor: "#f3f4f6",
+  margin: "0",
 };
 
-const ctaText = { fontSize: '24px', fontWeight: '500' };
-
-const walletWrapper = { display: 'table-cell', margin: '10px 0 0 0' };
-
-const walletLink = { color: 'rgb(0,126,255)', textDecoration: 'none' };
-
-const walletImage = {
-  display: 'inherit',
-  paddingRight: '8px',
-  verticalAlign: 'middle',
-};
-
-const walletBottomLine = { margin: '65px 0 20px 0' };
-
-const footerText = {
-  fontSize: '12px',
-  color: 'rgb(102,102,102)',
-  margin: '0',
-  lineHeight: 'auto',
-  marginBottom: '16px',
-};
-
-const footerTextCenter = {
-  fontSize: '12px',
-  color: 'rgb(102,102,102)',
-  margin: '20px 0',
-  lineHeight: 'auto',
-  textAlign: 'center' as const,
-};
-
-const footerLink = { color: 'rgb(0,115,255)' };
-
-const footerIcon = { display: 'block', margin: '40px 0 0 0' };
-
-const footerLinksWrapper = {
-  margin: '8px 0 0 0',
-  textAlign: 'center' as const,
-  fontSize: '12px',
-  color: 'rgb(102,102,102)',
-};
-
-const footerCopyright = {
-  margin: '25px 0 0 0',
-  textAlign: 'center' as const,
-  fontSize: '12px',
-  color: 'rgb(102,102,102)',
-};
-
-const walletLinkText = {
-  fontSize: '14px',
-  fontWeight: '400',
-  textDecoration: 'none',
+const footer = {
+  fontSize: "13px",
+  color: "#9ca3af",
+  fontWeight: "400",
+  padding: "20px 40px",
+  margin: "0",
 };

@@ -210,7 +210,16 @@ export const patientsColumns: ColumnDef<Patient>[] = [
       <ActionsDropdown
         actions={[
           { label: "View", icon: "eye", onClick: () => console.log("View", row.original.id) },
-          { label: "View Progress", icon: "booking", onClick: () => console.log("View Progress", row.original.id) },
+          {
+            label: "View Progress",
+            icon: "booking",
+            onClick: () => {
+              const searchParams = new URLSearchParams({
+                personId: String(row.original.id),
+              });
+              window.location.assign(`/dashboard/progress?${searchParams.toString()}`);
+            },
+          },
           { label: "Schedule", icon: "calendar", onClick: () => console.log("Schedule", row.original.id) },
           { label: "Edit", icon: "edit", onClick: () => console.log("Edit", row.original.id) },
           { label: "Delete", icon: "delete", onClick: () => console.log("Delete", row.original.id), variant: "destructive", separatorBefore: true },

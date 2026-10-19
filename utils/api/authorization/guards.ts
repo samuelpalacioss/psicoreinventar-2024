@@ -454,14 +454,9 @@ async function checkAssignment(
 
         if (!progress) return createForbiddenResponse();
 
-        const appointment = await db.query.appointments.findFirst({
-          where: and(
-            eq(appointments.doctorId, doctor.id),
-            eq(appointments.personId, progress.personId),
-            eq(appointments.status, "completed")
-          ),
-        });
-        return appointment ? { allowed: true } : createForbiddenResponse();
+        // Progress records store doctorId directly — check ownership directly
+        // rather than requiring a completed appointment (that check only applies to create)
+        return progress.doctorId === doctor.id ? { allowed: true } : createForbiddenResponse();
       }
 
       default:
